@@ -1,0 +1,21 @@
+group 'org.squiddev'
+version '1.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.6
+
+repositories {
+	mavenCentral()
+
+	ivy {
+		name = "ComputerCraft"
+		artifactPattern "http://addons-origin.cursecdn.com/files/2244/605/[module][revision].[ext]"
+	}
+}
+
+dependencies {
+	compile 'ComputerCraft:ComputerCraft:1.74:jar'
+	compile 'com.squareup:javapoet:1.1.0'
+	testCompile 'junit:junit:4.11'
+}
