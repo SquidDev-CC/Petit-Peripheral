@@ -7,6 +7,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import org.squiddev.petit.conversion.from.FromLuaConverter;
 import org.squiddev.petit.processor.tree.LuaArgument;
 import org.squiddev.petit.processor.tree.LuaClass;
 import org.squiddev.petit.processor.tree.LuaMethod;
@@ -52,61 +53,92 @@ public class Writer {
 		return spec;
 	}
 
+	public static class ArgumentMeta {
+		public final FromLuaConverter converter;
+		public final String name;
+
+		public boolean required;
+
+		public ArgumentMeta(LuaArgument argument) {
+			FromLuaConverter converter = this.converter = argument.converter();
+			if (converter.requiresVariable()) {
+				name = argument.method.method.getSimpleName() + "_" + argument.parameter.getSimpleName();
+			} else {
+				name = null;
+			}
+
+			required = argument.kind == LuaArgument.KIND_REQUIRED;
+		}
+
+		public ArgumentMeta() {
+			name = null;
+			required = false;
+			converter = null;
+		}
+	}
+
 	public void writeMethod(MethodSpec.Builder spec, LuaMethod method) {
 		StringBuilder errorMessage = new StringBuilder("Expected ");
 
-		int requiredLength = 0;
-		int i = 0;
-		for (LuaArgument argument : method.arguments) {
-			spec.addStatement("$T $N", argument.parameter.asType(), argument.parameter.getSimpleName().toString() + i);
-			if (argument.kind == LuaArgument.KIND_REQUIRED) {
-				errorMessage.append(argument.converter().getName()).append(", ");
-				requiredLength++;
-			}
-			i++;
-		}
+		ArgumentMeta[] arguments = new ArgumentMeta[method.arguments.length];
+		if (method.arguments.length == 1 && method.arguments[0].kind == LuaArgument.KIND_VARARG && TypeHelpers.isObjectArray(method.arguments[0].parameter.asType())) {
+			arguments[0] = new ArgumentMeta();
+		} else {
+			int requiredLength = 0;
 
-		i = 0;
-		if (requiredLength > 0) {
-			spec.addCode("if(args.length < $L", requiredLength);
+			int i = 0;
 			for (LuaArgument argument : method.arguments) {
-				if (argument.kind == LuaArgument.KIND_REQUIRED) {
-					Segment segment = argument.converter().convertFrom("args[" + i + "]", argument.parameter.getSimpleName().toString() + i);
-					spec.addCode("|| !(" + segment.contents + ")", segment.values);
-				} else {
-					break;
+				ArgumentMeta meta = arguments[i] = new ArgumentMeta(argument);
+
+				if (meta.name != null) {
+					spec.addStatement("$T $N", argument.parameter.asType(), meta.name);
+				}
+				if (meta.required) {
+					errorMessage.append(argument.converter().getName()).append(", ");
+					requiredLength++;
 				}
 
 				i++;
 			}
-			spec.beginControlFlow(")");
-			spec.addStatement("throw new $T($S)", LuaException.class, method.errorMessage == null ? errorMessage.toString() : method.errorMessage);
-			spec.endControlFlow();
-		}
 
-		for (LuaArgument argument : method.arguments) {
-			if (argument.kind > LuaArgument.KIND_REQUIRED) {
-				if (argument.kind != LuaArgument.KIND_VARARG || !argument.getType().equals(Object[].class)) {
-					Segment segment = argument.converter().convertFrom("args[" + i + "]", argument.parameter.getSimpleName().toString() + i);
-					spec.addStatement(segment.contents, segment.values);
+			i = 0;
+			if (requiredLength > 0) {
+				spec.addCode("if(args.length < $L", requiredLength);
+				for (ArgumentMeta argument : arguments) {
+					if (argument.required) {
+						Segment segment = argument.converter.validate("args[" + i + "]", argument.name);
+						if (segment != null) spec.addCode("|| !(" + segment.contents + ")", segment.values);
+					}
+
+					i++;
 				}
-			}
 
-			i++;
+				spec.beginControlFlow(")");
+				spec.addStatement("throw new $T($S)", LuaException.class, method.errorMessage == null ? errorMessage.toString() : method.errorMessage);
+				spec.endControlFlow();
+			}
 		}
+
 
 		spec.addCode("$[");
 		if (method.method.getReturnType().getKind() != TypeKind.VOID) {
 			spec.addCode("$T $N = ", method.method.getReturnType(), "func_result");
 		}
-		spec.addCode("instance.$N(", method.method.getSimpleName());
 
-		i = 0;
-		for (LuaArgument argument : method.arguments) {
+		spec.addCode("instance.$N(", method.method.getSimpleName());
+		int i = 0;
+		for (ArgumentMeta argument : arguments) {
 			if (i > 0) {
 				spec.addCode(", ");
 			}
-			spec.addCode(argument.parameter.getSimpleName().toString() + i);
+
+			if (argument.converter == null) {
+				spec.addCode("args[" + i + "]");
+			} else {
+				Segment segment = argument.converter.getValue("args[" + i + "]", argument.name);
+				spec.addCode("(" + segment.contents + ")", segment.values);
+			}
+
 			i++;
 		}
 		spec.addCode(");$]\n");

@@ -30,8 +30,6 @@ public class LuaArgument {
 	 */
 	public int kind = KIND_REQUIRED;
 
-	private Class<?> type;
-
 	public LuaArgument(LuaMethod method, VariableElement parameter, int kind) {
 		this.parameter = parameter;
 		this.method = method;
@@ -46,26 +44,15 @@ public class LuaArgument {
 	}
 
 	public FromLuaConverter converter() {
-		return method.klass.environment.converters.getFromConverter(getType());
-	}
-
-	public Class<?> getType() {
-		return type;
+		return method.klass.environment.converters.getFromConverter(parameter.asType());
 	}
 
 	public boolean process() {
 		Messager messager = method.klass.environment.processingEnvironment.getMessager();
 
-		try {
-			type = TypeHelpers.getType(parameter);
-		} catch (ClassNotFoundException e) {
-			messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage(), parameter);
-			return false;
-		}
-
 		// We handle Object[] specially
-		if (kind != KIND_VARARG && !type.equals(Object[].class) && converter() == null) {
-			messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for " + type.toString(), parameter);
+		if (kind != KIND_VARARG && !TypeHelpers.isObjectArray(parameter.asType()) && converter() == null) {
+			messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for " + parameter.asType(), parameter);
 			return false;
 		}
 

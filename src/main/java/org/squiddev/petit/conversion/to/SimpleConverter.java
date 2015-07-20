@@ -1,15 +1,24 @@
 package org.squiddev.petit.conversion.to;
 
+import org.squiddev.petit.processor.Environment;
 import org.squiddev.petit.processor.Segment;
+
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Simply writes the result into a Object[]
  */
-public class SimpleConverter implements ToLuaConverter {
-	public static final ToLuaConverter instance = new SimpleConverter();
+public class SimpleConverter extends AbstractToLuaConverter {
+	public SimpleConverter(Environment env, Class<?> type) {
+		super(env, type);
+	}
+
+	public SimpleConverter(Environment env, TypeMirror type) {
+		super(env, type);
+	}
 
 	@Override
 	public Segment convertTo(String fromToken, String toToken) {
-		return new Segment("$N = new Object[] { $N }", toToken, fromToken);
+		return new Segment("new Object[] { $N }", fromToken);
 	}
 }

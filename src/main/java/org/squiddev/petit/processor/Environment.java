@@ -14,7 +14,7 @@ import javax.annotation.processing.RoundEnvironment;
 public class Environment {
 	public Transformers transformer = DefaultTransformers.add(new Transformers());
 
-	public Converters converters = DefaultConverters.add(new Converters());
+	public Converters converters = new Converters();
 
 	public final RoundEnvironment roundEnvironment;
 
@@ -23,5 +23,7 @@ public class Environment {
 	public Environment(RoundEnvironment roundEnvironment, ProcessingEnvironment processingEnvironment) {
 		this.roundEnvironment = roundEnvironment;
 		this.processingEnvironment = processingEnvironment;
+
+		DefaultConverters.add(this);
 	}
 }

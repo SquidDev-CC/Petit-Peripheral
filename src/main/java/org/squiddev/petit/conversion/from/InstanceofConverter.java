@@ -1,26 +1,35 @@
 package org.squiddev.petit.conversion.from;
 
+import org.squiddev.petit.processor.Environment;
 import org.squiddev.petit.processor.Segment;
+
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Simply checks if it is an instance of the class and casts it to it.
  */
-public class InstanceofConverter implements FromLuaConverter {
-	private final Class<?> type;
+public class InstanceofConverter extends AbstractFromLuaConverter {
 	private final String name;
 
-	public InstanceofConverter(Class<?> type) {
-		this(type, type.getSimpleName());
-	}
-
-	public InstanceofConverter(Class<?> type, String name) {
-		this.type = type;
+	public InstanceofConverter(Environment env, TypeMirror type, String name) {
+		super(env, type);
 		this.name = name;
 	}
 
+	public InstanceofConverter(Environment env, Class<?> type, String name) {
+		super(env, type);
+		this.name = name;
+	}
+
+
 	@Override
-	public Segment convertFrom(String fromToken, String toToken) {
-		return new Segment("$N instanceof $T && ($N = ($T)$N) != null", fromToken, type, toToken, type, fromToken);
+	public Segment validate(String from, String temp) {
+		return new Segment("$N instanceof $T", from, type);
+	}
+
+	@Override
+	public Segment getValue(String from, String temp) {
+		return new Segment("($T)$N", type, from);
 	}
 
 	@Override

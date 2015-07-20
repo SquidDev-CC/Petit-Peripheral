@@ -1,9 +1,11 @@
 package org.squiddev.petit.processor;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Array;
 
@@ -45,5 +47,26 @@ public final class TypeHelpers {
 
 	public static Class<?> getType(Element element) throws ClassNotFoundException {
 		return getType(element.asType());
+	}
+
+	public static boolean isObjectArray(TypeMirror mirror) {
+		if (mirror.getKind() == TypeKind.ARRAY) {
+			TypeMirror base = ((ArrayType) mirror).getComponentType();
+			return base.getKind() == TypeKind.DECLARED && ((TypeElement) ((DeclaredType) mirror).asElement()).getQualifiedName().toString().equals("java/lang/Object");
+		}
+
+		return false;
+	}
+
+	public static TypeKind getKind(Class<?> type) {
+		// TODO: Implement me!
+		return null;
+	}
+
+	public static TypeMirror getMirror(ProcessingEnvironment env, Class<?> type) {
+		if (type.isPrimitive()) {
+			return env.getTypeUtils().getPrimitiveType(getKind(type));
+		}
+		return env.getElementUtils().getTypeElement(type.getCanonicalName()).asType();
 	}
 }

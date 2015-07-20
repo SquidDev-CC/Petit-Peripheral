@@ -2,11 +2,12 @@ package org.squiddev.petit.processor.tree;
 
 import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.conversion.to.ToLuaConverter;
-import org.squiddev.petit.processor.TypeHelpers;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,11 +46,6 @@ public class LuaMethod {
 	 */
 	public final Set<String> names = new HashSet<String>();
 
-	/**
-	 * The type of return variable
-	 */
-	private Class<?> returnType;
-
 	public LuaMethod(LuaClass klass, ExecutableElement method) {
 		this.klass = klass;
 		this.method = method;
@@ -83,11 +79,7 @@ public class LuaMethod {
 	}
 
 	public ToLuaConverter converter() {
-		return klass.environment.converters.getToConverter(returnType);
-	}
-
-	public Class<?> getReturnType() {
-		return returnType;
+		return klass.environment.converters.getToConverter(method.getReturnType());
 	}
 
 	public boolean process() {
@@ -101,16 +93,9 @@ public class LuaMethod {
 			}
 		}
 
-		try {
-			returnType = TypeHelpers.getType(method.getReturnType());
-
-			if (returnType != void.class && converter() == null) {
-				messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for '" + returnType.getName() + "'", method);
-				success = false;
-			}
-		} catch (ClassNotFoundException e) {
-			messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage(), method);
-			success = false;
+		Types types = klass.environment.processingEnvironment.getTypeUtils();
+		if (!types.isSameType(types.getPrimitiveType(TypeKind.VOID), method.getReturnType()) && converter() == null) {
+			messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for '" + method.getReturnType() + "'", method);
 		}
 
 		int state = LuaArgument.KIND_REQUIRED;
