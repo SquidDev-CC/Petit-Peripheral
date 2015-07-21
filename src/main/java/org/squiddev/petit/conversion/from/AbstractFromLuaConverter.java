@@ -1,7 +1,6 @@
 package org.squiddev.petit.conversion.from;
 
 import org.squiddev.petit.processor.Environment;
-import org.squiddev.petit.processor.TypeHelpers;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -15,7 +14,7 @@ public abstract class AbstractFromLuaConverter implements FromLuaConverter {
 	}
 
 	public AbstractFromLuaConverter(Environment env, Class<?> type) {
-		this(env, TypeHelpers.getMirror(env.processingEnvironment, type));
+		this(env, env.typeHelpers.getMirror(type));
 	}
 
 	@Override

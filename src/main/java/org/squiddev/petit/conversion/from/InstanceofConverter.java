@@ -10,26 +10,29 @@ import javax.lang.model.type.TypeMirror;
  */
 public class InstanceofConverter extends AbstractFromLuaConverter {
 	private final String name;
+	private final TypeMirror boxed;
 
 	public InstanceofConverter(Environment env, TypeMirror type, String name) {
 		super(env, type);
 		this.name = name;
+		this.boxed = env.typeHelpers.boxType(type);
 	}
 
 	public InstanceofConverter(Environment env, Class<?> type, String name) {
 		super(env, type);
 		this.name = name;
+		this.boxed = env.typeHelpers.boxType(this.type);
 	}
 
 
 	@Override
 	public Segment validate(String from, String temp) {
-		return new Segment("$N instanceof $T", from, type);
+		return new Segment("$N instanceof $T", from, boxed);
 	}
 
 	@Override
 	public Segment getValue(String from, String temp) {
-		return new Segment("($T)$N", type, from);
+		return new Segment("($T)$N", boxed, from);
 	}
 
 	@Override

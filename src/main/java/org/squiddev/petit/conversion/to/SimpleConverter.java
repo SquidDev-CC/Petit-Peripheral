@@ -18,7 +18,7 @@ public class SimpleConverter extends AbstractToLuaConverter {
 	}
 
 	@Override
-	public Segment convertTo(String fromToken, String toToken) {
+	public Segment convertTo(String fromToken) {
 		return new Segment("new Object[] { $N }", fromToken);
 	}
 }

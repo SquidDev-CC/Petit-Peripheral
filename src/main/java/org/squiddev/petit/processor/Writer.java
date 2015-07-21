@@ -55,11 +55,13 @@ public class Writer {
 
 	public static class ArgumentMeta {
 		public final FromLuaConverter converter;
+		public final LuaArgument argument;
 		public final String name;
 
 		public boolean required;
 
 		public ArgumentMeta(LuaArgument argument) {
+			this.argument = argument;
 			FromLuaConverter converter = this.converter = argument.converter();
 			if (converter.requiresVariable()) {
 				name = argument.method.method.getSimpleName() + "_" + argument.parameter.getSimpleName();
@@ -71,6 +73,7 @@ public class Writer {
 		}
 
 		public ArgumentMeta() {
+			argument = null;
 			name = null;
 			required = false;
 			converter = null;
@@ -81,7 +84,7 @@ public class Writer {
 		StringBuilder errorMessage = new StringBuilder("Expected ");
 
 		ArgumentMeta[] arguments = new ArgumentMeta[method.arguments.length];
-		if (method.arguments.length == 1 && method.arguments[0].kind == LuaArgument.KIND_VARARG && TypeHelpers.isObjectArray(method.arguments[0].parameter.asType())) {
+		if (method.arguments.length == 1 && method.arguments[0].kind == LuaArgument.KIND_VARARG && method.klass.environment.typeHelpers.isObjectArray(method.arguments[0].parameter.asType())) {
 			arguments[0] = new ArgumentMeta();
 		} else {
 			int requiredLength = 0;
@@ -122,7 +125,7 @@ public class Writer {
 
 		spec.addCode("$[");
 		if (method.method.getReturnType().getKind() != TypeKind.VOID) {
-			spec.addCode("$T $N = ", method.method.getReturnType(), "func_result");
+			spec.addCode("$T $N = ", method.method.getReturnType(), "funcResult");
 		}
 
 		spec.addCode("instance.$N(", method.method.getSimpleName());
@@ -132,11 +135,16 @@ public class Writer {
 				spec.addCode(", ");
 			}
 
-			if (argument.converter == null) {
-				spec.addCode("args[" + i + "]");
+			if (argument.argument == null || argument.argument.kind == LuaArgument.KIND_VARARG) {
+				spec.addCode("args");
 			} else {
-				Segment segment = argument.converter.getValue("args[" + i + "]", argument.name);
-				spec.addCode("(" + segment.contents + ")", segment.values);
+				Segment segment;
+
+				if (argument.converter == null || (segment = argument.converter.getValue("args[" + i + "]", argument.name)) == null) {
+					spec.addCode("args[" + i + "]");
+				} else {
+					spec.addCode("(" + segment.contents + ")", segment.values);
+				}
 			}
 
 			i++;
@@ -144,14 +152,14 @@ public class Writer {
 		spec.addCode(");$]\n");
 
 		if (method.method.getReturnType().getKind() != TypeKind.VOID) {
-			spec.addStatement("Object[] func_return");
-			Segment segment = method.converter().convertTo("func_result", "func_return");
-			if (segment.contents.startsWith("$[")) {
-				spec.addCode(segment.contents, segment.values);
+			Segment segment = method.converter().convertTo("funcResult");
+			if (segment == null) {
+				spec.addStatement("return funcResult");
 			} else {
-				spec.addStatement(segment.contents, segment.values);
+				spec.addStatement("return " + segment.contents, segment.values);
 			}
-			spec.addStatement("return func_return");
+		} else {
+			spec.addStatement("return null");
 		}
 	}
 

@@ -1,7 +1,7 @@
 package org.squiddev.petit.processor.tree;
 
 import org.squiddev.petit.conversion.from.FromLuaConverter;
-import org.squiddev.petit.processor.TypeHelpers;
+import org.squiddev.petit.processor.Environment;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.VariableElement;
@@ -48,10 +48,11 @@ public class LuaArgument {
 	}
 
 	public boolean process() {
-		Messager messager = method.klass.environment.processingEnvironment.getMessager();
+		Environment env = method.klass.environment;
+		Messager messager = env.getMessager();
 
 		// We handle Object[] specially
-		if (kind != KIND_VARARG && !TypeHelpers.isObjectArray(parameter.asType()) && converter() == null) {
+		if (!(kind == KIND_VARARG && env.typeHelpers.isObjectArray(parameter.asType())) && converter() == null) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for " + parameter.asType(), parameter);
 			return false;
 		}

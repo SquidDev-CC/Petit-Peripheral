@@ -94,7 +94,7 @@ public class LuaMethod {
 		}
 
 		Types types = klass.environment.processingEnvironment.getTypeUtils();
-		if (!types.isSameType(types.getPrimitiveType(TypeKind.VOID), method.getReturnType()) && converter() == null) {
+		if (!types.isSameType(types.getNoType(TypeKind.VOID), method.getReturnType()) && converter() == null) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for '" + method.getReturnType() + "'", method);
 		}
 

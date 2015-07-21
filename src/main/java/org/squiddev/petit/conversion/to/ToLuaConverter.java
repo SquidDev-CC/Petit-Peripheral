@@ -17,21 +17,10 @@ public interface ToLuaConverter {
 	boolean matches(TypeMirror type);
 
 	/**
-	 * Returns if an intermediate variable is required.
-	 *
-	 * @return The intermediate variable.
-	 */
-	boolean requiresVariable();
-
-	/**
 	 * Returns an expression that converts from {@code from}.
 	 *
-	 * You may also write to {@code to} if {@link #requiresVariable()} is true. However this will be overridden by the
-	 * final result of this expression.
-	 *
 	 * @param from The expression that contains the value.
-	 * @param to   {@code null} if {@link #requiresVariable()} is {@code false}, otherwise a variable you can write to.
 	 * @return The conversion expression, or {@code null} if none is required.
 	 */
-	Segment convertTo(String from, String to);
+	Segment convertTo(String from);
 }

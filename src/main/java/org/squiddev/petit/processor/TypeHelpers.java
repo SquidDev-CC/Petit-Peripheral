@@ -1,19 +1,21 @@
 package org.squiddev.petit.processor;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.*;
 import java.lang.reflect.Array;
 
 /**
  * Helpers for type
  */
 public final class TypeHelpers {
-	public static Class<?> getType(TypeMirror mirror) throws ClassNotFoundException {
+	private final ProcessingEnvironment environment;
+
+	public TypeHelpers(ProcessingEnvironment environment) {
+		this.environment = environment;
+	}
+
+	public Class<?> getType(TypeMirror mirror) throws ClassNotFoundException {
 		switch (mirror.getKind()) {
 			case BOOLEAN:
 				return boolean.class;
@@ -23,6 +25,8 @@ public final class TypeHelpers {
 				return short.class;
 			case INT:
 				return int.class;
+			case LONG:
+				return long.class;
 			case CHAR:
 				return char.class;
 			case FLOAT:
@@ -45,28 +49,64 @@ public final class TypeHelpers {
 		}
 	}
 
-	public static Class<?> getType(Element element) throws ClassNotFoundException {
-		return getType(element.asType());
-	}
-
-	public static boolean isObjectArray(TypeMirror mirror) {
+	public boolean isObjectArray(TypeMirror mirror) {
 		if (mirror.getKind() == TypeKind.ARRAY) {
 			TypeMirror base = ((ArrayType) mirror).getComponentType();
-			return base.getKind() == TypeKind.DECLARED && ((TypeElement) ((DeclaredType) mirror).asElement()).getQualifiedName().toString().equals("java/lang/Object");
+			return base.getKind() == TypeKind.DECLARED && ((TypeElement) ((DeclaredType) base).asElement()).getQualifiedName().toString().equals("java.lang.Object");
 		}
 
 		return false;
 	}
 
-	public static TypeKind getKind(Class<?> type) {
-		// TODO: Implement me!
+	public TypeMirror boxType(TypeMirror mirror) {
+		switch (mirror.getKind()) {
+			case BOOLEAN:
+			case BYTE:
+			case SHORT:
+			case INT:
+			case LONG:
+			case CHAR:
+			case FLOAT:
+			case DOUBLE:
+				return environment.getTypeUtils().boxedClass((PrimitiveType) mirror).asType();
+			case ARRAY:
+				return environment.getTypeUtils().getArrayType(boxType(((ArrayType) mirror).getComponentType()));
+			default:
+				return mirror;
+		}
+	}
+
+	private TypeKind getKind(Class<?> type) {
+		if (type == boolean.class) {
+			return TypeKind.BOOLEAN;
+		} else if (type == byte.class) {
+			return TypeKind.BYTE;
+		} else if (type == short.class) {
+			return TypeKind.SHORT;
+		} else if (type == int.class) {
+			return TypeKind.INT;
+		} else if (type == long.class) {
+			return TypeKind.LONG;
+		} else if (type == char.class) {
+			return TypeKind.CHAR;
+		} else if (type == float.class) {
+			return TypeKind.FLOAT;
+		} else if (type == double.class) {
+			return TypeKind.DOUBLE;
+		} else if (type == void.class) {
+			return TypeKind.VOID;
+		}
+
 		return null;
 	}
 
-	public static TypeMirror getMirror(ProcessingEnvironment env, Class<?> type) {
+	public TypeMirror getMirror(Class<?> type) {
 		if (type.isPrimitive()) {
-			return env.getTypeUtils().getPrimitiveType(getKind(type));
+			return environment.getTypeUtils().getPrimitiveType(getKind(type));
+		} else if (type.isArray()) {
+			return environment.getTypeUtils().getArrayType(getMirror(type.getComponentType()));
 		}
-		return env.getElementUtils().getTypeElement(type.getCanonicalName()).asType();
+
+		return environment.getElementUtils().getTypeElement(type.getCanonicalName()).asType();
 	}
 }
