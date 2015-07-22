@@ -2,10 +2,12 @@ package org.squiddev.petit.processor;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
+import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.api.Peripheral;
 import org.squiddev.petit.processor.tree.LuaClass;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
@@ -16,7 +18,8 @@ import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collections;
+import java.lang.annotation.Annotation;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -24,10 +27,17 @@ import java.util.Set;
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class PeripheralProcessor extends AbstractProcessor {
+	protected Environment environment;
+
+	@Override
+	public synchronized void init(ProcessingEnvironment processingEnv) {
+		super.init(processingEnv);
+		environment = new Environment(processingEnv);
+	}
+
 	@Override
 	public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
 		try {
-			Environment environment = new Environment(roundEnvironment, processingEnv);
 			Writer writer = new Writer();
 
 			for (Element elem : roundEnvironment.getElementsAnnotatedWith(Peripheral.class)) {
@@ -62,11 +72,21 @@ public class PeripheralProcessor extends AbstractProcessor {
 			processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, buffer.toString());
 		}
 
+		environment.transformer.validate(roundEnvironment);
+
 		return true;
 	}
 
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
-		return Collections.singleton(Peripheral.class.getName());
+		Set<String> types = new HashSet<String>();
+		types.add(Peripheral.class.getName());
+		types.add(LuaFunction.class.getName());
+
+		for (Class<? extends Annotation> annotation : environment.transformer.annotations()) {
+			types.add(annotation.getName());
+		}
+
+		return types;
 	}
 }

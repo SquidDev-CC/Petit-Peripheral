@@ -4,8 +4,10 @@ import org.squiddev.petit.processor.tree.LuaArgument;
 import org.squiddev.petit.processor.tree.LuaClass;
 import org.squiddev.petit.processor.tree.LuaMethod;
 
+import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,60 +17,76 @@ import java.util.Map;
  * Finds annotations on the element and applies the correct transformer.
  */
 public class Transformers {
-	protected final Map<Class<? extends Annotation>, AnnotationWrapper<LuaClass, ? extends Annotation>> classTransformers = new HashMap<Class<? extends Annotation>, AnnotationWrapper<LuaClass, ? extends Annotation>>();
-	protected final Map<Class<? extends Annotation>, AnnotationWrapper<LuaMethod, ? extends Annotation>> methodTransformers = new HashMap<Class<? extends Annotation>, AnnotationWrapper<LuaMethod, ? extends Annotation>>();
-	protected final Map<Class<? extends Annotation>, AnnotationWrapper<LuaArgument, ? extends Annotation>> argumentTransformers = new HashMap<Class<? extends Annotation>, AnnotationWrapper<LuaArgument, ? extends Annotation>>();
+	protected final Map<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> transformers = new HashMap<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>>();
 
-	public <A extends Annotation> void addClassTransformer(Class<A> annotation, Transformer<LuaClass, A> transformer) {
-		if (classTransformers.containsKey(annotation)) {
+	public <A extends Annotation> void add(Class<A> annotation, Transformer<A> transformer) {
+		if (transformers.containsKey(annotation)) {
 			throw new IllegalArgumentException("Cannot override " + annotation);
 		}
-		classTransformers.put(annotation, new AnnotationWrapper<LuaClass, A>(transformer));
-	}
-
-	public <A extends Annotation> void addMethodTransformer(Class<A> annotation, Transformer<LuaMethod, A> transformer) {
-		if (methodTransformers.containsKey(annotation)) {
-			throw new IllegalArgumentException("Cannot override " + annotation);
-		}
-		methodTransformers.put(annotation, new AnnotationWrapper<LuaMethod, A>(transformer));
-	}
-
-	public <A extends Annotation> void addArgumentTransformer(Class<A> annotation, Transformer<LuaArgument, A> transformer) {
-		if (argumentTransformers.containsKey(annotation)) {
-			throw new IllegalArgumentException("Cannot override " + annotation);
-		}
-		argumentTransformers.put(annotation, new AnnotationWrapper<LuaArgument, A>(transformer));
+		transformers.put(annotation, new AnnotationWrapper<A>(transformer));
 	}
 
 	public void transform(LuaClass klass) {
-		transform(klass.klass, klass, classTransformers);
-	}
-
-	public void transform(LuaMethod method) {
-		transform(method.method, method, methodTransformers);
-	}
-
-	public void transform(LuaArgument arg) {
-		transform(arg.parameter, arg, argumentTransformers);
-	}
-
-	protected <T> void transform(Element element, T transform, Map<Class<? extends Annotation>, AnnotationWrapper<T, ? extends Annotation>> processors) {
-		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<T, ? extends Annotation>> entry : processors.entrySet()) {
-			Annotation annotation = element.getAnnotation(entry.getKey());
-			if (annotation != null) entry.getValue().transform(transform, annotation);
+		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
+			Annotation annotation = klass.klass.getAnnotation(entry.getKey());
+			if (annotation != null) entry.getValue().transform(klass, annotation);
 		}
 	}
 
-	protected static class AnnotationWrapper<T, A extends Annotation> {
-		public final Transformer<T, A> transformer;
+	public void transform(LuaMethod method) {
+		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
+			Annotation annotation = method.method.getAnnotation(entry.getKey());
+			if (annotation != null) entry.getValue().transform(method, annotation);
+		}
+	}
 
-		private AnnotationWrapper(Transformer<T, A> transformer) {
+	public void transform(LuaArgument arg) {
+		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
+			Annotation annotation = arg.parameter.getAnnotation(entry.getKey());
+			if (annotation != null) entry.getValue().transform(arg, annotation);
+		}
+	}
+
+	public boolean validate(RoundEnvironment environment) {
+		boolean success = true;
+		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
+			for (Element element : environment.getElementsAnnotatedWith(entry.getKey())) {
+				success &= entry.getValue().validate(element, element.getAnnotation(entry.getKey()));
+			}
+		}
+
+		return success;
+	}
+
+	public Collection<Class<? extends Annotation>> annotations() {
+		return transformers.keySet();
+	}
+
+	protected static class AnnotationWrapper<A extends Annotation> {
+		public final Transformer<A> transformer;
+
+		private AnnotationWrapper(Transformer<A> transformer) {
 			this.transformer = transformer;
 		}
 
 		@SuppressWarnings("unchecked")
-		public void transform(T item, Annotation annotation) {
+		public void transform(LuaClass item, Annotation annotation) {
 			transformer.transform(item, (A) annotation);
+		}
+
+		@SuppressWarnings("unchecked")
+		public void transform(LuaMethod item, Annotation annotation) {
+			transformer.transform(item, (A) annotation);
+		}
+
+		@SuppressWarnings("unchecked")
+		public void transform(LuaArgument item, Annotation annotation) {
+			transformer.transform(item, (A) annotation);
+		}
+
+		@SuppressWarnings("unchecked")
+		public boolean validate(Element item, Annotation annotation) {
+			return transformer.validate(item, (A) annotation);
 		}
 	}
 }

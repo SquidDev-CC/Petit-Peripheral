@@ -8,7 +8,6 @@ import org.squiddev.petit.transformer.Transformers;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -19,21 +18,19 @@ import java.util.Map;
  * The environment used for writing classes
  */
 public class Environment implements ProcessingEnvironment {
-	public Transformers transformer = DefaultTransformers.add(new Transformers());
+	public Transformers transformer = new Transformers();
 
 	public Converters converters = new Converters();
 
 	public final TypeHelpers typeHelpers = new TypeHelpers(this);
 
-	public final RoundEnvironment roundEnvironment;
-
 	public final ProcessingEnvironment processingEnvironment;
 
-	public Environment(RoundEnvironment roundEnvironment, ProcessingEnvironment processingEnvironment) {
-		this.roundEnvironment = roundEnvironment;
+	public Environment(ProcessingEnvironment processingEnvironment) {
 		this.processingEnvironment = processingEnvironment;
 
 		DefaultConverters.add(this);
+		DefaultTransformers.add(this);
 	}
 
 	@Override

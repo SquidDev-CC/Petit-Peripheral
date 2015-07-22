@@ -25,9 +25,18 @@ public class PeripheralWrapper {
 		try {
 			return peripheral.callMethod(null, null, nameLookup.get(name), args);
 		} catch (LuaException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e.getMessage(), e);
 		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e.getMessage(), e);
 		}
+	}
+
+	public Runnable runMethod(final String name, final Object... args) {
+		return new Runnable() {
+			@Override
+			public void run() {
+				call(name, args);
+			}
+		};
 	}
 }

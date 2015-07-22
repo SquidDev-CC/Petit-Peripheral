@@ -24,6 +24,34 @@ public class Validation {
 		wrapper.call("array", 1, 2, 3);
 	}
 
+	@Test
+	public void defaultMode() {
+		wrapper.call("defaultMode", 1.0, 2);
+		wrapper.call("defaultMode", 1.0, 2, 3);
+
+		ExpectException.expect(
+			"Expected number, number",
+			wrapper.runMethod("defaultMode"),
+			wrapper.runMethod("defaultMode", "foo"),
+			wrapper.runMethod("defaultMode", 1.0, false),
+			wrapper.runMethod("defaultMode", "foo", 2)
+		);
+	}
+
+	@Test
+	public void testingError() {
+		wrapper.call("testingError", 1.0, 2);
+		wrapper.call("testingError", 1.0, 2, 3);
+
+		ExpectException.expect(
+			"I expected better of you!",
+			wrapper.runMethod("testingError"),
+			wrapper.runMethod("testingError", "foo"),
+			wrapper.runMethod("testingError", 1.0, false),
+			wrapper.runMethod("testingError", "foo", 2)
+		);
+	}
+
 	@Peripheral("peripheral")
 	public static class Embed {
 		@LuaFunction

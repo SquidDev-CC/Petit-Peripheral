@@ -57,7 +57,7 @@ public class LuaMethod {
 
 		// Get default error message
 		String errorMessage = function.error();
-		this.errorMessage = errorMessage != null && errorMessage.isEmpty() ? null : errorMessage;
+		this.errorMessage = errorMessage == null || errorMessage.isEmpty() ? null : errorMessage;
 
 		// Create the names of this function
 		String[] luaName = function.value();

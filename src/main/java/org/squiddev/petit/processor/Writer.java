@@ -117,7 +117,12 @@ public class Writer {
 				}
 
 				spec.beginControlFlow(")");
-				spec.addStatement("throw new $T($S)", LuaException.class, method.errorMessage == null ? errorMessage.toString() : method.errorMessage);
+				String message = method.errorMessage;
+				if (message == null) {
+					message = errorMessage.toString();
+					message = message.substring(0, message.length() - 2);
+				}
+				spec.addStatement("throw new $T($S)", LuaException.class, message);
 				spec.endControlFlow();
 			}
 		}

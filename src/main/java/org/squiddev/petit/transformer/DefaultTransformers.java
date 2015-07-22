@@ -1,6 +1,7 @@
 package org.squiddev.petit.transformer;
 
 import org.squiddev.petit.api.Alias;
+import org.squiddev.petit.processor.Environment;
 import org.squiddev.petit.processor.tree.LuaMethod;
 
 import java.util.Collections;
@@ -14,8 +15,10 @@ public final class DefaultTransformers {
 		throw new IllegalStateException("Cannot create this class");
 	}
 
-	public static <T extends Transformers> T add(T transformer) {
-		transformer.addMethodTransformer(Alias.class, new Transformer<LuaMethod, Alias>() {
+	public static <T extends Environment> T add(T environment) {
+		Transformers transformer = environment.transformer;
+
+		transformer.add(Alias.class, new AbstractTransformer<Alias>(environment) {
 			@Override
 			public void transform(LuaMethod target, Alias annotation) {
 				String[] names = annotation.value();
@@ -24,6 +27,6 @@ public final class DefaultTransformers {
 			}
 		});
 
-		return transformer;
+		return environment;
 	}
 }
