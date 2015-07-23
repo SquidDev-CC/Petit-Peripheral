@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class AbstractTransformer<T extends Annotation> implements Transformer<T> {
+public abstract class AbstractTransformer<T extends Annotation> implements Transformer<T> {
 	protected final Environment environment;
 
 	public AbstractTransformer(Environment environment) {
@@ -26,17 +26,14 @@ public class AbstractTransformer<T extends Annotation> implements Transformer<T>
 
 	@Override
 	public void transform(LuaClass klass, T annotation) {
-
 	}
 
 	@Override
 	public void transform(LuaMethod method, T annotation) {
-
 	}
 
 	@Override
 	public void transform(LuaArgument argument, T annotation) {
-
 	}
 
 	@Override

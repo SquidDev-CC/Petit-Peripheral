@@ -5,21 +5,20 @@ import org.squiddev.petit.processor.Environment;
 import javax.lang.model.type.TypeMirror;
 
 public abstract class AbstractFromLuaConverter implements FromLuaConverter {
-	protected final TypeMirror type;
-	private final Environment environment;
+	protected final Environment environment;
 
-	public AbstractFromLuaConverter(Environment env, TypeMirror type) {
-		this.type = type;
+	public AbstractFromLuaConverter(Environment env) {
 		this.environment = env;
 	}
 
-	public AbstractFromLuaConverter(Environment env, Class<?> type) {
-		this(env, env.typeHelpers.getMirror(type));
-	}
+	public abstract Iterable<TypeMirror> getTypes();
 
 	@Override
 	public boolean matches(TypeMirror type) {
-		return environment.processingEnvironment.getTypeUtils().isSameType(this.type, type);
+		for (TypeMirror match : getTypes()) {
+			if (environment.processingEnvironment.getTypeUtils().isSameType(match, type)) return true;
+		}
+		return false;
 	}
 
 	@Override

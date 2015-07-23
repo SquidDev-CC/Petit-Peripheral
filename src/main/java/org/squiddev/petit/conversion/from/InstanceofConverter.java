@@ -4,39 +4,43 @@ import org.squiddev.petit.processor.Environment;
 import org.squiddev.petit.processor.Segment;
 
 import javax.lang.model.type.TypeMirror;
+import java.util.Collections;
 
 /**
  * Simply checks if it is an instance of the class and casts it to it.
  */
 public class InstanceofConverter extends AbstractFromLuaConverter {
-	private final String name;
-	private final TypeMirror boxed;
+	protected final String name;
+	protected final TypeMirror type;
 
 	public InstanceofConverter(Environment env, TypeMirror type, String name) {
-		super(env, type);
+		super(env);
 		this.name = name;
-		this.boxed = env.typeHelpers.boxType(type);
+		this.type = type;
 	}
 
 	public InstanceofConverter(Environment env, Class<?> type, String name) {
-		super(env, type);
-		this.name = name;
-		this.boxed = env.typeHelpers.boxType(this.type);
+		this(env, env.typeHelpers.getMirror(type), name);
 	}
 
 
 	@Override
 	public Segment validate(String from, String temp) {
-		return new Segment("$N instanceof $T", from, boxed);
+		return new Segment("$N instanceof $T", from, type);
 	}
 
 	@Override
 	public Segment getValue(String from, String temp) {
-		return new Segment("($T)$N", boxed, from);
+		return new Segment("($T)$N", type, from);
 	}
 
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public Iterable<TypeMirror> getTypes() {
+		return Collections.singleton(type);
 	}
 }

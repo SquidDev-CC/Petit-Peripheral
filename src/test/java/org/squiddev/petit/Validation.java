@@ -26,8 +26,8 @@ public class Validation {
 
 	@Test
 	public void defaultMode() {
-		wrapper.call("defaultMode", 1.0, 2);
-		wrapper.call("defaultMode", 1.0, 2, 3);
+		wrapper.call("defaultMode", 1, 2);
+		wrapper.call("defaultMode", 1, 2, 3);
 
 		ExpectException.expect(
 			"Expected number, number",
@@ -40,14 +40,14 @@ public class Validation {
 
 	@Test
 	public void testingError() {
-		wrapper.call("testingError", 1.0, 2);
-		wrapper.call("testingError", 1.0, 2, 3);
+		wrapper.call("testingError", 1, 2);
+		wrapper.call("testingError", 1, 2, 3);
 
 		ExpectException.expect(
 			"I expected better of you!",
 			wrapper.runMethod("testingError"),
 			wrapper.runMethod("testingError", "foo"),
-			wrapper.runMethod("testingError", 1.0, false),
+			wrapper.runMethod("testingError", 1, false),
 			wrapper.runMethod("testingError", "foo", 2)
 		);
 	}

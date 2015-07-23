@@ -2,9 +2,14 @@ package org.squiddev.petit.conversion;
 
 import org.squiddev.petit.conversion.from.AbstractFromLuaConverter;
 import org.squiddev.petit.conversion.from.InstanceofConverter;
+import org.squiddev.petit.conversion.from.NumberConverter;
 import org.squiddev.petit.conversion.to.SimpleConverter;
 import org.squiddev.petit.processor.Environment;
 import org.squiddev.petit.processor.Segment;
+
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import java.util.Collections;
 
 public final class DefaultConverters {
 	private DefaultConverters() {
@@ -13,7 +18,12 @@ public final class DefaultConverters {
 
 	public static <T extends Environment> T add(T env) {
 		Converters converter = env.converters;
-		converter.addFromConverter(new AbstractFromLuaConverter(env, Object.class) {
+		converter.addFromConverter(new AbstractFromLuaConverter(env) {
+			@Override
+			public Iterable<TypeMirror> getTypes() {
+				return Collections.singleton(environment.typeHelpers.getMirror(Object.class));
+			}
+
 			@Override
 			public Segment validate(String from, String temp) {
 				return null;
@@ -30,10 +40,12 @@ public final class DefaultConverters {
 			}
 		});
 
-		converter.addFromConverter(new InstanceofConverter(env, int.class, "number"));
-		converter.addFromConverter(new InstanceofConverter(env, float.class, "number"));
-		converter.addFromConverter(new InstanceofConverter(env, double.class, "number"));
-		converter.addFromConverter(new InstanceofConverter(env, byte.class, "number"));
+		converter.addFromConverter(new NumberConverter(env, TypeKind.BYTE));
+		converter.addFromConverter(new NumberConverter(env, TypeKind.SHORT));
+		converter.addFromConverter(new NumberConverter(env, TypeKind.INT));
+		converter.addFromConverter(new NumberConverter(env, TypeKind.LONG));
+		converter.addFromConverter(new NumberConverter(env, TypeKind.FLOAT));
+		converter.addFromConverter(new NumberConverter(env, TypeKind.DOUBLE));
 		converter.addFromConverter(new InstanceofConverter(env, String.class, "string"));
 
 		converter.addToConverter(new SimpleConverter(env, byte.class));
