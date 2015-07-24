@@ -2,19 +2,28 @@ package org.squiddev.petit.processor;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.*;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Array;
 
 /**
  * Helpers for type
  */
-public final class TypeHelpers {
+public final class TypeHelpers implements org.squiddev.petit.api.compile.TypeHelpers {
 	private final ProcessingEnvironment environment;
+
+	private final TypeMirror object;
+	private final ArrayType objectArray;
 
 	public TypeHelpers(ProcessingEnvironment environment) {
 		this.environment = environment;
+		object = environment.getElementUtils().getTypeElement("java.lang.Object").asType();
+		objectArray = environment.getTypeUtils().getArrayType(object);
 	}
 
+	@Override
 	public Class<?> getType(TypeMirror mirror) throws ClassNotFoundException {
 		switch (mirror.getKind()) {
 			case BOOLEAN:
@@ -49,33 +58,6 @@ public final class TypeHelpers {
 		}
 	}
 
-	public boolean isObjectArray(TypeMirror mirror) {
-		if (mirror.getKind() == TypeKind.ARRAY) {
-			TypeMirror base = ((ArrayType) mirror).getComponentType();
-			return base.getKind() == TypeKind.DECLARED && ((TypeElement) ((DeclaredType) base).asElement()).getQualifiedName().toString().equals("java.lang.Object");
-		}
-
-		return false;
-	}
-
-	public TypeMirror boxType(TypeMirror mirror) {
-		switch (mirror.getKind()) {
-			case BOOLEAN:
-			case BYTE:
-			case SHORT:
-			case INT:
-			case LONG:
-			case CHAR:
-			case FLOAT:
-			case DOUBLE:
-				return environment.getTypeUtils().boxedClass((PrimitiveType) mirror).asType();
-			case ARRAY:
-				return environment.getTypeUtils().getArrayType(boxType(((ArrayType) mirror).getComponentType()));
-			default:
-				return mirror;
-		}
-	}
-
 	private TypeKind getKind(Class<?> type) {
 		if (type == boolean.class) {
 			return TypeKind.BOOLEAN;
@@ -100,6 +82,7 @@ public final class TypeHelpers {
 		return null;
 	}
 
+	@Override
 	public TypeMirror getMirror(Class<?> type) {
 		if (type.isPrimitive()) {
 			return environment.getTypeUtils().getPrimitiveType(getKind(type));
@@ -108,5 +91,25 @@ public final class TypeHelpers {
 		}
 
 		return environment.getElementUtils().getTypeElement(type.getCanonicalName()).asType();
+	}
+
+	@Override
+	public TypeMirror object() {
+		return object;
+	}
+
+	@Override
+	public ArrayType objectArray() {
+		return objectArray;
+	}
+
+	@Override
+	public boolean isObject(TypeMirror mirror) {
+		return environment.getTypeUtils().isSameType(mirror, object);
+	}
+
+	@Override
+	public boolean isObjectArray(TypeMirror mirror) {
+		return environment.getTypeUtils().isSameType(mirror, objectArray);
 	}
 }

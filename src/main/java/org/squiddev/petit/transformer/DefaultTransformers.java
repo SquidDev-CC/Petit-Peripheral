@@ -1,8 +1,8 @@
 package org.squiddev.petit.transformer;
 
 import org.squiddev.petit.api.Alias;
+import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 import org.squiddev.petit.processor.Environment;
-import org.squiddev.petit.processor.tree.LuaMethod;
 
 import java.util.Collections;
 
@@ -20,10 +20,10 @@ public final class DefaultTransformers {
 
 		transformer.add(Alias.class, new AbstractTransformer<Alias>(environment) {
 			@Override
-			public void transform(LuaMethod target, Alias annotation) {
+			public void transform(PeripheralMethod target, Alias annotation) {
 				String[] names = annotation.value();
 				if (names == null) return;
-				Collections.addAll(target.names, names);
+				Collections.addAll(target.names(), names);
 			}
 		});
 

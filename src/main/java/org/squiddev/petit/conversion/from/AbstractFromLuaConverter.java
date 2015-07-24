@@ -18,7 +18,7 @@ public abstract class AbstractFromLuaConverter implements FromLuaConverter {
 	@Override
 	public boolean matches(TypeMirror type) {
 		for (TypeMirror match : getTypes()) {
-			if (environment.processingEnvironment.getTypeUtils().isSameType(match, type)) return true;
+			if (environment.getTypeUtils().isSameType(match, type)) return true;
 		}
 		return false;
 	}

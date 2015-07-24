@@ -1,8 +1,8 @@
 package org.squiddev.petit.transformer;
 
-import org.squiddev.petit.processor.tree.LuaArgument;
-import org.squiddev.petit.processor.tree.LuaClass;
-import org.squiddev.petit.processor.tree.LuaMethod;
+import org.squiddev.petit.api.compile.tree.Argument;
+import org.squiddev.petit.api.compile.tree.PeripheralClass;
+import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
@@ -26,23 +26,23 @@ public class Transformers {
 		transformers.put(annotation, new AnnotationWrapper<A>(transformer));
 	}
 
-	public void transform(LuaClass klass) {
+	public void transform(PeripheralClass klass) {
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
-			Annotation annotation = klass.klass.getAnnotation(entry.getKey());
+			Annotation annotation = klass.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(klass, annotation);
 		}
 	}
 
-	public void transform(LuaMethod method) {
+	public void transform(PeripheralMethod method) {
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
-			Annotation annotation = method.method.getAnnotation(entry.getKey());
+			Annotation annotation = method.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(method, annotation);
 		}
 	}
 
-	public void transform(LuaArgument arg) {
+	public void transform(Argument arg) {
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
-			Annotation annotation = arg.parameter.getAnnotation(entry.getKey());
+			Annotation annotation = arg.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(arg, annotation);
 		}
 	}
@@ -70,17 +70,17 @@ public class Transformers {
 		}
 
 		@SuppressWarnings("unchecked")
-		public void transform(LuaClass item, Annotation annotation) {
+		public void transform(PeripheralClass item, Annotation annotation) {
 			transformer.transform(item, (A) annotation);
 		}
 
 		@SuppressWarnings("unchecked")
-		public void transform(LuaMethod item, Annotation annotation) {
+		public void transform(PeripheralMethod item, Annotation annotation) {
 			transformer.transform(item, (A) annotation);
 		}
 
 		@SuppressWarnings("unchecked")
-		public void transform(LuaArgument item, Annotation annotation) {
+		public void transform(Argument item, Annotation annotation) {
 			transformer.transform(item, (A) annotation);
 		}
 

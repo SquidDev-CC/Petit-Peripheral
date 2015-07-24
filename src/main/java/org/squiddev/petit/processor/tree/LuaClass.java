@@ -1,6 +1,8 @@
 package org.squiddev.petit.processor.tree;
 
 import org.squiddev.petit.api.LuaFunction;
+import org.squiddev.petit.api.compile.tree.PeripheralClass;
+import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 import org.squiddev.petit.processor.Environment;
 
 import javax.annotation.processing.Messager;
@@ -16,28 +18,11 @@ import java.util.Set;
 /**
  * Data about the class we are generating
  */
-public class LuaClass {
-	/**
-	 * The class we are generating method from
-	 */
-	public final TypeElement klass;
-
-	/**
-	 * Names this API should be bound to
-	 *
-	 * @see org.squiddev.petit.api.Peripheral#value()
-	 */
-	public final String name;
-
-	/**
-	 * List of methods this class will have
-	 */
-	public final Set<LuaMethod> methods;
-
-	/**
-	 * The transformer this class uses
-	 */
-	public final Environment environment;
+public class LuaClass implements PeripheralClass {
+	private final TypeElement klass;
+	private final String name;
+	private final Set<PeripheralMethod> methods;
+	private final Environment environment;
 
 	public LuaClass(String name, TypeElement klass, Environment environment) {
 		this.name = name;
@@ -45,7 +30,7 @@ public class LuaClass {
 		this.environment = environment;
 
 		// Gather methods
-		Set<LuaMethod> methods = this.methods = new HashSet<LuaMethod>();
+		Set<PeripheralMethod> methods = this.methods = new HashSet<PeripheralMethod>();
 		for (Element element : klass.getEnclosedElements()) {
 			if (element.getKind() == ElementKind.METHOD) {
 				ExecutableElement method = (ExecutableElement) element;
@@ -58,33 +43,55 @@ public class LuaClass {
 		environment.transformer.transform(this);
 
 		if (methods.size() == 0) {
-			environment.processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "No @LuaFunction methods on this peripheral", klass);
+			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "No @LuaFunction methods on this peripheral", klass);
 		}
 	}
 
+	@Override
 	public String getGeneratedName() {
-		String[] fullName = environment.processingEnvironment.getElementUtils().getBinaryName(klass).toString().split("\\.");
+		String[] fullName = getEnvironment().getElementUtils().getBinaryName(klass).toString().split("\\.");
 		return fullName[fullName.length - 1].replace("$", "_") + "_Peripheral";
 	}
 
+	@Override
 	public boolean process() {
 		boolean success = true;
-		Messager messager = environment.processingEnvironment.getMessager();
+		Messager messager = getEnvironment().getMessager();
 
 		Set<String> names = new HashSet<String>();
-		for (LuaMethod method : methods) {
-			for (String name : method.names) {
+		for (PeripheralMethod method : methods) {
+			for (String name : method.names()) {
 				if (!names.add(name)) {
-					messager.printMessage(Diagnostic.Kind.ERROR, "Duplicate name '" + name + "'", method.method);
+					messager.printMessage(Diagnostic.Kind.ERROR, "Duplicate name '" + name + "'", method.getElement());
 					success = false;
 				}
 			}
 		}
 
-		for (LuaMethod method : methods) {
+		for (PeripheralMethod method : methods) {
 			success &= method.process();
 		}
 
 		return success;
+	}
+
+	@Override
+	public Environment getEnvironment() {
+		return environment;
+	}
+
+	@Override
+	public TypeElement getElement() {
+		return klass;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public Set<PeripheralMethod> methods() {
+		return methods;
 	}
 }

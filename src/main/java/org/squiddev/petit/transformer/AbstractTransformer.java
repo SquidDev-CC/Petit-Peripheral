@@ -1,10 +1,9 @@
 package org.squiddev.petit.transformer;
 
 import org.squiddev.petit.api.Peripheral;
-import org.squiddev.petit.processor.Environment;
-import org.squiddev.petit.processor.tree.LuaArgument;
-import org.squiddev.petit.processor.tree.LuaClass;
-import org.squiddev.petit.processor.tree.LuaMethod;
+import org.squiddev.petit.api.compile.tree.Argument;
+import org.squiddev.petit.api.compile.tree.PeripheralClass;
+import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -17,23 +16,23 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class AbstractTransformer<T extends Annotation> implements Transformer<T> {
-	protected final Environment environment;
+	protected final org.squiddev.petit.api.compile.Environment environment;
 
-	public AbstractTransformer(Environment environment) {
+	public AbstractTransformer(org.squiddev.petit.api.compile.Environment environment) {
 		this.environment = environment;
 	}
 
 
 	@Override
-	public void transform(LuaClass klass, T annotation) {
+	public void transform(PeripheralClass klass, T annotation) {
 	}
 
 	@Override
-	public void transform(LuaMethod method, T annotation) {
+	public void transform(PeripheralMethod method, T annotation) {
 	}
 
 	@Override
-	public void transform(LuaArgument argument, T annotation) {
+	public void transform(Argument argument, T annotation) {
 	}
 
 	@Override

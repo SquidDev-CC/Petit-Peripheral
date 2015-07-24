@@ -1,5 +1,8 @@
 package org.squiddev.petit.processor.tree;
 
+import org.squiddev.petit.api.compile.tree.Argument;
+import org.squiddev.petit.api.compile.tree.ArgumentType;
+import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 import org.squiddev.petit.conversion.from.FromLuaConverter;
 import org.squiddev.petit.processor.Environment;
 
@@ -10,53 +13,60 @@ import javax.tools.Diagnostic;
 /**
  * Stores one argument of a Lua method
  */
-public class LuaArgument {
-	public final static int KIND_REQUIRED = 0;
-	public final static int KIND_OPTIONAL = 1;
-	public final static int KIND_VARARG = 2;
+public class LuaArgument implements Argument {
+	private final PeripheralMethod method;
+	private final VariableElement parameter;
+	private ArgumentType type = ArgumentType.REQUIRED;
 
-	/**
-	 * The parent method for this argument
-	 */
-	public final LuaMethod method;
-
-	/**
-	 * The parameter for this argument
-	 */
-	public final VariableElement parameter;
-
-	/**
-	 * Should this be included in the count of required arguments?
-	 */
-	public int kind = KIND_REQUIRED;
-
-	public LuaArgument(LuaMethod method, VariableElement parameter, int kind) {
+	public LuaArgument(PeripheralMethod method, VariableElement parameter, ArgumentType type) {
 		this.parameter = parameter;
 		this.method = method;
-		this.kind = kind;
+		this.type = type;
 
-		method.klass.environment.transformer.transform(this);
+		method.getEnvironment().transformer.transform(this);
 	}
 
 	@Override
-	public String toString() {
-		return "LuaArgument<" + parameter + ">";
-	}
-
-	public FromLuaConverter converter() {
-		return method.klass.environment.converters.getFromConverter(parameter.asType());
-	}
-
 	public boolean process() {
-		Environment env = method.klass.environment;
+		Environment env = getEnvironment();
 		Messager messager = env.getMessager();
 
 		// We handle Object[] specially
-		if (!(kind == KIND_VARARG && env.typeHelpers.isObjectArray(parameter.asType())) && converter() == null) {
-			messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for " + parameter.asType(), parameter);
+		if (!(getArgumentType() == ArgumentType.REQUIRED && env.getTypeHelpers().isObjectArray(getElement().asType())) && getConverter() == null) {
+			messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for " + getElement().asType(), getElement());
 			return false;
 		}
 
 		return true;
+	}
+
+	@Override
+	public FromLuaConverter getConverter() {
+		return getEnvironment().converters.getFromConverter(parameter.asType());
+	}
+
+	@Override
+	public ArgumentType getArgumentType() {
+		return type;
+	}
+
+	@Override
+	public void setArgumentType(ArgumentType type) {
+		this.type = type;
+	}
+
+	@Override
+	public PeripheralMethod getMethod() {
+		return method;
+	}
+
+	@Override
+	public Environment getEnvironment() {
+		return getMethod().getEnvironment();
+	}
+
+	@Override
+	public VariableElement getElement() {
+		return parameter;
 	}
 }

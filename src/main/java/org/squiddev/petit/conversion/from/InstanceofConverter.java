@@ -18,7 +18,7 @@ public class InstanceofConverter extends AbstractFromLuaConverter {
 	}
 
 	public InstanceofConverter(Environment env, Class<?> type, String name) {
-		this(env, env.typeHelpers.getMirror(type), name);
+		this(env, env.getTypeHelpers().getMirror(type), name);
 	}
 
 

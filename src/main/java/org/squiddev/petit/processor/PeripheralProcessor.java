@@ -4,6 +4,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.api.Peripheral;
+import org.squiddev.petit.api.compile.tree.PeripheralClass;
 import org.squiddev.petit.processor.tree.LuaClass;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -47,7 +48,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 				}
 
 				try {
-					LuaClass klass = new LuaClass(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem, environment);
+					PeripheralClass klass = new LuaClass(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem, environment);
 
 					if (!klass.process()) continue;
 

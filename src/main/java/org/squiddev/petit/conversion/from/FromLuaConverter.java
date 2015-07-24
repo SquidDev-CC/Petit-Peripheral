@@ -5,11 +5,11 @@ import org.squiddev.petit.processor.Segment;
 import javax.lang.model.type.TypeMirror;
 
 /**
- * A converter that converts from Lua to Java values.
+ * A getConverter that converts from Lua to Java values.
  */
 public interface FromLuaConverter {
 	/**
-	 * If this converter matches the specified type
+	 * If this getConverter matches the specified type
 	 *
 	 * @param type The type to match
 	 * @return If this type is matched.

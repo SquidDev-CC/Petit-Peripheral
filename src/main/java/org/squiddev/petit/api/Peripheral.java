@@ -1,5 +1,7 @@
 package org.squiddev.petit.api;
 
+import dan200.computercraft.api.peripheral.IPeripheral;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -15,6 +17,7 @@ public @interface Peripheral {
 	 * The name of the peripheral
 	 *
 	 * @return The name of the peripheral.
+	 * @see IPeripheral#getType()
 	 */
 	String value();
 }

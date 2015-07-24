@@ -21,7 +21,7 @@ public final class DefaultConverters {
 		converter.addFromConverter(new AbstractFromLuaConverter(env, "anything") {
 			@Override
 			public Iterable<TypeMirror> getTypes() {
-				return Collections.singleton(environment.typeHelpers.getMirror(Object.class));
+				return Collections.singleton(environment.getTypeHelpers().getMirror(Object.class));
 			}
 
 			@Override

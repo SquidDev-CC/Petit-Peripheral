@@ -17,14 +17,13 @@ import java.util.Map;
 /**
  * The environment used for writing classes
  */
-public class Environment implements ProcessingEnvironment {
+public class Environment implements org.squiddev.petit.api.compile.Environment {
 	public Transformers transformer = new Transformers();
 
 	public Converters converters = new Converters();
 
-	public final TypeHelpers typeHelpers = new TypeHelpers(this);
-
-	public final ProcessingEnvironment processingEnvironment;
+	private final org.squiddev.petit.api.compile.TypeHelpers typeHelpers = new TypeHelpers(this);
+	private final ProcessingEnvironment processingEnvironment;
 
 	public Environment(ProcessingEnvironment processingEnvironment) {
 		this.processingEnvironment = processingEnvironment;
@@ -66,5 +65,10 @@ public class Environment implements ProcessingEnvironment {
 	@Override
 	public Locale getLocale() {
 		return processingEnvironment.getLocale();
+	}
+
+	@Override
+	public org.squiddev.petit.api.compile.TypeHelpers getTypeHelpers() {
+		return typeHelpers;
 	}
 }

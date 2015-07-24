@@ -1,8 +1,8 @@
 package org.squiddev.petit.transformer;
 
-import org.squiddev.petit.processor.tree.LuaArgument;
-import org.squiddev.petit.processor.tree.LuaClass;
-import org.squiddev.petit.processor.tree.LuaMethod;
+import org.squiddev.petit.api.compile.tree.Argument;
+import org.squiddev.petit.api.compile.tree.PeripheralClass;
+import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 
 import javax.lang.model.element.Element;
 import java.lang.annotation.Annotation;
@@ -19,7 +19,7 @@ public interface Transformer<A extends Annotation> {
 	 * @param klass      The class to modify
 	 * @param annotation The annotation to modify
 	 */
-	void transform(LuaClass klass, A annotation);
+	void transform(PeripheralClass klass, A annotation);
 
 	/**
 	 * Modify a method
@@ -27,7 +27,7 @@ public interface Transformer<A extends Annotation> {
 	 * @param method     The method to modify
 	 * @param annotation The annotation to modify
 	 */
-	void transform(LuaMethod method, A annotation);
+	void transform(PeripheralMethod method, A annotation);
 
 	/**
 	 * Modify a argument
@@ -35,7 +35,7 @@ public interface Transformer<A extends Annotation> {
 	 * @param argument   The argument to modify
 	 * @param annotation The annotation to modify
 	 */
-	void transform(LuaArgument argument, A annotation);
+	void transform(Argument argument, A annotation);
 
 	/**
 	 * Validate an annotation on an item.
