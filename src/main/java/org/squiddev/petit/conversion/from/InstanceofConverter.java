@@ -10,12 +10,10 @@ import java.util.Collections;
  * Simply checks if it is an instance of the class and casts it to it.
  */
 public class InstanceofConverter extends AbstractFromLuaConverter {
-	protected final String name;
 	protected final TypeMirror type;
 
 	public InstanceofConverter(Environment env, TypeMirror type, String name) {
-		super(env);
-		this.name = name;
+		super(env, name);
 		this.type = type;
 	}
 
@@ -32,11 +30,6 @@ public class InstanceofConverter extends AbstractFromLuaConverter {
 	@Override
 	public Segment getValue(String from, String temp) {
 		return new Segment("($T)$N", type, from);
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override

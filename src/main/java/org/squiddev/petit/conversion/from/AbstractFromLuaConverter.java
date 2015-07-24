@@ -6,9 +6,11 @@ import javax.lang.model.type.TypeMirror;
 
 public abstract class AbstractFromLuaConverter implements FromLuaConverter {
 	protected final Environment environment;
+	protected final String name;
 
-	public AbstractFromLuaConverter(Environment env) {
+	public AbstractFromLuaConverter(Environment env, String name) {
 		this.environment = env;
+		this.name = name;
 	}
 
 	public abstract Iterable<TypeMirror> getTypes();
@@ -19,6 +21,11 @@ public abstract class AbstractFromLuaConverter implements FromLuaConverter {
 			if (environment.processingEnvironment.getTypeUtils().isSameType(match, type)) return true;
 		}
 		return false;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override

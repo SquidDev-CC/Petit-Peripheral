@@ -2,7 +2,7 @@ package org.squiddev.petit.conversion;
 
 import org.squiddev.petit.conversion.from.AbstractFromLuaConverter;
 import org.squiddev.petit.conversion.from.InstanceofConverter;
-import org.squiddev.petit.conversion.from.NumberConverter;
+import org.squiddev.petit.conversion.from.PrimitiveTypeConverter;
 import org.squiddev.petit.conversion.to.SimpleConverter;
 import org.squiddev.petit.processor.Environment;
 import org.squiddev.petit.processor.Segment;
@@ -18,7 +18,7 @@ public final class DefaultConverters {
 
 	public static <T extends Environment> T add(T env) {
 		Converters converter = env.converters;
-		converter.addFromConverter(new AbstractFromLuaConverter(env) {
+		converter.addFromConverter(new AbstractFromLuaConverter(env, "anything") {
 			@Override
 			public Iterable<TypeMirror> getTypes() {
 				return Collections.singleton(environment.typeHelpers.getMirror(Object.class));
@@ -26,26 +26,20 @@ public final class DefaultConverters {
 
 			@Override
 			public Segment validate(String from, String temp) {
-				return null;
+				return new Segment("$N != null", from);
 			}
 
 			@Override
 			public Segment getValue(String from, String temp) {
 				return null;
 			}
-
-			@Override
-			public String getName() {
-				return "anything";
-			}
 		});
 
-		converter.addFromConverter(new NumberConverter(env, TypeKind.BYTE));
-		converter.addFromConverter(new NumberConverter(env, TypeKind.SHORT));
-		converter.addFromConverter(new NumberConverter(env, TypeKind.INT));
-		converter.addFromConverter(new NumberConverter(env, TypeKind.LONG));
-		converter.addFromConverter(new NumberConverter(env, TypeKind.FLOAT));
-		converter.addFromConverter(new NumberConverter(env, TypeKind.DOUBLE));
+		for (TypeKind type : new TypeKind[]{TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG, TypeKind.FLOAT, TypeKind.DOUBLE}) {
+			converter.addFromConverter(new PrimitiveTypeConverter.NumberConverter(env, type));
+		}
+		converter.addFromConverter(new PrimitiveTypeConverter(env, TypeKind.BOOLEAN, "boolean"));
+		converter.addFromConverter(new PrimitiveTypeConverter.CharConverter(env));
 		converter.addFromConverter(new InstanceofConverter(env, String.class, "string"));
 
 		converter.addToConverter(new SimpleConverter(env, byte.class));

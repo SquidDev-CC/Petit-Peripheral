@@ -28,6 +28,9 @@ public class Validation {
 	public void defaultMode() {
 		wrapper.call("defaultMode", 1, 2);
 		wrapper.call("defaultMode", 1, 2, 3);
+		wrapper.call("defaultMode", 1, 2.0);
+		wrapper.call("defaultMode", 1, 2.0f);
+		wrapper.call("defaultMode", (byte) 1, (long) 2);
 
 		ExpectException.expect(
 			"Expected number, number",
@@ -40,15 +43,17 @@ public class Validation {
 
 	@Test
 	public void testingError() {
-		wrapper.call("testingError", 1, 2);
-		wrapper.call("testingError", 1, 2, 3);
+		wrapper.call("testingError", 1, "a");
+		wrapper.call("testingError", 1, "b", "something");
 
 		ExpectException.expect(
 			"I expected better of you!",
 			wrapper.runMethod("testingError"),
 			wrapper.runMethod("testingError", "foo"),
 			wrapper.runMethod("testingError", 1, false),
-			wrapper.runMethod("testingError", "foo", 2)
+			wrapper.runMethod("testingError", "foo", 2),
+			wrapper.runMethod("testingError", 1, ""),
+			wrapper.runMethod("testingError", 1, "  ")
 		);
 	}
 
@@ -67,7 +72,7 @@ public class Validation {
 		}
 
 		@LuaFunction(error = "I expected better of you!")
-		public void testingError(double a, int b) {
+		public void testingError(double a, char b) {
 		}
 	}
 }
