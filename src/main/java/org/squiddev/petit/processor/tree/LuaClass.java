@@ -1,9 +1,9 @@
 package org.squiddev.petit.processor.tree;
 
 import org.squiddev.petit.api.LuaFunction;
+import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.tree.PeripheralClass;
 import org.squiddev.petit.api.compile.tree.PeripheralMethod;
-import org.squiddev.petit.processor.Environment;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
@@ -40,7 +40,7 @@ public class LuaClass implements PeripheralClass {
 			}
 		}
 
-		environment.transformer.transform(this);
+		environment.getTransformer().transform(this);
 
 		if (methods.size() == 0) {
 			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "No @LuaFunction methods on this peripheral", klass);

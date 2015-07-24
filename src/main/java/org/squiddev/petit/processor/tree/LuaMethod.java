@@ -1,12 +1,12 @@
 package org.squiddev.petit.processor.tree;
 
 import org.squiddev.petit.api.LuaFunction;
+import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.converter.ToLuaConverter;
 import org.squiddev.petit.api.compile.tree.Argument;
 import org.squiddev.petit.api.compile.tree.ArgumentType;
 import org.squiddev.petit.api.compile.tree.PeripheralClass;
 import org.squiddev.petit.api.compile.tree.PeripheralMethod;
-import org.squiddev.petit.conversion.to.ToLuaConverter;
-import org.squiddev.petit.processor.Environment;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.ExecutableElement;
@@ -54,12 +54,12 @@ public class LuaMethod implements PeripheralMethod {
 		}
 		this.arguments = Collections.unmodifiableList(Arrays.asList(arguments));
 
-		getEnvironment().transformer.transform(this);
+		getEnvironment().getTransformer().transform(this);
 	}
 
 	@Override
 	public ToLuaConverter getConverter() {
-		return getEnvironment().converters.getToConverter(method.getReturnType());
+		return getEnvironment().getConverter().getToConverter(method.getReturnType());
 	}
 
 	@Override

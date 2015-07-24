@@ -1,4 +1,4 @@
-package org.squiddev.petit.transformer;
+package org.squiddev.petit.api.compile.transformer;
 
 import org.squiddev.petit.api.compile.tree.Argument;
 import org.squiddev.petit.api.compile.tree.PeripheralClass;

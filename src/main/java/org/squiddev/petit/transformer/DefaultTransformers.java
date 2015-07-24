@@ -1,8 +1,9 @@
 package org.squiddev.petit.transformer;
 
 import org.squiddev.petit.api.Alias;
+import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.transformer.TransformerContainer;
 import org.squiddev.petit.api.compile.tree.PeripheralMethod;
-import org.squiddev.petit.processor.Environment;
 
 import java.util.Collections;
 
@@ -16,7 +17,7 @@ public final class DefaultTransformers {
 	}
 
 	public static <T extends Environment> T add(T environment) {
-		Transformers transformer = environment.transformer;
+		TransformerContainer transformer = environment.getTransformer();
 
 		transformer.add(Alias.class, new AbstractTransformer<Alias>(environment) {
 			@Override

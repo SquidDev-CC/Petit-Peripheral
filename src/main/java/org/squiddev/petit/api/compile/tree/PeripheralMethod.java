@@ -1,6 +1,6 @@
 package org.squiddev.petit.api.compile.tree;
 
-import org.squiddev.petit.conversion.to.ToLuaConverter;
+import org.squiddev.petit.api.compile.converter.ToLuaConverter;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Collection;

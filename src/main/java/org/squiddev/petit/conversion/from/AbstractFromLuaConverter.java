@@ -1,6 +1,7 @@
 package org.squiddev.petit.conversion.from;
 
-import org.squiddev.petit.processor.Environment;
+import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.converter.FromLuaConverter;
 
 import javax.lang.model.type.TypeMirror;
 

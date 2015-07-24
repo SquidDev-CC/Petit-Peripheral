@@ -1,11 +1,11 @@
-package org.squiddev.petit.conversion.from;
+package org.squiddev.petit.api.compile.converter;
 
 import org.squiddev.petit.processor.Segment;
 
 import javax.lang.model.type.TypeMirror;
 
 /**
- * A getConverter that converts from Lua to Java values.
+ * A converter that converts from Lua to Java values.
  */
 public interface FromLuaConverter {
 	/**

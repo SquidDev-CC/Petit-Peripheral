@@ -7,11 +7,11 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import org.squiddev.petit.api.compile.converter.FromLuaConverter;
 import org.squiddev.petit.api.compile.tree.Argument;
 import org.squiddev.petit.api.compile.tree.ArgumentType;
 import org.squiddev.petit.api.compile.tree.PeripheralClass;
 import org.squiddev.petit.api.compile.tree.PeripheralMethod;
-import org.squiddev.petit.conversion.from.FromLuaConverter;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeKind;

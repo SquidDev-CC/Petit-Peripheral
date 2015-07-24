@@ -1,4 +1,4 @@
-package org.squiddev.petit.conversion.to;
+package org.squiddev.petit.api.compile.converter;
 
 import org.squiddev.petit.processor.Segment;
 

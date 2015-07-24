@@ -1,10 +1,10 @@
 package org.squiddev.petit.processor.tree;
 
+import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.converter.FromLuaConverter;
 import org.squiddev.petit.api.compile.tree.Argument;
 import org.squiddev.petit.api.compile.tree.ArgumentType;
 import org.squiddev.petit.api.compile.tree.PeripheralMethod;
-import org.squiddev.petit.conversion.from.FromLuaConverter;
-import org.squiddev.petit.processor.Environment;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.VariableElement;
@@ -23,7 +23,7 @@ public class LuaArgument implements Argument {
 		this.method = method;
 		this.type = type;
 
-		method.getEnvironment().transformer.transform(this);
+		method.getEnvironment().getTransformer().transform(this);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class LuaArgument implements Argument {
 
 	@Override
 	public FromLuaConverter getConverter() {
-		return getEnvironment().converters.getFromConverter(parameter.asType());
+		return getEnvironment().getConverter().getFromConverter(parameter.asType());
 	}
 
 	@Override

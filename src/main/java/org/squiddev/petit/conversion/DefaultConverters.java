@@ -1,10 +1,11 @@
 package org.squiddev.petit.conversion;
 
+import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.converter.ConverterContainer;
 import org.squiddev.petit.conversion.from.AbstractFromLuaConverter;
 import org.squiddev.petit.conversion.from.InstanceofConverter;
 import org.squiddev.petit.conversion.from.PrimitiveTypeConverter;
 import org.squiddev.petit.conversion.to.SimpleConverter;
-import org.squiddev.petit.processor.Environment;
 import org.squiddev.petit.processor.Segment;
 
 import javax.lang.model.type.TypeKind;
@@ -17,7 +18,7 @@ public final class DefaultConverters {
 	}
 
 	public static <T extends Environment> T add(T env) {
-		Converters converter = env.converters;
+		ConverterContainer converter = env.getConverter();
 		converter.addFromConverter(new AbstractFromLuaConverter(env, "anything") {
 			@Override
 			public Iterable<TypeMirror> getTypes() {

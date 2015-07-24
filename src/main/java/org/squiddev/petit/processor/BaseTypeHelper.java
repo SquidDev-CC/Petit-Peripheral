@@ -1,5 +1,7 @@
 package org.squiddev.petit.processor;
 
+import org.squiddev.petit.api.compile.TypeHelper;
+
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
@@ -11,13 +13,13 @@ import java.lang.reflect.Array;
 /**
  * Helpers for type
  */
-public final class TypeHelpers implements org.squiddev.petit.api.compile.TypeHelpers {
+public final class BaseTypeHelper implements TypeHelper {
 	private final ProcessingEnvironment environment;
 
 	private final TypeMirror object;
 	private final ArrayType objectArray;
 
-	public TypeHelpers(ProcessingEnvironment environment) {
+	public BaseTypeHelper(ProcessingEnvironment environment) {
 		this.environment = environment;
 		object = environment.getElementUtils().getTypeElement("java.lang.Object").asType();
 		objectArray = environment.getTypeUtils().getArrayType(object);

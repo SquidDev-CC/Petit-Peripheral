@@ -1,6 +1,6 @@
 package org.squiddev.petit.api.compile.tree;
 
-import org.squiddev.petit.processor.Environment;
+import org.squiddev.petit.api.compile.Environment;
 
 import javax.lang.model.element.Element;
 

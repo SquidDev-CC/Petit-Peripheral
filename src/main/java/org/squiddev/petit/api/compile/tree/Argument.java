@@ -1,6 +1,6 @@
 package org.squiddev.petit.api.compile.tree;
 
-import org.squiddev.petit.conversion.from.FromLuaConverter;
+import org.squiddev.petit.api.compile.converter.FromLuaConverter;
 
 import javax.lang.model.element.VariableElement;
 

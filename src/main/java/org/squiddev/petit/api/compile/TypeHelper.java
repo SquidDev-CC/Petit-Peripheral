@@ -6,7 +6,7 @@ import javax.lang.model.type.TypeMirror;
 /**
  * Various helpers for working with types and type mirrors
  */
-public interface TypeHelpers {
+public interface TypeHelper {
 	/**
 	 * Gets the class for a type mirror
 	 *

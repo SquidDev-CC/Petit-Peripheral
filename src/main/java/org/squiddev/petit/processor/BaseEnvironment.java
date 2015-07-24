@@ -1,5 +1,9 @@
 package org.squiddev.petit.processor;
 
+import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.TypeHelper;
+import org.squiddev.petit.api.compile.converter.ConverterContainer;
+import org.squiddev.petit.api.compile.transformer.TransformerContainer;
 import org.squiddev.petit.conversion.Converters;
 import org.squiddev.petit.conversion.DefaultConverters;
 import org.squiddev.petit.transformer.DefaultTransformers;
@@ -17,15 +21,13 @@ import java.util.Map;
 /**
  * The environment used for writing classes
  */
-public class Environment implements org.squiddev.petit.api.compile.Environment {
-	public Transformers transformer = new Transformers();
-
-	public Converters converters = new Converters();
-
-	private final org.squiddev.petit.api.compile.TypeHelpers typeHelpers = new TypeHelpers(this);
+public class BaseEnvironment implements Environment {
+	private final TransformerContainer transformer = new Transformers();
+	private final ConverterContainer converters = new Converters();
+	private final TypeHelper typeHelper = new BaseTypeHelper(this);
 	private final ProcessingEnvironment processingEnvironment;
 
-	public Environment(ProcessingEnvironment processingEnvironment) {
+	public BaseEnvironment(ProcessingEnvironment processingEnvironment) {
 		this.processingEnvironment = processingEnvironment;
 
 		DefaultConverters.add(this);
@@ -68,7 +70,17 @@ public class Environment implements org.squiddev.petit.api.compile.Environment {
 	}
 
 	@Override
-	public org.squiddev.petit.api.compile.TypeHelpers getTypeHelpers() {
-		return typeHelpers;
+	public TypeHelper getTypeHelpers() {
+		return typeHelper;
+	}
+
+	@Override
+	public TransformerContainer getTransformer() {
+		return transformer;
+	}
+
+	@Override
+	public ConverterContainer getConverter() {
+		return converters;
 	}
 }

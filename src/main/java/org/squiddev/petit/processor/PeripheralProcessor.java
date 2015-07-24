@@ -4,6 +4,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.api.Peripheral;
+import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.tree.PeripheralClass;
 import org.squiddev.petit.processor.tree.LuaClass;
 
@@ -33,7 +34,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
-		environment = new Environment(processingEnv);
+		environment = new BaseEnvironment(processingEnv);
 	}
 
 	@Override
@@ -73,7 +74,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 			processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, buffer.toString());
 		}
 
-		environment.transformer.validate(roundEnvironment);
+		environment.getTransformer().validate(roundEnvironment);
 
 		return true;
 	}
@@ -84,7 +85,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 		types.add(Peripheral.class.getName());
 		types.add(LuaFunction.class.getName());
 
-		for (Class<? extends Annotation> annotation : environment.transformer.annotations()) {
+		for (Class<? extends Annotation> annotation : environment.getTransformer().annotations()) {
 			types.add(annotation.getName());
 		}
 
