@@ -1,6 +1,9 @@
 package org.squiddev.petit.api.compile.converter;
 
-import org.squiddev.petit.processor.Segment;
+import com.squareup.javapoet.CodeBlock;
+import org.squiddev.petit.api.compile.Segment;
+import org.squiddev.petit.api.compile.tree.Argument;
+import org.squiddev.petit.api.compile.tree.ArgumentType;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -17,39 +20,42 @@ public interface FromLuaConverter {
 	boolean matches(TypeMirror type);
 
 	/**
-	 * Returns if an intermediate variable is required.
-	 *
-	 * @return The intermediate variable.
-	 */
-	boolean requiresVariable();
-
-	/**
-	 * Returns a segment that checks if {@code from} is valid.
-	 *
-	 * You may also write to {@code temp} if {@link #requiresVariable()} is true, instead of
-	 * setting the variable in {@link #getValue(String, String)}
-	 *
-	 * @param from The expression that contains the value.
-	 * @param temp {@code null} if {@link #requiresVariable()} is {@code false}, otherwise a variable you can write temp.
-	 * @return The validation expression, or {@code null} if none is required.
-	 */
-	Segment validate(String from, String temp);
-
-	/**
-	 * Returns an expression that converts from {@code from}.
-	 *
-	 * You may read from {@code temp} if {@link #requiresVariable()} is true.
-	 *
-	 * @param from The expression that contains the value.
-	 * @param temp {@code null} if {@link #requiresVariable()} is {@code false}, otherwise a variable you can read from.
-	 * @return The conversion expression. Return {@code from} if none is required or {@code temp} if done earlier.
-	 */
-	Segment getValue(String from, String temp);
-
-	/**
 	 * Get a friendly name of the type
 	 *
 	 * @return The type's name
 	 */
 	String getName();
+
+	/**
+	 * Write conversion preamble for an argument.
+	 *
+	 * This generally adds additional information.
+	 *
+	 * @param argument The argument preamble
+	 * @return The CodeBlock that adds additional information, {@code null} if none is required.
+	 */
+	CodeBlock preamble(Argument argument);
+
+	/**
+	 * Returns an expression or statement that checks if {@code from} is valid.
+	 *
+	 * If the result starts with {@code "$["} (JavaPoet's statement symbol) then this will
+	 * be presumed to be a statement, otherwise an expression is used.
+	 *
+	 * For expressions, the result must be a boolean, for statements, an error must be thrown.
+	 *
+	 * @param argument The argument preamble
+	 * @param from     The expression to convert from. If the argument is {@link ArgumentType#PROVIDED} then this will be null.
+	 * @return The CodeBlock that validates, {@code null} if none is required.
+	 */
+	Segment validate(Argument argument, String from);
+
+	/**
+	 * Returns an expression that converts from {@code from}.
+	 *
+	 * @param argument The argument preamble
+	 * @param from     The expression to convert from. If the argument is {@link ArgumentType#PROVIDED} then this will be null.
+	 * @return The CodeBlock that adds converts, {@code null} if none is required.
+	 */
+	CodeBlock convert(Argument argument, String from);
 }

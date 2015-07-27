@@ -8,6 +8,9 @@ import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 /**
@@ -31,8 +34,9 @@ public class LuaArgument implements Argument {
 		Environment env = getEnvironment();
 		Messager messager = env.getMessager();
 
-		// We handle Object[] specially
-		if (!(getArgumentType() == ArgumentType.REQUIRED && env.getTypeHelpers().isObjectArray(getElement().asType())) && getConverter() == null) {
+		if (getArgumentType() == ArgumentType.VARIABLE && getElement().asType().getKind() != TypeKind.ARRAY) {
+			messager.printMessage(Diagnostic.Kind.ERROR, "Expected array for varargs", getElement());
+		} else if (getConverter() == null) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for " + getElement().asType(), getElement());
 			return false;
 		}
@@ -42,7 +46,14 @@ public class LuaArgument implements Argument {
 
 	@Override
 	public FromLuaConverter getConverter() {
-		return getEnvironment().getConverter().getFromConverter(parameter.asType());
+		TypeMirror type = getElement().asType();
+
+		// Variable types should have a converter for every argument.
+		if (getArgumentType() == ArgumentType.VARIABLE) {
+			type = ((ArrayType) type).getComponentType();
+		}
+
+		return getEnvironment().getConverter().getFromConverter(type);
 	}
 
 	@Override

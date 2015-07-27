@@ -24,11 +24,12 @@ import java.util.Map;
 public class BaseEnvironment implements Environment {
 	private final TransformerContainer transformer = new Transformers();
 	private final ConverterContainer converters = new Converters();
-	private final TypeHelper typeHelper = new BaseTypeHelper(this);
+	private final TypeHelper typeHelper;
 	private final ProcessingEnvironment processingEnvironment;
 
 	public BaseEnvironment(ProcessingEnvironment processingEnvironment) {
 		this.processingEnvironment = processingEnvironment;
+		this.typeHelper = new BaseTypeHelper(this);
 
 		DefaultConverters.add(this);
 		DefaultTransformers.add(this);

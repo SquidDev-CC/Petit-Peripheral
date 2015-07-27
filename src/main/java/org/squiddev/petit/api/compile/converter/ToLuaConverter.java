@@ -1,6 +1,6 @@
 package org.squiddev.petit.api.compile.converter;
 
-import org.squiddev.petit.processor.Segment;
+import com.squareup.javapoet.CodeBlock;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -22,5 +22,5 @@ public interface ToLuaConverter {
 	 * @param from The expression that contains the value.
 	 * @return The conversion expression, or {@code null} if none is required.
 	 */
-	Segment convertTo(String from);
+	CodeBlock convertTo(String from);
 }

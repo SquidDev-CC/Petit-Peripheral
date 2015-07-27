@@ -39,39 +39,33 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-		try {
-			Writer writer = new Writer();
+		Writer writer = new Writer();
 
-			for (Element elem : roundEnvironment.getElementsAnnotatedWith(Peripheral.class)) {
-				if (elem.getKind() != ElementKind.CLASS) {
-					processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only classes can be annotated with @Peripheral", elem);
-					return true;
-				}
-
-				try {
-					PeripheralClass klass = new LuaClass(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem, environment);
-
-					if (!klass.process()) continue;
-
-					TypeSpec spec = writer.writeClass(klass).build();
-					try {
-						JavaFile
-							.builder(processingEnv.getElementUtils().getPackageOf(elem).getQualifiedName().toString(), spec)
-							.build()
-							.writeTo(processingEnv.getFiler());
-					} catch (IOException e) {
-						processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error " + e.toString(), elem);
-					}
-				} catch (Exception e) {
-					StringWriter buffer = new StringWriter();
-					e.printStackTrace(new PrintWriter(buffer));
-					processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, buffer.toString(), elem);
-				}
+		for (Element elem : roundEnvironment.getElementsAnnotatedWith(Peripheral.class)) {
+			if (elem.getKind() != ElementKind.CLASS) {
+				processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only classes can be annotated with @Peripheral", elem);
+				return true;
 			}
-		} catch (Exception e) {
-			StringWriter buffer = new StringWriter();
-			e.printStackTrace(new PrintWriter(buffer));
-			processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, buffer.toString());
+
+			try {
+				PeripheralClass klass = new LuaClass(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem, environment);
+
+				if (!klass.process()) continue;
+
+				TypeSpec spec = writer.writeClass(klass).build();
+				try {
+					JavaFile
+						.builder(processingEnv.getElementUtils().getPackageOf(elem).getQualifiedName().toString(), spec)
+						.build()
+						.writeTo(processingEnv.getFiler());
+				} catch (IOException e) {
+					processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error " + e.toString(), elem);
+				}
+			} catch (Exception e) {
+				StringWriter buffer = new StringWriter();
+				e.printStackTrace(new PrintWriter(buffer));
+				processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, buffer.toString(), elem);
+			}
 		}
 
 		environment.getTransformer().validate(roundEnvironment);

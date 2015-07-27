@@ -6,7 +6,6 @@ import org.squiddev.petit.conversion.from.AbstractFromLuaConverter;
 import org.squiddev.petit.conversion.from.InstanceofConverter;
 import org.squiddev.petit.conversion.from.PrimitiveTypeConverter;
 import org.squiddev.petit.conversion.to.SimpleConverter;
-import org.squiddev.petit.processor.Segment;
 
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -22,17 +21,7 @@ public final class DefaultConverters {
 		converter.addFromConverter(new AbstractFromLuaConverter(env, "anything") {
 			@Override
 			public Iterable<TypeMirror> getTypes() {
-				return Collections.singleton(environment.getTypeHelpers().getMirror(Object.class));
-			}
-
-			@Override
-			public Segment validate(String from, String temp) {
-				return new Segment("$N != null", from);
-			}
-
-			@Override
-			public Segment getValue(String from, String temp) {
-				return null;
+				return Collections.singleton(environment.getTypeHelpers().object());
 			}
 		});
 

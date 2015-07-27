@@ -1,7 +1,8 @@
 package org.squiddev.petit.conversion.to;
 
+import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.compile.Environment;
-import org.squiddev.petit.processor.Segment;
+import org.squiddev.petit.processor.Utils;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -18,7 +19,7 @@ public class SimpleConverter extends AbstractToLuaConverter {
 	}
 
 	@Override
-	public Segment convertTo(String fromToken) {
-		return new Segment("new Object[] { $N }", fromToken);
+	public CodeBlock convertTo(String fromToken) {
+		return Utils.block("new Object[] { $N }", fromToken);
 	}
 }

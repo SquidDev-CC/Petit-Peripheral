@@ -1,7 +1,10 @@
 package org.squiddev.petit.conversion.from;
 
+import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.compile.Environment;
-import org.squiddev.petit.processor.Segment;
+import org.squiddev.petit.api.compile.Segment;
+import org.squiddev.petit.api.compile.tree.Argument;
+import org.squiddev.petit.processor.Utils;
 
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
@@ -38,13 +41,13 @@ public class PrimitiveTypeConverter extends InstanceofConverter {
 		}
 
 		@Override
-		public Segment validate(String from, String temp) {
+		public Segment validate(Argument argument, String from) {
 			return new Segment("$N instanceof Number", from);
 		}
 
 		@Override
-		public Segment getValue(String from, String temp) {
-			return new Segment("((Number)($N))." + primitive.toString() + "Value()", from);
+		public CodeBlock convert(Argument argument, String from) {
+			return Utils.block("((Number)($N))." + primitive.toString() + "Value()", from);
 		}
 	}
 
@@ -55,13 +58,13 @@ public class PrimitiveTypeConverter extends InstanceofConverter {
 		}
 
 		@Override
-		public Segment validate(String from, String temp) {
+		public Segment validate(Argument argument, String from) {
 			return new Segment("$N instanceof String && ((String)$N).length() == 1", from, from);
 		}
 
 		@Override
-		public Segment getValue(String from, String temp) {
-			return new Segment("((String)$N).charAt(0)", from);
+		public CodeBlock convert(Argument argument, String from) {
+			return Utils.block("((String)$N).charAt(0)", from);
 		}
 	}
 }

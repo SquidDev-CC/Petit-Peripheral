@@ -1,7 +1,10 @@
 package org.squiddev.petit.conversion.from;
 
+import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.compile.Environment;
-import org.squiddev.petit.processor.Segment;
+import org.squiddev.petit.api.compile.Segment;
+import org.squiddev.petit.api.compile.tree.Argument;
+import org.squiddev.petit.processor.Utils;
 
 import javax.lang.model.type.TypeMirror;
 import java.util.Collections;
@@ -21,15 +24,14 @@ public class InstanceofConverter extends AbstractFromLuaConverter {
 		this(env, env.getTypeHelpers().getMirror(type), name);
 	}
 
-
 	@Override
-	public Segment validate(String from, String temp) {
+	public Segment validate(Argument argument, String from) {
 		return new Segment("$N instanceof $T", from, type);
 	}
 
 	@Override
-	public Segment getValue(String from, String temp) {
-		return new Segment("($T)$N", type, from);
+	public CodeBlock convert(Argument argument, String from) {
+		return Utils.block("($T)$N", type, from);
 	}
 
 	@Override
