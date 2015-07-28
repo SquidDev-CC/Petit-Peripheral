@@ -57,6 +57,22 @@ public class Validation {
 		);
 	}
 
+	@Test
+	public void variableTyped() {
+		wrapper.call("variableTyped", 1);
+		wrapper.call("variableTyped", 1, "foo");
+		wrapper.call("variableTyped", 1, "foo", "bar");
+
+		ExpectException.expect(
+			"Expected number",
+			wrapper.runMethod("variableTyped"),
+			wrapper.runMethod("variableTyped", "foo"),
+			wrapper.runMethod("variableTyped", 1, false),
+			wrapper.runMethod("variableTyped", "foo", 2),
+			wrapper.runMethod("variableTyped", 1, "foo", 2)
+		);
+	}
+
 	@Peripheral("peripheral")
 	public static class Embed {
 		@LuaFunction
@@ -73,6 +89,10 @@ public class Validation {
 
 		@LuaFunction(error = "I expected better of you!")
 		public void testingError(double a, char b) {
+		}
+
+		@LuaFunction
+		public void variableTyped(double a, String... foo) {
 		}
 	}
 }

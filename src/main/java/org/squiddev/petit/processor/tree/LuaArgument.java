@@ -80,4 +80,9 @@ public class LuaArgument implements Argument {
 	public VariableElement getElement() {
 		return parameter;
 	}
+
+	@Override
+	public String toString() {
+		return "Argument{" + type + ":" + parameter + ":" + parameter.asType() + "}";
+	}
 }

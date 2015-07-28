@@ -50,7 +50,7 @@ public class LuaMethod implements PeripheralMethod {
 		int size = params.size();
 		Argument[] arguments = new Argument[size];
 		for (int i = 0; i < size; i++) {
-			arguments[i] = new LuaArgument(this, params.get(i), i == size - 1 && method.isVarArgs() ? ArgumentType.VARIABLE : ArgumentType.OPTIONAL);
+			arguments[i] = new LuaArgument(this, params.get(i), i == size - 1 && method.isVarArgs() ? ArgumentType.VARIABLE : ArgumentType.REQUIRED);
 		}
 		this.arguments = Collections.unmodifiableList(Arrays.asList(arguments));
 
@@ -154,5 +154,10 @@ public class LuaMethod implements PeripheralMethod {
 	@Override
 	public ExecutableElement getElement() {
 		return method;
+	}
+
+	@Override
+	public String toString() {
+		return "LuaMethod{" + method + ":" + arguments + "}";
 	}
 }

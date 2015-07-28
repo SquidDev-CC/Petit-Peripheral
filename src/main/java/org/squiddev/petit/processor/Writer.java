@@ -17,12 +17,16 @@ import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 import org.squiddev.petit.api.compile.writer.PeripheralWriter;
 
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Writer implements PeripheralWriter {
 	public static final String FIELD_INSTANCE = "instance";
+
+	public static final String VAR_REST = "rest";
 
 	@Override
 	public TypeSpec.Builder writeClass(PeripheralClass klass) {
@@ -79,9 +83,111 @@ public class Writer implements PeripheralWriter {
 		}
 	}
 
+	//region Method segments
+
+	public Segment getValidation(ArgumentMeta argument, int arrayIndex, String exception) {
+		switch (argument.argument.getArgumentType()) {
+			case REQUIRED:
+				return argument.converter.validate(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
+			case OPTIONAL: {
+				Segment segment = argument.converter.validate(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
+				if (segment != null) {
+					if (arrayIndex > 0) {
+						if (segment.isStatement()) {
+							segment = new Segment(CodeBlock.builder()
+								.beginControlFlow("if($N.length >= $L", ARG_ARGS, arrayIndex + 1)
+								.add(segment.getCodeBlock())
+								.endControlFlow()
+								.build(), true);
+						} else {
+							segment = new Segment(CodeBlock.builder()
+								.add("$N.length >= $L && ", ARG_ARGS, arrayIndex + 1)
+								.add(segment.getCodeBlock())
+								.build(), false);
+						}
+					}
+				}
+
+				return segment;
+			}
+			case PROVIDED:
+				return argument.converter.validate(argument.argument, null);
+			case VARIABLE: {
+				if (arrayIndex == 0 && argument.isTrivial()) return null;
+
+				TypeMirror type = argument.argument.getElement().asType();
+				CodeBlock.Builder builder = CodeBlock.builder()
+					.addStatement("$T $N = new $T[$N.length - $L]", type, VAR_REST, ((ArrayType) type).getComponentType(), ARG_ARGS, arrayIndex)
+					.beginControlFlow("for(int i = $L; i < $N.length; i++)", arrayIndex, ARG_ARGS);
+
+				Segment validate = argument.converter.validate(argument.argument, ARG_ARGS + "[i]");
+				CodeBlock convert = argument.converter.convert(argument.argument, ARG_ARGS + "[i]");
+
+				if (validate != null) {
+					if (validate.isStatement()) {
+						builder.add(validate.getCodeBlock());
+					} else {
+						builder
+							.add("if(")
+							.add(validate.getCodeBlock())
+							.beginControlFlow(")")
+							.add("$[$N[i - $L] = ", VAR_REST, arrayIndex)
+							.add(convert == null ? Utils.block(ARG_ARGS + "[i]") : convert)
+							.add(";\n$]")
+							.nextControlFlow("else")
+							.addStatement("throw new $T($S)", LuaException.class, exception)
+							.endControlFlow();
+					}
+				} else {
+					builder
+						.add("$[$N[i - $L] = ", VAR_REST, arrayIndex)
+						.add(convert == null ? Utils.block(ARG_ARGS + "[i]") : convert)
+						.add(";\n$]");
+				}
+
+				builder.endControlFlow();
+
+				return new Segment(builder.build(), true);
+			}
+
+			default:
+				throw new IllegalArgumentException("Unknown type for " + argument.argument);
+		}
+	}
+
+	public CodeBlock getConverter(ArgumentMeta argument, int arrayIndex) {
+		switch (argument.argument.getArgumentType()) {
+			case REQUIRED: {
+				CodeBlock block = argument.converter.convert(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
+				return block == null ? Utils.block(ARG_ARGS + "[" + arrayIndex + "]") : block;
+			}
+			case OPTIONAL: {
+				CodeBlock block = argument.converter.convert(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
+				if (block == null) block = Utils.block(ARG_ARGS + "[" + arrayIndex + "]");
+
+				return CodeBlock.builder()
+					.add("$N.length >= $L ? (", ARG_ARGS, arrayIndex + 1)
+					.add(block)
+					.add(") : null")
+					.build();
+
+			}
+			case PROVIDED: {
+				CodeBlock block = argument.converter.convert(argument.argument, null);
+				return block == null ? Utils.block("null") : block;
+			}
+			case VARIABLE:
+				return Utils.block(arrayIndex == 0 && argument.isTrivial() ? ARG_ARGS : VAR_REST);
+
+			default:
+				throw new IllegalArgumentException("Unknown type for " + argument.argument);
+		}
+	}
+
 	@Override
 	public CodeBlock writeMethod(PeripheralMethod method) {
 		CodeBlock.Builder spec = CodeBlock.builder();
+		spec.addStatement("// $L", method.toString());
 		StringBuilder errorMessage = new StringBuilder("Expected ");
 
 		List<ArgumentMeta> arguments = new ArrayList<ArgumentMeta>(method.getArguments().size());
@@ -105,84 +211,53 @@ public class Writer implements PeripheralWriter {
 			if (block != null) spec.add(block);
 		}
 
-		int argIndex = 0;
-		String message = method.getErrorMessage();
-		if (message == null) {
-			message = errorMessage.toString();
-			message = message.substring(0, message.length() - 2);
-		}
-
-		boolean expression = false;
-		if (requiredLength > 0) {
-			spec.add("if((args.length < $L", requiredLength);
-			expression = true;
-		}
-
-		for (ArgumentMeta argument : arguments) {
-			Segment segment = null;
-			switch (argument.argument.getArgumentType()) {
-				case REQUIRED:
-					segment = argument.converter.validate(argument.argument, ARG_ARGS + "[" + argIndex + "]");
-
-					argIndex++;
-					break;
-				case OPTIONAL:
-					segment = argument.converter.validate(argument.argument, ARG_ARGS + "[" + argIndex + "]");
-					if (segment != null) {
-						if (argIndex > 0) {
-							if (segment.isStatement()) {
-								segment = new Segment(CodeBlock.builder()
-									.beginControlFlow("if($N.length >= $L", ARG_ARGS, argIndex + 1)
-									.add(segment.getCodeBlock())
-									.endControlFlow()
-									.build(), true);
-							} else {
-								segment = new Segment(CodeBlock.builder()
-									.add("$N.length >= $L && ", ARG_ARGS, argIndex + 1)
-									.add(segment.getCodeBlock())
-									.build(), false);
-							}
-						}
-					}
-
-					argIndex++;
-					break;
-				case PROVIDED:
-					segment = argument.converter.validate(argument.argument, null);
-					break;
-				case VARIABLE:
-					// TODO
-					break;
+		{
+			String message = method.getErrorMessage();
+			if (message == null) {
+				message = errorMessage.toString();
+				message = message.substring(0, message.length() - 2);
 			}
 
-			if (segment != null) {
-				if (segment.isStatement()) {
-					if (expression) {
-						spec.beginControlFlow("))");
-						spec.addStatement("throw new $T($S)", LuaException.class, message);
-						spec.endControlFlow();
-					}
+			boolean expression = false;
+			if (requiredLength > 0) {
+				spec.add("if((args.length < $L", requiredLength);
+				expression = true;
+			}
 
-					expression = false;
-					spec.add(segment.getCodeBlock());
-				} else {
-					if (expression) {
-						spec.add(") || !(");
+			int arrayIndex = 0;
+			for (ArgumentMeta argument : arguments) {
+				Segment segment = getValidation(argument, arrayIndex, message);
+				if (argument.argument.getArgumentType() != ArgumentType.PROVIDED) arrayIndex++;
+
+				if (segment != null) {
+					if (segment.isStatement()) {
+						if (expression) {
+							spec.beginControlFlow("))");
+							spec.addStatement("throw new $T($S)", LuaException.class, message);
+							spec.endControlFlow();
+						}
+
+						expression = false;
 						spec.add(segment.getCodeBlock());
 					} else {
-						spec.add("if(!(");
-						spec.add(segment.getCodeBlock());
-					}
+						if (expression) {
+							spec.add(") || !(");
+							spec.add(segment.getCodeBlock());
+						} else {
+							spec.add("if(!(");
+							spec.add(segment.getCodeBlock());
+						}
 
-					expression = true;
+						expression = true;
+					}
 				}
 			}
-		}
 
-		if (expression) {
-			spec.beginControlFlow("))");
-			spec.addStatement("throw new $T($S)", LuaException.class, message);
-			spec.endControlFlow();
+			if (expression) {
+				spec.beginControlFlow("))");
+				spec.addStatement("throw new $T($S)", LuaException.class, message);
+				spec.endControlFlow();
+			}
 		}
 
 
@@ -205,43 +280,11 @@ public class Writer implements PeripheralWriter {
 			if (actualArguments.size() == 0 && actualArguments.get(0).isTrivial()) {
 				spec.add("args");
 			} else {
-				CodeBlock block = null;
-
-				switch (argument.argument.getArgumentType()) {
-					case REQUIRED:
-						block = argument.converter.convert(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
-						if (block == null) block = Utils.block(ARG_ARGS + "[" + arrayIndex + "]");
-
-						argIndex++;
-						break;
-					case OPTIONAL:
-						block = argument.converter.convert(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
-						if (block == null) block = Utils.block(ARG_ARGS + "[" + arrayIndex + "]");
-
-						block = CodeBlock.builder()
-							.add("$N.length >= $L ? (", ARG_ARGS, argIndex + 1)
-							.add(block)
-							.add(") : null")
-							.build();
-
-						argIndex++;
-						break;
-					case PROVIDED:
-						block = argument.converter.convert(argument.argument, null);
-						if (block == null) block = Utils.block("null");
-						break;
-					case VARIABLE:
-						// TODO
-						break;
-				}
-
-				if (block == null) block = Utils.block("null");
-
-				spec.add("(");
-				spec.add(block);
-				spec.add(")");
+				spec.add(getConverter(argument, arrayIndex));
+				if (argument.argument.getArgumentType() != ArgumentType.PROVIDED) arrayIndex++;
 			}
 		}
+
 		spec.add(");$]\n");
 
 		if (method.getElement().getReturnType().getKind() != TypeKind.VOID) {
@@ -259,6 +302,7 @@ public class Writer implements PeripheralWriter {
 
 		return spec.build();
 	}
+	//endregion
 
 	//region IPeripheral functions
 	@Override
