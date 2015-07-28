@@ -1,6 +1,7 @@
 package org.squiddev.petit.api.compile;
 
 import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 /**
@@ -55,4 +56,12 @@ public interface TypeHelper {
 	 * @see #objectArray()
 	 */
 	boolean isObjectArray(TypeMirror mirror);
+
+	/**
+	 * Check if a type is primitive
+	 *
+	 * @param kind The type to check
+	 * @return If the type is primitive
+	 */
+	boolean isPrimitive(TypeKind kind);
 }

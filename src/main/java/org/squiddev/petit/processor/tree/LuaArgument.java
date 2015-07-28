@@ -34,14 +34,22 @@ public class LuaArgument implements Argument {
 		Environment env = getEnvironment();
 		Messager messager = env.getMessager();
 
+		boolean success = true;
+
 		if (getArgumentType() == ArgumentType.VARIABLE && getElement().asType().getKind() != TypeKind.ARRAY) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Expected array for varargs", getElement());
+			success = false;
 		} else if (getConverter() == null) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Unknown converter for " + getElement().asType(), getElement());
-			return false;
+			success = false;
 		}
 
-		return true;
+		if (getArgumentType() == ArgumentType.OPTIONAL && getEnvironment().getTypeHelpers().isPrimitive(getElement().asType().getKind())) {
+			messager.printMessage(Diagnostic.Kind.ERROR, "Primitive cannot be optional", getElement());
+			success = false;
+		}
+
+		return success;
 	}
 
 	@Override

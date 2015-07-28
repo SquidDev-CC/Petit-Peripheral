@@ -40,7 +40,8 @@ public abstract class AbstractTransformer<T extends Annotation> implements Trans
 	public boolean validate(Element target, T annotation) {
 		boolean success = true;
 
-		Target t = annotation.getClass().getAnnotation(Target.class);
+		Class<?> base = annotation.getClass().getInterfaces()[0];
+		Target t = base.getClass().getAnnotation(Target.class);
 		List<ElementType> type;
 		if (t == null) {
 			type = Arrays.asList(ElementType.PARAMETER, ElementType.TYPE, ElementType.METHOD);
@@ -51,7 +52,7 @@ public abstract class AbstractTransformer<T extends Annotation> implements Trans
 		if (!isValidType(target.getKind(), type)) {
 			environment.getMessager().printMessage(
 				Diagnostic.Kind.ERROR,
-				"Unexpected @" + annotation.getClass().getSimpleName() + " on " + target.getKind() + ", expected on" + type,
+				"Unexpected @" + base.getSimpleName() + " on " + target.getKind() + ", expected " + type,
 				target
 			);
 			success = false;
@@ -77,7 +78,7 @@ public abstract class AbstractTransformer<T extends Annotation> implements Trans
 			case CLASS:
 				return type.contains(ElementType.TYPE);
 			case PARAMETER:
-				return type.contains(ElementType.PACKAGE);
+				return type.contains(ElementType.PARAMETER);
 			default:
 				return false;
 		}

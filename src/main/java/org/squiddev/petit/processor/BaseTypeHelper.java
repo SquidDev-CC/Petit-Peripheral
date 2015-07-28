@@ -114,4 +114,21 @@ public final class BaseTypeHelper implements TypeHelper {
 	public boolean isObjectArray(TypeMirror mirror) {
 		return environment.getTypeUtils().isSameType(mirror, objectArray);
 	}
+
+	@Override
+	public boolean isPrimitive(TypeKind kind) {
+		switch (kind) {
+			case BOOLEAN:
+			case BYTE:
+			case SHORT:
+			case INT:
+			case LONG:
+			case CHAR:
+			case FLOAT:
+			case DOUBLE:
+				return true;
+			default:
+				return false;
+		}
+	}
 }

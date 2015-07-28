@@ -95,13 +95,13 @@ public class Writer implements PeripheralWriter {
 					if (arrayIndex > 0) {
 						if (segment.isStatement()) {
 							segment = new Segment(CodeBlock.builder()
-								.beginControlFlow("if($N.length >= $L", ARG_ARGS, arrayIndex + 1)
+								.beginControlFlow("if($N.length >= $L)", ARG_ARGS, arrayIndex + 1)
 								.add(segment.getCodeBlock())
 								.endControlFlow()
 								.build(), true);
 						} else {
 							segment = new Segment(CodeBlock.builder()
-								.add("$N.length >= $L && ", ARG_ARGS, arrayIndex + 1)
+								.add("$N.length < $L || ", ARG_ARGS, arrayIndex + 1)
 								.add(segment.getCodeBlock())
 								.build(), false);
 						}
@@ -198,13 +198,20 @@ public class Writer implements PeripheralWriter {
 			ArgumentMeta meta = new ArgumentMeta(argument);
 			arguments.add(meta);
 
-			if (argument.getArgumentType() == ArgumentType.REQUIRED) {
-				errorMessage.append(argument.getConverter().getName()).append(", ");
-				requiredLength++;
-			}
-
-			if (argument.getArgumentType() != ArgumentType.PROVIDED) {
-				actualArguments.add(meta);
+			switch (argument.getArgumentType()) {
+				case REQUIRED:
+					errorMessage.append(argument.getConverter().getName()).append(", ");
+					actualArguments.add(meta);
+					requiredLength++;
+					break;
+				case OPTIONAL:
+					actualArguments.add(meta);
+					errorMessage.append("[").append(argument.getConverter().getName()).append("], ");
+					break;
+				case VARIABLE:
+					actualArguments.add(meta);
+					errorMessage.append("[").append(argument.getConverter().getName()).append("...], ");
+					break;
 			}
 
 			CodeBlock block = meta.converter.preamble(argument);

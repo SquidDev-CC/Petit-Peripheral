@@ -3,6 +3,7 @@ package org.squiddev.petit;
 
 import org.junit.Test;
 import org.squiddev.petit.api.LuaFunction;
+import org.squiddev.petit.api.Optional;
 import org.squiddev.petit.api.Peripheral;
 
 public class Validation {
@@ -64,12 +65,46 @@ public class Validation {
 		wrapper.call("variableTyped", 1, "foo", "bar");
 
 		ExpectException.expect(
-			"Expected number",
+			"Expected number, [string...]",
 			wrapper.runMethod("variableTyped"),
 			wrapper.runMethod("variableTyped", "foo"),
 			wrapper.runMethod("variableTyped", 1, false),
 			wrapper.runMethod("variableTyped", "foo", 2),
 			wrapper.runMethod("variableTyped", 1, "foo", 2)
+		);
+	}
+
+	@Test
+	public void optional() {
+		wrapper.call("optional", 1);
+		wrapper.call("optional", 1, "foo");
+		wrapper.call("optional", 1, "foo", "bar");
+
+		ExpectException.expect(
+			"Expected number, [string], [string]",
+			wrapper.runMethod("optional"),
+			wrapper.runMethod("optional", "foo"),
+			wrapper.runMethod("optional", 1, false),
+			wrapper.runMethod("optional", "foo", 2),
+			wrapper.runMethod("optional", 1, "foo", 2),
+			wrapper.runMethod("optional", 1, null, "bar")
+		);
+	}
+
+	@Test
+	public void boxed() {
+		wrapper.call("boxed", 1, 2);
+		wrapper.call("boxed", 1, 2, 3);
+		wrapper.call("boxed", 1, 2.0);
+		wrapper.call("boxed", 1, 2.0f);
+		wrapper.call("boxed", (byte) 1, (long) 2);
+
+		ExpectException.expect(
+			"Expected number, number",
+			wrapper.runMethod("boxed"),
+			wrapper.runMethod("boxed", "foo"),
+			wrapper.runMethod("boxed", 1.0, false),
+			wrapper.runMethod("boxed", "foo", 2)
 		);
 	}
 
@@ -93,6 +128,14 @@ public class Validation {
 
 		@LuaFunction
 		public void variableTyped(double a, String... foo) {
+		}
+
+		@LuaFunction
+		public void optional(double a, @Optional String foo, @Optional String bar) {
+		}
+
+		@LuaFunction
+		public void boxed(Double a, Integer b) {
 		}
 	}
 }

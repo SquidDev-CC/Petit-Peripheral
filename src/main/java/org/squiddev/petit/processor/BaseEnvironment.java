@@ -29,7 +29,7 @@ public class BaseEnvironment implements Environment {
 
 	public BaseEnvironment(ProcessingEnvironment processingEnvironment) {
 		this.processingEnvironment = processingEnvironment;
-		this.typeHelper = new BaseTypeHelper(this);
+		this.typeHelper = new BaseTypeHelper(processingEnvironment);
 
 		DefaultConverters.add(this);
 		DefaultTransformers.add(this);

@@ -1,8 +1,11 @@
 package org.squiddev.petit.transformer;
 
 import org.squiddev.petit.api.Alias;
+import org.squiddev.petit.api.Optional;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.transformer.TransformerContainer;
+import org.squiddev.petit.api.compile.tree.Argument;
+import org.squiddev.petit.api.compile.tree.ArgumentType;
 import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 
 import java.util.Collections;
@@ -25,6 +28,13 @@ public final class DefaultTransformers {
 				String[] names = annotation.value();
 				if (names == null) return;
 				Collections.addAll(target.names(), names);
+			}
+		});
+
+		transformer.add(Optional.class, new AbstractTransformer<Optional>(environment) {
+			@Override
+			public void transform(Argument argument, Optional annotation) {
+				argument.setArgumentType(ArgumentType.OPTIONAL);
 			}
 		});
 
