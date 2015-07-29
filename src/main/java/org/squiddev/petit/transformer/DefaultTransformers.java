@@ -2,12 +2,15 @@ package org.squiddev.petit.transformer;
 
 import org.squiddev.petit.api.Alias;
 import org.squiddev.petit.api.Optional;
+import org.squiddev.petit.api.Provided;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.transformer.TransformerContainer;
 import org.squiddev.petit.api.compile.tree.Argument;
 import org.squiddev.petit.api.compile.tree.ArgumentType;
 import org.squiddev.petit.api.compile.tree.PeripheralMethod;
+import org.squiddev.petit.conversion.from.ProvidedConverter;
 
+import javax.tools.Diagnostic;
 import java.util.Collections;
 
 
@@ -35,6 +38,16 @@ public final class DefaultTransformers {
 			@Override
 			public void transform(Argument argument, Optional annotation) {
 				argument.setArgumentType(ArgumentType.OPTIONAL);
+			}
+		});
+
+		transformer.add(Provided.class, new AbstractTransformer<Provided>(environment) {
+			@Override
+			public void transform(Argument argument, Provided annotation) {
+				argument.setArgumentType(ArgumentType.PROVIDED);
+				if (!(argument.getConverter() instanceof ProvidedConverter)) {
+					argument.getEnvironment().getMessager().printMessage(Diagnostic.Kind.ERROR, "Not a provided converter", argument.getElement());
+				}
 			}
 		});
 

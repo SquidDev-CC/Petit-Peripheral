@@ -284,7 +284,7 @@ public class Writer implements PeripheralWriter {
 				spec.add(", ");
 			}
 
-			if (actualArguments.size() == 0 && actualArguments.get(0).isTrivial()) {
+			if (actualArguments.size() == 1 && actualArguments.get(0).isTrivial()) {
 				spec.add("args");
 			} else {
 				spec.add(getConverter(argument, arrayIndex));

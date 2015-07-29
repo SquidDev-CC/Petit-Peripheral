@@ -6,13 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Defines an optional parameter.
+ * Defines a provided argument.
  *
- * This must not be a primitive as {@code null} will be used,
- * you can always use the boxed equivalent instead.
- * @see org.squiddev.petit.api.compile.tree.ArgumentType#OPTIONAL
+ * @see org.squiddev.petit.api.compile.tree.ArgumentType#PROVIDED
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Optional {
+public @interface Provided {
 }

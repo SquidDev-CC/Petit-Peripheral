@@ -1,10 +1,12 @@
 package org.squiddev.petit;
 
 
+import dan200.computercraft.api.peripheral.IComputerAccess;
 import org.junit.Test;
 import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.api.Optional;
 import org.squiddev.petit.api.Peripheral;
+import org.squiddev.petit.api.Provided;
 
 public class Validation {
 	public final PeripheralWrapper wrapper = new PeripheralWrapper(PeripheralHelper.create(new Embed()));
@@ -136,6 +138,10 @@ public class Validation {
 
 		@LuaFunction
 		public void boxed(Double a, Integer b) {
+		}
+
+		@LuaFunction
+		public void provided(@Provided IComputerAccess provided) {
 		}
 	}
 }
