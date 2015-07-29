@@ -7,6 +7,8 @@ import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.api.Optional;
 import org.squiddev.petit.api.Peripheral;
 import org.squiddev.petit.api.Provided;
+import org.squiddev.petit.api.runtime.Extracts;
+import org.squiddev.petit.api.runtime.ToLua;
 
 public class Validation {
 	public final PeripheralWrapper wrapper = new PeripheralWrapper(PeripheralHelper.create(new Embed()));
@@ -110,6 +112,38 @@ public class Validation {
 		);
 	}
 
+	@Test
+	public void customConverter() {
+		wrapper.call("customConverter", "foo");
+		wrapper.call("customConverter", "bar", "foo");
+
+		ExpectException.expect(
+			"Expected " + Testing.class.getCanonicalName(),
+			wrapper.runMethod("customConverter"),
+			wrapper.runMethod("customConverter", 1.0),
+			wrapper.runMethod("customConverter", 1.0, false),
+			wrapper.runMethod("customConverter", false)
+		);
+	}
+
+	public static class Testing {
+		public final String name;
+
+		public Testing(String name) {
+			this.name = name;
+		}
+
+		@Extracts
+		public static Testing fromLua(Object object) {
+			return object instanceof String ? new Testing((String) object) : null;
+		}
+
+		@ToLua
+		public static Object[] toLua(Testing object) {
+			return new Object[]{object.name};
+		}
+	}
+
 	@Peripheral("peripheral")
 	public static class Embed {
 		@LuaFunction
@@ -142,6 +176,11 @@ public class Validation {
 
 		@LuaFunction
 		public void provided(@Provided IComputerAccess provided) {
+		}
+
+		@LuaFunction
+		public Testing customConverter(Testing foo) {
+			return foo;
 		}
 	}
 }

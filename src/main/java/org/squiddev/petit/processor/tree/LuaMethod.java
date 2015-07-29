@@ -10,6 +10,7 @@ import org.squiddev.petit.api.compile.tree.PeripheralMethod;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Types;
@@ -66,6 +67,11 @@ public class LuaMethod implements PeripheralMethod {
 	public boolean process() {
 		boolean success = true;
 		Messager messager = getEnvironment().getMessager();
+
+		if (!getElement().getModifiers().contains(Modifier.PUBLIC) || getElement().getModifiers().contains(Modifier.STATIC)) {
+			messager.printMessage(Diagnostic.Kind.ERROR, "Method must be public, non-static", method);
+			success = false;
+		}
 
 		for (String name : names()) {
 			if (name.matches("^[a-zA-Z][a-z0-9A-Z]$")) {
