@@ -91,6 +91,21 @@ public class LuaArgument implements Argument {
 
 	@Override
 	public String toString() {
-		return "Argument{" + type + ":" + parameter + ":" + parameter.asType() + "}";
+		String start = "", end = "";
+		switch (getArgumentType()) {
+			case OPTIONAL:
+				start = "[";
+				end = "]";
+				break;
+			case VARIABLE:
+				start = "[";
+				end = "...]";
+				break;
+			case PROVIDED:
+				start = "{";
+				end = "}";
+		}
+
+		return start + parameter.getSimpleName() + ":" + parameter.asType() + end;
 	}
 }

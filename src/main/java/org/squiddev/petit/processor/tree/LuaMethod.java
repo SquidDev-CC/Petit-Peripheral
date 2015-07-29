@@ -158,6 +158,7 @@ public class LuaMethod implements PeripheralMethod {
 
 	@Override
 	public String toString() {
-		return "LuaMethod{" + method + ":" + arguments + "}";
+		String args = arguments.toString();
+		return method.getSimpleName().toString() + "(" + args.substring(1, args.length() - 1) + "):" + method.getReturnType();
 	}
 }
