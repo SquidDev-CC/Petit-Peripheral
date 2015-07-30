@@ -2,9 +2,9 @@ package org.squiddev.petit.transformer;
 
 import org.squiddev.petit.api.compile.transformer.Transformer;
 import org.squiddev.petit.api.compile.transformer.TransformerContainer;
-import org.squiddev.petit.api.compile.tree.Argument;
-import org.squiddev.petit.api.compile.tree.PeripheralClass;
-import org.squiddev.petit.api.compile.tree.PeripheralMethod;
+import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
+import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
+import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
@@ -25,7 +25,7 @@ public class Transformers implements TransformerContainer {
 	}
 
 	@Override
-	public void transform(PeripheralClass klass) {
+	public void transform(ClassBuilder klass) {
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			Annotation annotation = klass.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(klass, annotation);
@@ -33,7 +33,7 @@ public class Transformers implements TransformerContainer {
 	}
 
 	@Override
-	public void transform(PeripheralMethod method) {
+	public void transform(MethodBuilder method) {
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			Annotation annotation = method.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(method, annotation);
@@ -41,7 +41,7 @@ public class Transformers implements TransformerContainer {
 	}
 
 	@Override
-	public void transform(Argument arg) {
+	public void transform(ArgumentBuilder arg) {
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			Annotation annotation = arg.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(arg, annotation);
@@ -73,17 +73,17 @@ public class Transformers implements TransformerContainer {
 		}
 
 		@SuppressWarnings("unchecked")
-		public void transform(PeripheralClass item, Annotation annotation) {
+		public void transform(ClassBuilder item, Annotation annotation) {
 			transformer.transform(item, (A) annotation);
 		}
 
 		@SuppressWarnings("unchecked")
-		public void transform(PeripheralMethod item, Annotation annotation) {
+		public void transform(MethodBuilder item, Annotation annotation) {
 			transformer.transform(item, (A) annotation);
 		}
 
 		@SuppressWarnings("unchecked")
-		public void transform(Argument item, Annotation annotation) {
+		public void transform(ArgumentBuilder item, Annotation annotation) {
 			transformer.transform(item, (A) annotation);
 		}
 

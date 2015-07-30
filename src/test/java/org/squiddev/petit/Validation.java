@@ -7,8 +7,8 @@ import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.api.Optional;
 import org.squiddev.petit.api.Peripheral;
 import org.squiddev.petit.api.Provided;
-import org.squiddev.petit.api.runtime.Extracts;
-import org.squiddev.petit.api.runtime.ToLua;
+import org.squiddev.petit.api.runtime.Inbound;
+import org.squiddev.petit.api.runtime.Outbound;
 
 public class Validation {
 	public final PeripheralWrapper wrapper = new PeripheralWrapper(PeripheralHelper.create(new Embed()));
@@ -133,12 +133,12 @@ public class Validation {
 			this.name = name;
 		}
 
-		@Extracts
+		@Inbound
 		public static Testing fromLua(Object object) {
 			return object instanceof String ? new Testing((String) object) : null;
 		}
 
-		@ToLua
+		@Outbound
 		public static Object[] toLua(Testing object) {
 			return new Object[]{object.name};
 		}

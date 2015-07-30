@@ -1,8 +1,8 @@
 package org.squiddev.petit.api.compile.transformer;
 
-import org.squiddev.petit.api.compile.tree.Argument;
-import org.squiddev.petit.api.compile.tree.PeripheralClass;
-import org.squiddev.petit.api.compile.tree.PeripheralMethod;
+import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
+import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
+import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
 
 import javax.annotation.processing.RoundEnvironment;
 import java.lang.annotation.Annotation;
@@ -16,11 +16,11 @@ import java.util.Collection;
 public interface TransformerContainer {
 	<A extends Annotation> void add(Class<A> annotation, Transformer<A> transformer);
 
-	void transform(PeripheralClass klass);
+	void transform(ClassBuilder klass);
 
-	void transform(PeripheralMethod method);
+	void transform(MethodBuilder method);
 
-	void transform(Argument arg);
+	void transform(ArgumentBuilder arg);
 
 	boolean validate(RoundEnvironment environment);
 

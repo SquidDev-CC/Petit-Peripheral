@@ -2,9 +2,9 @@ package org.squiddev.petit.transformer;
 
 import org.squiddev.petit.api.Peripheral;
 import org.squiddev.petit.api.compile.transformer.Transformer;
-import org.squiddev.petit.api.compile.tree.Argument;
-import org.squiddev.petit.api.compile.tree.PeripheralClass;
-import org.squiddev.petit.api.compile.tree.PeripheralMethod;
+import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
+import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
+import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -25,15 +25,15 @@ public abstract class AbstractTransformer<T extends Annotation> implements Trans
 
 
 	@Override
-	public void transform(PeripheralClass klass, T annotation) {
+	public void transform(ClassBuilder klass, T annotation) {
 	}
 
 	@Override
-	public void transform(PeripheralMethod method, T annotation) {
+	public void transform(MethodBuilder method, T annotation) {
 	}
 
 	@Override
-	public void transform(Argument argument, T annotation) {
+	public void transform(ArgumentBuilder argument, T annotation) {
 	}
 
 	@Override
