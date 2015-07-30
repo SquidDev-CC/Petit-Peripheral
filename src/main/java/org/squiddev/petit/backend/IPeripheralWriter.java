@@ -83,7 +83,12 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 
 		public ArgumentMeta(ArgumentBaked argument) {
 			this.argument = argument;
-			this.converter = getInboundConverter(argument.getElement().asType());
+
+			TypeMirror type = argument.getElement().asType();
+			if (argument.getArgumentType() == ArgumentType.VARIABLE) {
+				type = ((ArrayType) type).getComponentType();
+			}
+			this.converter = getInboundConverter(type);
 		}
 
 		public boolean isTrivial() {
@@ -205,20 +210,20 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			ArgumentMeta meta = new ArgumentMeta(argument);
 			arguments.add(meta);
 
-			InboundConverter converter = getInboundConverter(argument.getElement().asType());
+			InboundConverter converter = meta.converter;
 			switch (argument.getArgumentType()) {
 				case REQUIRED:
-					errorMessage.append(converter).append(", ");
+					errorMessage.append(converter.getName()).append(", ");
 					actualArguments.add(meta);
 					requiredLength++;
 					break;
 				case OPTIONAL:
 					actualArguments.add(meta);
-					errorMessage.append("[").append(converter).append("], ");
+					errorMessage.append("[").append(converter.getName()).append("], ");
 					break;
 				case VARIABLE:
 					actualArguments.add(meta);
-					errorMessage.append("[").append(converter).append("...], ");
+					errorMessage.append("[").append(converter.getName()).append("...], ");
 					break;
 			}
 

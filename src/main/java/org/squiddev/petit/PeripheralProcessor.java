@@ -57,7 +57,6 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-		if (1 == 1) return true;
 		Set<Backend> backends = new HashSet<Backend>();
 		backends.add(new IPeripheralBackend(environment));
 		BuilderValidator builderValidator = new BuilderValidator();
@@ -103,7 +102,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 				}
 
 				try {
-					ClassBaked baked = backend.bake(builder);
+					ClassBaked baked = backend.bake(builder, environment);
 					if (!bakedValidator.validate(baked, environment, backend)) continue;
 					TypeSpec spec = backend.writeClass(baked).build();
 

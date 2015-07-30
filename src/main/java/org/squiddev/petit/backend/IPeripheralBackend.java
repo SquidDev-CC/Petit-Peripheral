@@ -1,6 +1,5 @@
 package org.squiddev.petit.backend;
 
-import com.squareup.javapoet.TypeSpec;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import org.squiddev.petit.api.compile.Environment;
@@ -11,6 +10,7 @@ import org.squiddev.petit.backend.converter.inbound.InstanceofConverter;
 import org.squiddev.petit.backend.converter.inbound.PrimitiveTypeConverter;
 import org.squiddev.petit.backend.converter.inbound.ProvidedConverter;
 import org.squiddev.petit.backend.converter.outbound.SimpleConverter;
+import org.squiddev.petit.backend.tree.BasicClassBaked;
 
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -48,12 +48,8 @@ public class IPeripheralBackend extends IPeripheralWriter {
 	}
 
 	@Override
-	public ClassBaked bake(ClassBuilder builder) {
-		return null;
-	}
-
-	@Override
-	public TypeSpec.Builder writeClass(ClassBaked klass) {
-		return null;
+	public ClassBaked bake(ClassBuilder builder, Environment environment) {
+		String[] fullName = environment.getElementUtils().getBinaryName(builder.getElement()).toString().split("\\.");
+		return new BasicClassBaked(fullName[fullName.length - 1].replace("$", "_") + "_Peripheral", builder, this);
 	}
 }
