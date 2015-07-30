@@ -13,4 +13,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Outbound {
+	/**
+	 * Get the backends this supports.
+	 *
+	 * @return The backends supported
+	 */
+	Class<?>[] backends() default {};
 }

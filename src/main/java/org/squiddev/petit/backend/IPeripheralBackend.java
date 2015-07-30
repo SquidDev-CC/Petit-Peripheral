@@ -55,7 +55,7 @@ public class IPeripheralBackend extends IPeripheralWriter {
 	}
 
 	@Override
-	public boolean compatibleWith(Class<?> type) {
-		return IPeripheral.class.isAssignableFrom(type);
+	public boolean compatibleWith(TypeMirror type, Environment environment) {
+		return environment.getTypeUtils().isAssignable(environment.getTypeHelpers().getMirror(IPeripheral.class), type);
 	}
 }

@@ -12,9 +12,10 @@ import java.lang.annotation.Target;
  *
  * This must not be a primitive as {@code null} will be used,
  * you can always use the boxed equivalent instead.
+ *
  * @see ArgumentKind#OPTIONAL
  */
 @Target(ElementType.PARAMETER)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Optional {
 }

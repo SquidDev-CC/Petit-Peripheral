@@ -13,6 +13,6 @@ import java.lang.annotation.Target;
  * @see ArgumentKind#PROVIDED
  */
 @Target(ElementType.PARAMETER)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Provided {
 }

@@ -71,8 +71,9 @@ public interface Backend {
 	 * This probably only checks if the type extends
 	 * whatever this backend bases it off (i.e. {@link dan200.computercraft.api.peripheral.IPeripheral})
 	 *
-	 * @param type The type to check
+	 * @param type        The type to check
+	 * @param environment The current environment
 	 * @return If this type is compatible
 	 */
-	boolean compatibleWith(Class<?> type);
+	boolean compatibleWith(TypeMirror type, Environment environment);
 }

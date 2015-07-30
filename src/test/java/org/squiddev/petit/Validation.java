@@ -2,6 +2,7 @@ package org.squiddev.petit;
 
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import org.junit.Test;
 import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.api.Optional;
@@ -133,7 +134,7 @@ public class Validation {
 			this.name = name;
 		}
 
-		@Inbound
+		@Inbound(backends = IPeripheral.class)
 		public static Testing fromLua(Object object) {
 			return object instanceof String ? new Testing((String) object) : null;
 		}

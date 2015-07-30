@@ -32,15 +32,14 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 /**
  * The main processor for peripherals
@@ -48,6 +47,8 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class PeripheralProcessor extends AbstractProcessor {
 	protected Environment environment;
+	protected BuilderValidator builderValidator = new BuilderValidator();
+	protected BakedValidator bakedValidator = new BakedValidator();
 
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -57,68 +58,13 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-		Set<Backend> backends = new HashSet<Backend>();
+		Collection<Backend> backends = new HashSet<Backend>();
 		backends.add(new IPeripheralBackend(environment));
-		BuilderValidator builderValidator = new BuilderValidator();
-		BakedValidator bakedValidator = new BakedValidator();
-
-		Set<InboundConverter> inbound = getInboundConverters(roundEnvironment);
-		Set<OutboundConverter> outbound = getOutboundConverters(roundEnvironment);
+		addInboundConverters(backends, roundEnvironment);
+		addOutboundConverters(backends, roundEnvironment);
 
 		for (Element elem : roundEnvironment.getElementsAnnotatedWith(Peripheral.class)) {
-			if (elem.getKind() != ElementKind.CLASS) {
-				processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only classes can be annotated with @Peripheral", elem);
-				return true;
-			}
-
-			ClassBuilder builder;
-			try {
-				builder = new BasicClassBuilder(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem);
-				for (MethodBuilder method : builder.methods()) {
-					for (ArgumentBuilder argument : method.getArguments()) {
-						environment.getTransformer().transform(argument);
-					}
-					environment.getTransformer().transform(method);
-				}
-				environment.getTransformer().transform(builder);
-
-				if (!builderValidator.validate(builder, environment)) continue;
-			} catch (Exception e) {
-				StringWriter buffer = new StringWriter();
-				e.printStackTrace(new PrintWriter(buffer));
-				processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, buffer.toString(), elem);
-
-				continue;
-			}
-
-			for (Backend backend : backends) {
-				// Setup various converters
-				// TODO: Add filters to specify a backend
-				for (InboundConverter converter : inbound) {
-					backend.addInboundConverter(converter);
-				}
-				for (OutboundConverter converter : outbound) {
-					backend.addOutboundConverter(converter);
-				}
-
-				try {
-					ClassBaked baked = backend.bake(builder, environment);
-					if (!bakedValidator.validate(baked, environment, backend)) continue;
-					TypeSpec spec = backend.writeClass(baked).build();
-
-					JavaFile
-						.builder(processingEnv.getElementUtils().getPackageOf(elem).getQualifiedName().toString(), spec)
-						.build()
-						.writeTo(processingEnv.getFiler());
-				} catch (IOException e) {
-					processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "[" + backend.toString() + "]: " + e.toString(), elem);
-				} catch (Exception e) {
-					StringWriter buffer = new StringWriter().append("[").append(backend.toString()).append("]: ");
-					e.printStackTrace(new PrintWriter(buffer));
-					processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, buffer.toString(), elem);
-				}
-			}
-
+			process(elem, backends);
 		}
 
 		environment.getTransformer().validate(roundEnvironment);
@@ -126,19 +72,68 @@ public class PeripheralProcessor extends AbstractProcessor {
 		return true;
 	}
 
+	public void process(Element elem, Iterable<Backend> backends) {
+		if (elem.getKind() != ElementKind.CLASS) {
+			processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only classes can be annotated with @Peripheral", elem);
+			return;
+		}
+
+		ClassBuilder builder;
+		try {
+			builder = new BasicClassBuilder(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem);
+			for (MethodBuilder method : builder.methods()) {
+				for (ArgumentBuilder argument : method.getArguments()) {
+					environment.getTransformer().transform(argument);
+				}
+				environment.getTransformer().transform(method);
+			}
+			environment.getTransformer().transform(builder);
+
+			if (!builderValidator.validate(builder, environment)) return;
+		} catch (Exception e) {
+			StringWriter buffer = new StringWriter();
+			e.printStackTrace(new PrintWriter(buffer));
+			processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, buffer.toString(), elem);
+
+			return;
+		}
+
+		for (Backend backend : backends) {
+			try {
+				ClassBaked baked = backend.bake(builder, environment);
+				if (!bakedValidator.validate(baked, environment, backend)) continue;
+				TypeSpec spec = backend.writeClass(baked).build();
+
+				JavaFile
+					.builder(processingEnv.getElementUtils().getPackageOf(elem).getQualifiedName().toString(), spec)
+					.build()
+					.writeTo(processingEnv.getFiler());
+			} catch (IOException e) {
+				processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "[" + backend.toString() + "]: " + e.toString(), elem);
+			} catch (Exception e) {
+				StringWriter buffer = new StringWriter().append("[").append(backend.toString()).append("]: ");
+				e.printStackTrace(new PrintWriter(buffer));
+				processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, buffer.toString(), elem);
+			}
+		}
+	}
+
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
 		Set<String> types = new HashSet<String>();
 		types.add(Peripheral.class.getName());
 		types.add(LuaFunction.class.getName());
+		types.add(Inbound.class.getName());
+		types.add(Outbound.class.getName());
 
-		for (java.lang.Class annotation : environment.getTransformer().annotations()) {
+		for (Class annotation : environment.getTransformer().annotations()) {
 			types.add(annotation.getName());
 		}
 
 		return types;
 	}
 
+	//region Converter finding
 	public ExecutableElement getStaticMethod(Element element, java.lang.Class annotation) {
 		if (element.getKind() != ElementKind.METHOD) {
 			processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only methods can be annotated with @" + annotation.getSimpleName(), element);
@@ -153,9 +148,30 @@ public class PeripheralProcessor extends AbstractProcessor {
 		return method;
 	}
 
-	public Set<InboundConverter> getInboundConverters(RoundEnvironment round) {
-		Set<InboundConverter> converters = new HashSet<InboundConverter>();
+	@SuppressWarnings("unchecked")
+	public Collection<TypeMirror> getTypeMirrors(Element element, Class<? extends Annotation> annotation, String name) {
+		String annotationName = annotation.getName();
+		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
+			DeclaredType annotationType = annotationMirror.getAnnotationType();
+			TypeElement annotationElement = (TypeElement) annotationType.asElement();
 
+			if (annotationElement.getQualifiedName().contentEquals(annotationName)) {
+				for (Map.Entry<? extends ExecutableElement, AnnotationValue> entry : Collections.unmodifiableMap(annotationMirror.getElementValues()).entrySet()) {
+					if (entry.getKey().getSimpleName().contentEquals(name)) {
+						Collection<AnnotationValue> values = (Collection<AnnotationValue>) entry.getValue().getValue();
+						List<TypeMirror> mirrors = new ArrayList<TypeMirror>(values.size());
+						for (AnnotationValue value : values) {
+							mirrors.add((TypeMirror) value.getValue());
+						}
+						return mirrors;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public void addInboundConverters(Iterable<Backend> backends, RoundEnvironment round) {
 		for (Element element : round.getElementsAnnotatedWith(Inbound.class)) {
 			final ExecutableElement method = getStaticMethod(element, Inbound.class);
 			if (method == null) continue;
@@ -166,7 +182,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 				continue;
 			}
 
-			converters.add(new AbstractInboundConverter(environment, method.getReturnType().toString()) {
+			InboundConverter converter = new AbstractInboundConverter(environment, method.getReturnType().toString()) {
 				@Override
 				public Segment validate(ArgumentBaked argument, String from) {
 					return new Segment(
@@ -194,14 +210,25 @@ public class PeripheralProcessor extends AbstractProcessor {
 				public Iterable<TypeMirror> getTypes() {
 					return Collections.singleton(method.getReturnType());
 				}
-			});
-		}
+			};
 
-		return converters;
+			Collection<TypeMirror> validBackends = getTypeMirrors(element, Inbound.class, "backends");
+			for (Backend backend : backends) {
+				if (validBackends == null || validBackends.size() == 0) {
+					backend.addInboundConverter(converter);
+				} else {
+					for (TypeMirror match : validBackends) {
+						if (backend.compatibleWith(match, environment)) {
+							backend.addInboundConverter(converter);
+							break;
+						}
+					}
+				}
+			}
+		}
 	}
 
-	public Set<OutboundConverter> getOutboundConverters(RoundEnvironment round) {
-		Set<OutboundConverter> converters = new HashSet<OutboundConverter>();
+	public void addOutboundConverters(Iterable<Backend> backends, RoundEnvironment round) {
 		for (Element element : round.getElementsAnnotatedWith(Outbound.class)) {
 			final ExecutableElement method = getStaticMethod(element, Outbound.class);
 			if (method == null) continue;
@@ -221,14 +248,27 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 			if (!success) continue;
 
-			converters.add(new AbstractOutboundConverter(environment, params.get(0).asType()) {
+			OutboundConverter converter = new AbstractOutboundConverter(environment, params.get(0).asType()) {
 				@Override
 				public CodeBlock convertTo(String from) {
 					return Utils.block("$T.$N($N)", method.getEnclosingElement(), method.getSimpleName(), from);
 				}
-			});
-		}
+			};
 
-		return converters;
+			Collection<TypeMirror> validBackends = getTypeMirrors(element, Outbound.class, "backends");
+			for (Backend backend : backends) {
+				if (validBackends == null || validBackends.size() == 0) {
+					backend.addOutboundConverter(converter);
+				} else {
+					for (TypeMirror match : validBackends) {
+						if (backend.compatibleWith(match, environment)) {
+							backend.addOutboundConverter(converter);
+							break;
+						}
+					}
+				}
+			}
+		}
 	}
+	//endregion
 }
