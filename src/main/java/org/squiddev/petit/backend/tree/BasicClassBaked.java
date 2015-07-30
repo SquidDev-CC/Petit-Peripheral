@@ -1,6 +1,6 @@
 package org.squiddev.petit.backend.tree;
 
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.backend.Backend;
 import org.squiddev.petit.api.compile.backend.InboundConverter;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
@@ -30,20 +30,17 @@ public class BasicClassBaked implements ClassBaked {
 
 		for (MethodBuilder method : builder.methods()) {
 			boolean include = true;
-
 			for (ArgumentBuilder argument : method.getArguments()) {
-				InboundConverter converter = backend.getInboundConverter(argument.getElement().asType());
+				InboundConverter converter = backend.getInboundConverter(argument.getArgumentKind(), argument.getElement().asType());
 				if (converter == null) {
-					if (argument.getArgumentType() == ArgumentType.PROVIDED) {
+					if (argument.getArgumentKind() == ArgumentKind.PROVIDED) {
 						include = false;
 						break;
 					}
 				}
 			}
 
-			if (include) {
-				methods.add(new BasicMethodBaked(method, this));
-			}
+			if (include) methods.add(new BasicMethodBaked(method, this));
 		}
 	}
 

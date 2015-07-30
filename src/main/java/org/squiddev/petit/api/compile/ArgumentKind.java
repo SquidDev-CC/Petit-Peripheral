@@ -1,7 +1,7 @@
 package org.squiddev.petit.api.compile;
 
 
-public enum ArgumentType {
+public enum ArgumentKind {
 	/**
 	 * Required arguments must be passed every time
 	 */

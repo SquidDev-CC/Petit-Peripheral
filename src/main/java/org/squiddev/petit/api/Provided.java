@@ -1,6 +1,6 @@
 package org.squiddev.petit.api;
 
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 /**
  * Defines a provided argument.
  *
- * @see ArgumentType#PROVIDED
+ * @see ArgumentKind#PROVIDED
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)

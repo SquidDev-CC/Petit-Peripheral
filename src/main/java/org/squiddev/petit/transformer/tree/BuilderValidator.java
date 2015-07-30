@@ -1,6 +1,6 @@
 package org.squiddev.petit.transformer.tree;
 
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
@@ -49,30 +49,30 @@ public class BuilderValidator {
 			success = false;
 		}
 
-		ArgumentType state = ArgumentType.REQUIRED;
+		ArgumentKind state = ArgumentKind.REQUIRED;
 		for (ArgumentBuilder argument : builder.getArguments()) {
-			switch (argument.getArgumentType()) {
+			switch (argument.getArgumentKind()) {
 				case REQUIRED:
-					if (state != ArgumentType.REQUIRED) {
+					if (state != ArgumentKind.REQUIRED) {
 						messager.printMessage(Diagnostic.Kind.ERROR, "Unexpected required argument after optional one", argument.getElement());
 						success = false;
 					}
-					state = argument.getArgumentType();
+					state = argument.getArgumentKind();
 					break;
 				case OPTIONAL:
-					if (state == ArgumentType.VARIABLE) {
+					if (state == ArgumentKind.VARIABLE) {
 						messager.printMessage(Diagnostic.Kind.ERROR, "Unexpected optional argument after varargs", argument.getElement());
 						success = false;
 					}
-					state = argument.getArgumentType();
+					state = argument.getArgumentKind();
 					break;
 				case VARIABLE:
-					state = argument.getArgumentType();
+					state = argument.getArgumentKind();
 					break;
 				case PROVIDED:
 					break;
 				default:
-					messager.printMessage(Diagnostic.Kind.WARNING, "Unknown variable kind " + argument.getArgumentType() + ", this is an internal error", argument.getElement());
+					messager.printMessage(Diagnostic.Kind.WARNING, "Unknown variable kind " + argument.getArgumentKind() + ", this is an internal error", argument.getElement());
 			}
 
 			success &= validate(argument, environment);
@@ -85,16 +85,16 @@ public class BuilderValidator {
 		Messager messager = environment.getMessager();
 		boolean success = true;
 
-		ArgumentType type = builder.getArgumentType();
+		ArgumentKind type = builder.getArgumentKind();
 		VariableElement element = builder.getElement();
 
 
-		if (type == ArgumentType.VARIABLE && element.asType().getKind() != TypeKind.ARRAY) {
+		if (type == ArgumentKind.VARIABLE && element.asType().getKind() != TypeKind.ARRAY) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Expected array for varargs", element);
 			success = false;
 		}
 
-		if (type == ArgumentType.OPTIONAL && environment.getTypeHelpers().isPrimitive(element.asType().getKind())) {
+		if (type == ArgumentKind.OPTIONAL && environment.getTypeHelpers().isPrimitive(element.asType().getKind())) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Primitive cannot be optional", element);
 			success = false;
 		}

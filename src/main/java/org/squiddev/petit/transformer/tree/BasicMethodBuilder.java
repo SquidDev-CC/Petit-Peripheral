@@ -1,7 +1,7 @@
 package org.squiddev.petit.transformer.tree;
 
 import org.squiddev.petit.api.LuaFunction;
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
 
@@ -43,7 +43,7 @@ public class BasicMethodBuilder implements MethodBuilder {
 		int size = params.size();
 		org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder[] arguments = new org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder[size];
 		for (int i = 0; i < size; i++) {
-			arguments[i] = new BasicArgumentBuilder(this, params.get(i), i == size - 1 && method.isVarArgs() ? ArgumentType.VARIABLE : ArgumentType.REQUIRED);
+			arguments[i] = new BasicArgumentBuilder(this, params.get(i), i == size - 1 && method.isVarArgs() ? ArgumentKind.VARIABLE : ArgumentKind.REQUIRED);
 		}
 		this.arguments = Collections.unmodifiableList(Arrays.asList(arguments));
 	}

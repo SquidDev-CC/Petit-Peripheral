@@ -1,7 +1,7 @@
 package org.squiddev.petit.backend.converter.inbound;
 
 import com.squareup.javapoet.CodeBlock;
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.backend.Segment;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
@@ -27,9 +27,14 @@ public class ProvidedConverter extends AbstractInboundConverter {
 	}
 
 	@Override
+	public boolean matches(ArgumentKind kind, TypeMirror type) {
+		return kind == ArgumentKind.PROVIDED && super.matches(kind, type);
+	}
+
+	@Override
 	public Segment validate(ArgumentBaked argument, String from) {
-		if (argument.getArgumentType() != ArgumentType.PROVIDED) {
-			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Expected provided type, got " + argument.getArgumentType(), argument.getElement());
+		if (argument.getArgumentKind() != ArgumentKind.PROVIDED) {
+			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Expected provided type, got " + argument.getArgumentKind(), argument.getElement());
 		}
 
 		return super.validate(argument, from);

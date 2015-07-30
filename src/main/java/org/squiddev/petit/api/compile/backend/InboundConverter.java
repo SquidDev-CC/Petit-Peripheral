@@ -1,7 +1,7 @@
 package org.squiddev.petit.api.compile.backend;
 
 import com.squareup.javapoet.CodeBlock;
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
 
 import javax.lang.model.type.TypeMirror;
@@ -11,12 +11,13 @@ import javax.lang.model.type.TypeMirror;
  */
 public interface InboundConverter {
 	/**
-	 * If this getConverter matches the specified type
+	 * If this converter matches the specified type
 	 *
+	 * @param kind The argument kind
 	 * @param type The type to match
-	 * @return If this type is matched.
+	 * @return If this argument is matched.
 	 */
-	boolean matches(TypeMirror type);
+	boolean matches(ArgumentKind kind, TypeMirror type);
 
 	/**
 	 * Get a friendly name of the type
@@ -44,7 +45,7 @@ public interface InboundConverter {
 	 * For expressions, the result must be a boolean, for statements, an error must be thrown.
 	 *
 	 * @param argument The argument information
-	 * @param from     The expression to convert from. If the argument is {@link ArgumentType#PROVIDED} then this will be null.
+	 * @param from     The expression to convert from. If the argument is {@link ArgumentKind#PROVIDED} then this will be null.
 	 * @return The CodeBlock that validates, {@code null} if none is required.
 	 */
 	Segment validate(ArgumentBaked argument, String from);
@@ -53,7 +54,7 @@ public interface InboundConverter {
 	 * Returns an expression that converts from {@code from}.
 	 *
 	 * @param argument The argument information
-	 * @param from     The expression to convert from. If the argument is {@link ArgumentType#PROVIDED} then this will be null.
+	 * @param from     The expression to convert from. If the argument is {@link ArgumentKind#PROVIDED} then this will be null.
 	 * @return The CodeBlock that adds converts, {@code null} if none is required.
 	 */
 	CodeBlock convert(ArgumentBaked argument, String from);

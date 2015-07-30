@@ -2,6 +2,7 @@ package org.squiddev.petit.backend;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
@@ -51,5 +52,10 @@ public class IPeripheralBackend extends IPeripheralWriter {
 	public ClassBaked bake(ClassBuilder builder, Environment environment) {
 		String[] fullName = environment.getElementUtils().getBinaryName(builder.getElement()).toString().split("\\.");
 		return new BasicClassBaked(fullName[fullName.length - 1].replace("$", "_") + "_Peripheral", builder, this);
+	}
+
+	@Override
+	public boolean compatibleWith(Class<?> type) {
+		return IPeripheral.class.isAssignableFrom(type);
 	}
 }

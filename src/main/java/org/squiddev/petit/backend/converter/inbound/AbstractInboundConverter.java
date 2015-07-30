@@ -1,6 +1,7 @@
 package org.squiddev.petit.backend.converter.inbound;
 
 import com.squareup.javapoet.CodeBlock;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.backend.InboundConverter;
 import org.squiddev.petit.api.compile.backend.Segment;
@@ -20,7 +21,7 @@ public abstract class AbstractInboundConverter implements InboundConverter {
 	public abstract Iterable<TypeMirror> getTypes();
 
 	@Override
-	public boolean matches(TypeMirror type) {
+	public boolean matches(ArgumentKind kind, TypeMirror type) {
 		for (TypeMirror match : getTypes()) {
 			if (environment.getTypeUtils().isSameType(match, type)) return true;
 		}

@@ -1,6 +1,6 @@
 package org.squiddev.petit.transformer.tree;
 
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
 
@@ -12,21 +12,21 @@ import javax.lang.model.element.VariableElement;
 public class BasicArgumentBuilder implements ArgumentBuilder {
 	private final MethodBuilder method;
 	private final VariableElement parameter;
-	private ArgumentType type = ArgumentType.REQUIRED;
+	private ArgumentKind type = ArgumentKind.REQUIRED;
 
-	public BasicArgumentBuilder(MethodBuilder method, VariableElement parameter, ArgumentType type) {
+	public BasicArgumentBuilder(MethodBuilder method, VariableElement parameter, ArgumentKind type) {
 		this.parameter = parameter;
 		this.method = method;
 		this.type = type;
 	}
 
 	@Override
-	public ArgumentType getArgumentType() {
+	public ArgumentKind getArgumentKind() {
 		return type;
 	}
 
 	@Override
-	public void setArgumentType(ArgumentType type) {
+	public void setArgumentType(ArgumentKind type) {
 		this.type = type;
 	}
 
@@ -43,7 +43,7 @@ public class BasicArgumentBuilder implements ArgumentBuilder {
 	@Override
 	public String toString() {
 		String start = "", end = "";
-		switch (getArgumentType()) {
+		switch (getArgumentKind()) {
 			case OPTIONAL:
 				start = "[";
 				end = "]";

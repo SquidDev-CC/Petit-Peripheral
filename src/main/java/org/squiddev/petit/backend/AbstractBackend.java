@@ -1,5 +1,6 @@
 package org.squiddev.petit.backend;
 
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.backend.Backend;
 import org.squiddev.petit.api.compile.backend.InboundConverter;
 import org.squiddev.petit.api.compile.backend.OutboundConverter;
@@ -23,9 +24,9 @@ public abstract class AbstractBackend implements Backend {
 	}
 
 	@Override
-	public InboundConverter getInboundConverter(TypeMirror type) {
+	public InboundConverter getInboundConverter(ArgumentKind kind, TypeMirror type) {
 		for (InboundConverter converter : fromConverters) {
-			if (converter.matches(type)) return converter;
+			if (converter.matches(kind, type)) return converter;
 		}
 		return null;
 	}

@@ -1,6 +1,6 @@
 package org.squiddev.petit.backend.tree;
 
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.backend.tree.MethodBaked;
@@ -37,7 +37,7 @@ public class BasicMethodBaked implements MethodBaked {
 		int index = 0;
 		for (ArgumentBuilder argument : builder.getArguments()) {
 			ArgumentBaked baked;
-			if (argument.getArgumentType() == ArgumentType.PROVIDED) {
+			if (argument.getArgumentKind() == ArgumentKind.PROVIDED) {
 				baked = new BasicArgumentBaked(argument, -1, this);
 			} else {
 				baked = new BasicArgumentBaked(argument, index, this);

@@ -8,7 +8,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.backend.InboundConverter;
 import org.squiddev.petit.api.compile.backend.Segment;
@@ -37,15 +37,15 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 	}
 
 	@Override
-	public TypeSpec.Builder writeClass(ClassBaked klass) {
-		TypeSpec.Builder spec = TypeSpec.classBuilder(klass.getGeneratedName())
+	public TypeSpec.Builder writeClass(ClassBaked baked) {
+		TypeSpec.Builder spec = TypeSpec.classBuilder(baked.getGeneratedName())
 			.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 			.addSuperinterface(IPeripheral.class)
-			.addMethod(writeType(klass))
-			.addMethod(writeEquals(klass))
-			.addMethod(writeMethodNames(klass))
-			.addMethod(writeCall(klass))
-			.addField(TypeName.get(klass.getElement().asType()), FIELD_INSTANCE, Modifier.PRIVATE);
+			.addMethod(writeType(baked))
+			.addMethod(writeEquals(baked))
+			.addMethod(writeMethodNames(baked))
+			.addMethod(writeCall(baked))
+			.addField(TypeName.get(baked.getElement().asType()), FIELD_INSTANCE, Modifier.PRIVATE);
 
 		// These should do something. First build and all that though.
 		spec.addMethod(
@@ -66,7 +66,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 		spec.addMethod(
 			MethodSpec.constructorBuilder()
 				.addModifiers(Modifier.PUBLIC)
-				.addParameter(TypeName.get(klass.getElement().asType()), "instance")
+				.addParameter(TypeName.get(baked.getElement().asType()), "instance")
 				.addStatement("this.$N = instance", FIELD_INSTANCE)
 				.build()
 		);
@@ -85,21 +85,21 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			this.argument = argument;
 
 			TypeMirror type = argument.getElement().asType();
-			if (argument.getArgumentType() == ArgumentType.VARIABLE) {
+			if (argument.getArgumentKind() == ArgumentKind.VARIABLE) {
 				type = ((ArrayType) type).getComponentType();
 			}
-			this.converter = getInboundConverter(type);
+			this.converter = getInboundConverter(argument.getArgumentKind(), type);
 		}
 
 		public boolean isTrivial() {
-			return argument.getArgumentType() == ArgumentType.VARIABLE && environment.getTypeHelpers().isObjectArray(argument.getElement().asType());
+			return argument.getArgumentKind() == ArgumentKind.VARIABLE && environment.getTypeHelpers().isObjectArray(argument.getElement().asType());
 		}
 	}
 
 	//region Method segments
 
 	public Segment getValidation(ArgumentMeta argument, int arrayIndex, String exception) {
-		switch (argument.argument.getArgumentType()) {
+		switch (argument.argument.getArgumentKind()) {
 			case REQUIRED:
 				return argument.converter.validate(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
 			case OPTIONAL: {
@@ -169,7 +169,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 	}
 
 	public CodeBlock getConverter(ArgumentMeta argument, int arrayIndex) {
-		switch (argument.argument.getArgumentType()) {
+		switch (argument.argument.getArgumentKind()) {
 			case REQUIRED: {
 				CodeBlock block = argument.converter.convert(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
 				return block == null ? Utils.block(ARG_ARGS + "[" + arrayIndex + "]") : block;
@@ -211,7 +211,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			arguments.add(meta);
 
 			InboundConverter converter = meta.converter;
-			switch (argument.getArgumentType()) {
+			switch (argument.getArgumentKind()) {
 				case REQUIRED:
 					errorMessage.append(converter.getName()).append(", ");
 					actualArguments.add(meta);
@@ -247,7 +247,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			int arrayIndex = 0;
 			for (ArgumentMeta argument : arguments) {
 				Segment segment = getValidation(argument, arrayIndex, message);
-				if (argument.argument.getArgumentType() != ArgumentType.PROVIDED) arrayIndex++;
+				if (argument.argument.getArgumentKind() != ArgumentKind.PROVIDED) arrayIndex++;
 
 				if (segment != null) {
 					if (segment.isStatement()) {
@@ -301,7 +301,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 				spec.add("args");
 			} else {
 				spec.add(getConverter(argument, arrayIndex));
-				if (argument.argument.getArgumentType() != ArgumentType.PROVIDED) arrayIndex++;
+				if (argument.argument.getArgumentKind() != ArgumentKind.PROVIDED) arrayIndex++;
 			}
 		}
 

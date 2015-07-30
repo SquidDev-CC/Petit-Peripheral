@@ -1,6 +1,6 @@
 package org.squiddev.petit.backend.tree;
 
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.backend.Backend;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
@@ -43,11 +43,11 @@ public class BakedValidator {
 
 	public boolean validate(ArgumentBaked baked, Environment environment, Backend backend) {
 		TypeMirror type = baked.getElement().asType();
-		if (baked.getArgumentType() == ArgumentType.VARIABLE) {
+		if (baked.getArgumentKind() == ArgumentKind.VARIABLE) {
 			type = ((ArrayType) type).getComponentType();
 		}
 
-		if (backend.getInboundConverter(type) == null) {
+		if (backend.getInboundConverter(baked.getArgumentKind(), type) == null) {
 			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "[" + backend + "] No converter", baked.getElement());
 			return false;
 		}

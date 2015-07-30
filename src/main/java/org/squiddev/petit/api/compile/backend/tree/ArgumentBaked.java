@@ -1,17 +1,17 @@
 package org.squiddev.petit.api.compile.backend.tree;
 
-import org.squiddev.petit.api.compile.ArgumentType;
+import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.Node;
 
 import javax.lang.model.element.VariableElement;
 
 public interface ArgumentBaked extends Node<VariableElement> {
 	/**
-	 * Get the type for this argument.
+	 * Get the kind for this argument.
 	 *
-	 * @return The argument's type
+	 * @return The argument's kind
 	 */
-	ArgumentType getArgumentType();
+	ArgumentKind getArgumentKind();
 
 	/**
 	 * Get the owning method for this argument
@@ -22,7 +22,7 @@ public interface ArgumentBaked extends Node<VariableElement> {
 
 	/**
 	 * Get the index this method exists at.
-	 * For {@link ArgumentType#PROVIDED} this is {@code -1}.
+	 * For {@link ArgumentKind#PROVIDED} this is {@code -1}.
 	 *
 	 * @return The index this method exists at.
 	 * @see MethodBaked#getActualArguments()
