@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * Defines a series of aliases for a function
  */
 @Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Alias {
 	/**
 	 * The extra names of the {@link LuaFunction}

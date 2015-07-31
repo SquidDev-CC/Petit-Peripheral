@@ -1,8 +1,8 @@
 package org.squiddev.petit.api.compile.transformer;
 
-import org.squiddev.petit.api.compile.tree.Argument;
-import org.squiddev.petit.api.compile.tree.PeripheralClass;
-import org.squiddev.petit.api.compile.tree.PeripheralMethod;
+import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
+import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
+import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
 
 import javax.lang.model.element.Element;
 import java.lang.annotation.Annotation;
@@ -19,7 +19,7 @@ public interface Transformer<A extends Annotation> {
 	 * @param klass      The class to modify
 	 * @param annotation The annotation to modify
 	 */
-	void transform(PeripheralClass klass, A annotation);
+	void transform(ClassBuilder klass, A annotation);
 
 	/**
 	 * Modify a method
@@ -27,7 +27,7 @@ public interface Transformer<A extends Annotation> {
 	 * @param method     The method to modify
 	 * @param annotation The annotation to modify
 	 */
-	void transform(PeripheralMethod method, A annotation);
+	void transform(MethodBuilder method, A annotation);
 
 	/**
 	 * Modify a argument
@@ -35,7 +35,7 @@ public interface Transformer<A extends Annotation> {
 	 * @param argument   The argument to modify
 	 * @param annotation The annotation to modify
 	 */
-	void transform(Argument argument, A annotation);
+	void transform(ArgumentBuilder argument, A annotation);
 
 	/**
 	 * Validate an annotation on an item.
