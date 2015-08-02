@@ -2,11 +2,13 @@ package org.squiddev.petit.transformer.tree;
 
 import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.api.compile.ArgumentKind;
+import org.squiddev.petit.api.compile.backend.Backend;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
 public class BasicMethodBuilder implements MethodBuilder {
@@ -81,6 +83,16 @@ public class BasicMethodBuilder implements MethodBuilder {
 	@Override
 	public void setVarReturn(boolean varReturn) {
 		returnsVarags = varReturn;
+	}
+
+	@Override
+	public TypeMirror getReturnType() {
+		return getElement().getReturnType();
+	}
+
+	@Override
+	public String getTarget() {
+		return Backend.FIELD_INSTANCE + "." + getElement().getSimpleName();
 	}
 
 	@Override

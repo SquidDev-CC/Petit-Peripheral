@@ -4,6 +4,7 @@ import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.Node;
 
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 
 public interface ArgumentBaked extends Node<VariableElement> {
 	/**
@@ -11,7 +12,7 @@ public interface ArgumentBaked extends Node<VariableElement> {
 	 *
 	 * @return The argument's kind
 	 */
-	ArgumentKind getArgumentKind();
+	ArgumentKind getKind();
 
 	/**
 	 * Get the owning method for this argument
@@ -28,4 +29,13 @@ public interface ArgumentBaked extends Node<VariableElement> {
 	 * @see MethodBaked#getActualArguments()
 	 */
 	int getIndex();
+
+	/**
+	 * The type this argument takes
+	 *
+	 * This is the derived value, based of the value of {@link #getKind()}
+	 *
+	 * @return The type this argument takes
+	 */
+	TypeMirror getType();
 }

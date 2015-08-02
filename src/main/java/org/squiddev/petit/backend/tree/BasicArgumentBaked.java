@@ -6,27 +6,33 @@ import org.squiddev.petit.api.compile.backend.tree.MethodBaked;
 import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
 
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.TypeMirror;
 
 public class BasicArgumentBaked implements ArgumentBaked {
-	private final ArgumentKind type;
+	private final ArgumentKind kind;
 	private final MethodBaked parent;
 	private final int index;
 	private final VariableElement element;
+	private final TypeMirror type;
 
-	public BasicArgumentBaked(ArgumentKind type, int index, VariableElement element, MethodBaked parent) {
-		this.type = type;
+	public BasicArgumentBaked(ArgumentKind kind, int index, VariableElement element, TypeMirror type, MethodBaked parent) {
+		this.kind = kind;
 		this.parent = parent;
 		this.index = index;
 		this.element = element;
+
+		if (kind == ArgumentKind.VARIABLE) type = ((ArrayType) type).getComponentType();
+		this.type = type;
 	}
 
 	public BasicArgumentBaked(ArgumentBuilder builder, int index, MethodBaked parent) {
-		this(builder.getArgumentKind(), index, builder.getElement(), parent);
+		this(builder.getKind(), index, builder.getElement(), builder.getType(), parent);
 	}
 
 	@Override
-	public ArgumentKind getArgumentKind() {
-		return type;
+	public ArgumentKind getKind() {
+		return kind;
 	}
 
 	@Override
@@ -37,6 +43,11 @@ public class BasicArgumentBaked implements ArgumentBaked {
 	@Override
 	public int getIndex() {
 		return index;
+	}
+
+	@Override
+	public TypeMirror getType() {
+		return type;
 	}
 
 	@Override

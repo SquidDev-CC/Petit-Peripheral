@@ -5,6 +5,7 @@ import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
 
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Stores one argument of a Lua method
@@ -12,22 +13,27 @@ import javax.lang.model.element.VariableElement;
 public class BasicArgumentBuilder implements ArgumentBuilder {
 	private final MethodBuilder method;
 	private final VariableElement parameter;
-	private ArgumentKind type = ArgumentKind.REQUIRED;
+	private ArgumentKind kind = ArgumentKind.REQUIRED;
 
-	public BasicArgumentBuilder(MethodBuilder method, VariableElement parameter, ArgumentKind type) {
+	public BasicArgumentBuilder(MethodBuilder method, VariableElement parameter, ArgumentKind kind) {
 		this.parameter = parameter;
 		this.method = method;
-		this.type = type;
+		this.kind = kind;
 	}
 
 	@Override
-	public ArgumentKind getArgumentKind() {
-		return type;
+	public ArgumentKind getKind() {
+		return kind;
 	}
 
 	@Override
-	public void setArgumentType(ArgumentKind type) {
-		this.type = type;
+	public void setKind(ArgumentKind kind) {
+		this.kind = kind;
+	}
+
+	@Override
+	public TypeMirror getType() {
+		return getElement().asType();
 	}
 
 	@Override
@@ -43,7 +49,7 @@ public class BasicArgumentBuilder implements ArgumentBuilder {
 	@Override
 	public String toString() {
 		String start = "", end = "";
-		switch (getArgumentKind()) {
+		switch (getKind()) {
 			case OPTIONAL:
 				start = "[";
 				end = "]";

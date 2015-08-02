@@ -31,9 +31,9 @@ public class BasicClassBaked implements ClassBaked {
 		for (MethodBuilder method : builder.methods()) {
 			boolean include = true;
 			for (ArgumentBuilder argument : method.getArguments()) {
-				InboundConverter converter = backend.getInboundConverter(argument.getArgumentKind(), argument.getElement().asType());
+				InboundConverter converter = backend.getInboundConverter(argument.getKind(), argument.getType());
 				if (converter == null) {
-					if (argument.getArgumentKind() == ArgumentKind.PROVIDED) {
+					if (argument.getKind() == ArgumentKind.PROVIDED) {
 						include = false;
 						break;
 					}

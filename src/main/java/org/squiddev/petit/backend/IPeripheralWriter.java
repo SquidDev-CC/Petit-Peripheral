@@ -85,21 +85,21 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			this.argument = argument;
 
 			TypeMirror type = argument.getElement().asType();
-			if (argument.getArgumentKind() == ArgumentKind.VARIABLE) {
+			if (argument.getKind() == ArgumentKind.VARIABLE) {
 				type = ((ArrayType) type).getComponentType();
 			}
-			this.converter = getInboundConverter(argument.getArgumentKind(), type);
+			this.converter = getInboundConverter(argument.getKind(), type);
 		}
 
 		public boolean isTrivial() {
-			return argument.getArgumentKind() == ArgumentKind.VARIABLE && environment.getTypeHelpers().isObjectArray(argument.getElement().asType());
+			return argument.getKind() == ArgumentKind.VARIABLE && environment.getTypeHelpers().isObjectArray(argument.getElement().asType());
 		}
 	}
 
 	//region Method segments
 
 	public Segment getValidation(ArgumentMeta argument, int arrayIndex, String exception) {
-		switch (argument.argument.getArgumentKind()) {
+		switch (argument.argument.getKind()) {
 			case REQUIRED:
 				return argument.converter.validate(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
 			case OPTIONAL: {
@@ -128,9 +128,9 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			case VARIABLE: {
 				if (arrayIndex == 0 && argument.isTrivial()) return null;
 
-				TypeMirror type = argument.argument.getElement().asType();
+				TypeMirror type = argument.argument.getType();
 				CodeBlock.Builder builder = CodeBlock.builder()
-					.addStatement("$T $N = new $T[$N.length - $L]", type, VAR_REST, ((ArrayType) type).getComponentType(), ARG_ARGS, arrayIndex)
+					.addStatement("$T $N = new $T[$N.length - $L]", environment.getTypeUtils().getArrayType(type), VAR_REST, type, ARG_ARGS, arrayIndex)
 					.beginControlFlow("for(int i = $L; i < $N.length; i++)", arrayIndex, ARG_ARGS);
 
 				Segment validate = argument.converter.validate(argument.argument, ARG_ARGS + "[i]");
@@ -169,7 +169,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 	}
 
 	public CodeBlock getConverter(ArgumentMeta argument, int arrayIndex) {
-		switch (argument.argument.getArgumentKind()) {
+		switch (argument.argument.getKind()) {
 			case REQUIRED: {
 				CodeBlock block = argument.converter.convert(argument.argument, ARG_ARGS + "[" + arrayIndex + "]");
 				return block == null ? Utils.block(ARG_ARGS + "[" + arrayIndex + "]") : block;
@@ -211,7 +211,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			arguments.add(meta);
 
 			InboundConverter converter = meta.converter;
-			switch (argument.getArgumentKind()) {
+			switch (argument.getKind()) {
 				case REQUIRED:
 					errorMessage.append(converter.getName()).append(", ");
 					actualArguments.add(meta);
@@ -247,7 +247,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			int arrayIndex = 0;
 			for (ArgumentMeta argument : arguments) {
 				Segment segment = getValidation(argument, arrayIndex, message);
-				if (argument.argument.getArgumentKind() != ArgumentKind.PROVIDED) arrayIndex++;
+				if (argument.argument.getKind() != ArgumentKind.PROVIDED) arrayIndex++;
 
 				if (segment != null) {
 					if (segment.isStatement()) {
@@ -282,11 +282,11 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 
 
 		spec.add("$[");
-		if (method.getElement().getReturnType().getKind() != TypeKind.VOID) {
-			spec.add("$T $N = ", method.getElement().getReturnType(), "funcResult");
+		if (method.getReturnType().getKind() != TypeKind.VOID) {
+			spec.add("$T $N = ", method.getReturnType(), "funcResult");
 		}
 
-		spec.add("$N.$N(", FIELD_INSTANCE, method.getElement().getSimpleName());
+		spec.add("$N(", method.getTarget());
 		boolean first = true;
 		int arrayIndex = 0;
 
@@ -301,14 +301,14 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 				spec.add("args");
 			} else {
 				spec.add(getConverter(argument, arrayIndex));
-				if (argument.argument.getArgumentKind() != ArgumentKind.PROVIDED) arrayIndex++;
+				if (argument.argument.getKind() != ArgumentKind.PROVIDED) arrayIndex++;
 			}
 		}
 
 		spec.add(");$]\n");
 
-		if (method.getElement().getReturnType().getKind() != TypeKind.VOID) {
-			CodeBlock block = getToConverter(method.getElement().getReturnType()).convertTo("funcResult");
+		if (method.getReturnType().getKind() != TypeKind.VOID) {
+			CodeBlock block = getToConverter(method.getReturnType()).convertTo("funcResult");
 			if (block == null) {
 				spec.addStatement("return funcResult");
 			} else {

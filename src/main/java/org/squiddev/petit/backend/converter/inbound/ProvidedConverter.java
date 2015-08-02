@@ -33,8 +33,8 @@ public class ProvidedConverter extends AbstractInboundConverter {
 
 	@Override
 	public Segment validate(ArgumentBaked argument, String from) {
-		if (argument.getArgumentKind() != ArgumentKind.PROVIDED) {
-			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Expected provided type, got " + argument.getArgumentKind(), argument.getElement());
+		if (argument.getKind() != ArgumentKind.PROVIDED) {
+			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Expected provided type, got " + argument.getKind(), argument.getElement());
 		}
 
 		return super.validate(argument, from);

@@ -51,28 +51,28 @@ public class BuilderValidator {
 
 		ArgumentKind state = ArgumentKind.REQUIRED;
 		for (ArgumentBuilder argument : builder.getArguments()) {
-			switch (argument.getArgumentKind()) {
+			switch (argument.getKind()) {
 				case REQUIRED:
 					if (state != ArgumentKind.REQUIRED) {
 						messager.printMessage(Diagnostic.Kind.ERROR, "Unexpected required argument after optional one", argument.getElement());
 						success = false;
 					}
-					state = argument.getArgumentKind();
+					state = argument.getKind();
 					break;
 				case OPTIONAL:
 					if (state == ArgumentKind.VARIABLE) {
 						messager.printMessage(Diagnostic.Kind.ERROR, "Unexpected optional argument after varargs", argument.getElement());
 						success = false;
 					}
-					state = argument.getArgumentKind();
+					state = argument.getKind();
 					break;
 				case VARIABLE:
-					state = argument.getArgumentKind();
+					state = argument.getKind();
 					break;
 				case PROVIDED:
 					break;
 				default:
-					messager.printMessage(Diagnostic.Kind.WARNING, "Unknown variable kind " + argument.getArgumentKind() + ", this is an internal error", argument.getElement());
+					messager.printMessage(Diagnostic.Kind.WARNING, "Unknown variable kind " + argument.getKind() + ", this is an internal error", argument.getElement());
 			}
 
 			success &= validate(argument, environment);
@@ -85,16 +85,16 @@ public class BuilderValidator {
 		Messager messager = environment.getMessager();
 		boolean success = true;
 
-		ArgumentKind type = builder.getArgumentKind();
+		ArgumentKind kind = builder.getKind();
 		VariableElement element = builder.getElement();
+		TypeKind typeKind = builder.getType().getKind();
 
-
-		if (type == ArgumentKind.VARIABLE && element.asType().getKind() != TypeKind.ARRAY) {
+		if (kind == ArgumentKind.VARIABLE && typeKind != TypeKind.ARRAY) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Expected array for varargs", element);
 			success = false;
 		}
 
-		if (type == ArgumentKind.OPTIONAL && environment.getTypeHelpers().isPrimitive(element.asType().getKind())) {
+		if (kind == ArgumentKind.OPTIONAL && environment.getTypeHelpers().isPrimitive(typeKind)) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Primitive cannot be optional", element);
 			success = false;
 		}

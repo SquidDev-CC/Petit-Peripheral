@@ -187,7 +187,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 				public Segment validate(ArgumentBaked argument, String from) {
 					return new Segment(
 						"($N = $T.$N($N)) != null",
-						argument.getElement().getSimpleName().toString() + "_arg",
+						"arg_" + argument.getIndex(),
 						method.getEnclosingElement(),
 						method.getSimpleName(),
 						from
@@ -197,13 +197,13 @@ public class PeripheralProcessor extends AbstractProcessor {
 				@Override
 				public CodeBlock preamble(ArgumentBaked argument) {
 					return CodeBlock.builder()
-						.addStatement("$T $N", method.getReturnType(), argument.getElement().getSimpleName().toString() + "_arg")
+						.addStatement("$T $N", method.getReturnType(), "arg_" + argument.getIndex())
 						.build();
 				}
 
 				@Override
 				public CodeBlock convert(ArgumentBaked argument, String from) {
-					return Utils.block(argument.getElement().getSimpleName().toString() + "_arg");
+					return Utils.block("arg_" + argument.getIndex());
 				}
 
 				@Override

@@ -26,6 +26,7 @@ public class Transformers implements TransformerContainer {
 
 	@Override
 	public void transform(ClassBuilder klass) {
+		if (klass.getElement() == null) return;
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			Annotation annotation = klass.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(klass, annotation);
@@ -34,6 +35,7 @@ public class Transformers implements TransformerContainer {
 
 	@Override
 	public void transform(MethodBuilder method) {
+		if (method.getElement() == null) return;
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			Annotation annotation = method.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(method, annotation);
@@ -42,6 +44,7 @@ public class Transformers implements TransformerContainer {
 
 	@Override
 	public void transform(ArgumentBuilder arg) {
+		if (arg.getElement() == null) return;
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			Annotation annotation = arg.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(arg, annotation);

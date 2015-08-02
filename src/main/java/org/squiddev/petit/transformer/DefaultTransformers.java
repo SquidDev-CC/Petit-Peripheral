@@ -35,14 +35,14 @@ public final class DefaultTransformers {
 		transformer.add(Optional.class, new AbstractTransformer<Optional>(environment) {
 			@Override
 			public void transform(ArgumentBuilder argument, Optional annotation) {
-				argument.setArgumentType(ArgumentKind.OPTIONAL);
+				argument.setKind(ArgumentKind.OPTIONAL);
 			}
 		});
 
 		transformer.add(Provided.class, new AbstractTransformer<Provided>(environment) {
 			@Override
 			public void transform(ArgumentBuilder argument, Provided annotation) {
-				argument.setArgumentType(ArgumentKind.PROVIDED);
+				argument.setKind(ArgumentKind.PROVIDED);
 			}
 		});
 

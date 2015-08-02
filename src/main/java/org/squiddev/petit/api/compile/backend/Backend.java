@@ -13,6 +13,12 @@ import javax.lang.model.type.TypeMirror;
  */
 public interface Backend {
 	/**
+	 * The name of the 'instance' field - the field
+	 * the target object is bound to
+	 */
+	String FIELD_INSTANCE = "instance";
+
+	/**
 	 * Convert a class builder into a backed class.
 	 *
 	 * The baked class has backend specific behaviour
