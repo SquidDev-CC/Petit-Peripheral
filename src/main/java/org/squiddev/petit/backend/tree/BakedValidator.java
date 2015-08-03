@@ -1,6 +1,7 @@
 package org.squiddev.petit.backend.tree;
 
 import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.Validator;
 import org.squiddev.petit.api.compile.backend.Backend;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
@@ -11,14 +12,23 @@ import javax.tools.Diagnostic;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BakedValidator {
-	public boolean validate(ClassBaked baked, Environment environment, Backend backend) {
+public class BakedValidator implements Validator<ClassBaked> {
+	protected final Backend backend;
+	protected final Environment environment;
+
+	public BakedValidator(Backend backend, Environment environment) {
+		this.backend = backend;
+		this.environment = environment;
+	}
+
+	@Override
+	public boolean validate(ClassBaked baked) {
 		Messager messager = environment.getMessager();
 		boolean success = true;
 
 		Set<String> names = new HashSet<String>();
 		for (MethodBaked method : baked.getMethods()) {
-			success &= validate(method, environment, backend);
+			success &= validate(method);
 			for (String name : method.getNames()) {
 				if (!names.add(name)) {
 					messager.printMessage(Diagnostic.Kind.ERROR, "Duplicate name '" + name + "'", method.getElement());
@@ -30,15 +40,15 @@ public class BakedValidator {
 		return success;
 	}
 
-	public boolean validate(MethodBaked baked, Environment environment, Backend backend) {
+	protected boolean validate(MethodBaked baked) {
 		boolean success = true;
 		for (ArgumentBaked argument : baked.getArguments()) {
-			success &= validate(argument, environment, backend);
+			success &= validate(argument);
 		}
 		return success;
 	}
 
-	public boolean validate(ArgumentBaked baked, Environment environment, Backend backend) {
+	protected boolean validate(ArgumentBaked baked) {
 		if (backend.getInboundConverter(baked.getKind(), baked.getType()) == null) {
 			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "[" + backend + "] No converter", baked.getElement());
 			return false;

@@ -15,6 +15,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Inbound {
 	/**
+	 * Get the friendly name for this method
+	 *
+	 * @return The default name
+	 */
+	String value() default "";
+
+	/**
 	 * Get the backends this supports.
 	 *
 	 * @return The backends supported

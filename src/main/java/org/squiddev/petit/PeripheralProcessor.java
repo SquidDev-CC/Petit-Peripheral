@@ -21,7 +21,6 @@ import org.squiddev.petit.backend.IPeripheralBackend;
 import org.squiddev.petit.backend.Utils;
 import org.squiddev.petit.backend.converter.inbound.AbstractInboundConverter;
 import org.squiddev.petit.backend.converter.outbound.AbstractOutboundConverter;
-import org.squiddev.petit.backend.tree.BakedValidator;
 import org.squiddev.petit.compile.BaseEnvironment;
 import org.squiddev.petit.transformer.tree.BasicClassBuilder;
 import org.squiddev.petit.transformer.tree.BuilderValidator;
@@ -47,13 +46,13 @@ import java.util.*;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class PeripheralProcessor extends AbstractProcessor {
 	protected Environment environment;
-	protected BuilderValidator builderValidator = new BuilderValidator();
-	protected BakedValidator bakedValidator = new BakedValidator();
+	protected BuilderValidator builderValidator;
 
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		environment = new BaseEnvironment(processingEnv);
+		builderValidator = new BuilderValidator(environment);
 	}
 
 	@Override
@@ -89,7 +88,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 			}
 			environment.getTransformer().transform(builder);
 
-			if (!builderValidator.validate(builder, environment)) return;
+			if (!builderValidator.validate(builder)) return;
 		} catch (Exception e) {
 			StringWriter buffer = new StringWriter();
 			e.printStackTrace(new PrintWriter(buffer));
@@ -100,8 +99,8 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 		for (Backend backend : backends) {
 			try {
-				ClassBaked baked = backend.bake(builder, environment);
-				if (!bakedValidator.validate(baked, environment, backend)) continue;
+				ClassBaked baked = backend.bake(builder);
+				if (!backend.getValidator().validate(baked)) continue;
 				TypeSpec spec = backend.writeClass(baked).build();
 
 				JavaFile
@@ -150,6 +149,17 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 	@SuppressWarnings("unchecked")
 	public Collection<TypeMirror> getTypeMirrors(Element element, Class<? extends Annotation> annotation, String name) {
+		Object contents = getValue(element, annotation, name);
+		if (contents == null) return null;
+		Collection<AnnotationValue> values = (Collection<AnnotationValue>) contents;
+		List<TypeMirror> mirrors = new ArrayList<TypeMirror>(values.size());
+		for (AnnotationValue value : values) {
+			mirrors.add((TypeMirror) value.getValue());
+		}
+		return mirrors;
+	}
+
+	public Object getValue(Element element, Class<? extends Annotation> annotation, String name) {
 		String annotationName = annotation.getName();
 		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
 			DeclaredType annotationType = annotationMirror.getAnnotationType();
@@ -158,12 +168,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 			if (annotationElement.getQualifiedName().contentEquals(annotationName)) {
 				for (Map.Entry<? extends ExecutableElement, AnnotationValue> entry : Collections.unmodifiableMap(annotationMirror.getElementValues()).entrySet()) {
 					if (entry.getKey().getSimpleName().contentEquals(name)) {
-						Collection<AnnotationValue> values = (Collection<AnnotationValue>) entry.getValue().getValue();
-						List<TypeMirror> mirrors = new ArrayList<TypeMirror>(values.size());
-						for (AnnotationValue value : values) {
-							mirrors.add((TypeMirror) value.getValue());
-						}
-						return mirrors;
+						return entry.getValue().getValue();
 					}
 				}
 			}
@@ -182,7 +187,8 @@ public class PeripheralProcessor extends AbstractProcessor {
 				continue;
 			}
 
-			InboundConverter converter = new AbstractInboundConverter(environment, method.getReturnType().toString()) {
+			Object name = getValue(element, Inbound.class, "value");
+			InboundConverter converter = new AbstractInboundConverter(environment, name == null || ((String) name).isEmpty() ? method.getReturnType().toString() : (String) name) {
 				@Override
 				public Segment validate(ArgumentBaked argument, String from) {
 					return new Segment(
@@ -218,7 +224,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 					backend.addInboundConverter(converter);
 				} else {
 					for (TypeMirror match : validBackends) {
-						if (backend.compatibleWith(match, environment)) {
+						if (backend.compatibleWith(match)) {
 							backend.addInboundConverter(converter);
 							break;
 						}
@@ -261,7 +267,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 					backend.addOutboundConverter(converter);
 				} else {
 					for (TypeMirror match : validBackends) {
-						if (backend.compatibleWith(match, environment)) {
+						if (backend.compatibleWith(match)) {
 							backend.addOutboundConverter(converter);
 							break;
 						}

@@ -2,7 +2,7 @@ package org.squiddev.petit.api.compile.backend;
 
 import com.squareup.javapoet.TypeSpec;
 import org.squiddev.petit.api.compile.ArgumentKind;
-import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.Validator;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
 
@@ -23,11 +23,10 @@ public interface Backend {
 	 *
 	 * The baked class has backend specific behaviour
 	 *
-	 * @param builder     The builder to bake
-	 * @param environment The current environment (TODO: Remove this dependency).
+	 * @param builder The builder to bake
 	 * @return The baked class
 	 */
-	ClassBaked bake(ClassBuilder builder, Environment environment);
+	ClassBaked bake(ClassBuilder builder);
 
 	/**
 	 * Compile a baked class
@@ -77,9 +76,15 @@ public interface Backend {
 	 * This probably only checks if the type extends
 	 * whatever this backend bases it off (i.e. {@link dan200.computercraft.api.peripheral.IPeripheral})
 	 *
-	 * @param type        The type to check
-	 * @param environment The current environment
+	 * @param type The type to check
 	 * @return If this type is compatible
 	 */
-	boolean compatibleWith(TypeMirror type, Environment environment);
+	boolean compatibleWith(TypeMirror type);
+
+	/**
+	 * Get the validator for this backend
+	 *
+	 * @return The backend's validator
+	 */
+	Validator<ClassBaked> getValidator();
 }

@@ -17,16 +17,22 @@ import javax.tools.Diagnostic;
  * Validates a tree of objects
  */
 public class BuilderValidator {
-	public boolean validate(ClassBuilder builder, Environment environment) {
+	protected final Environment environment;
+
+	public BuilderValidator(Environment environment) {
+		this.environment = environment;
+	}
+
+	public boolean validate(ClassBuilder builder) {
 		boolean success = true;
 		for (MethodBuilder method : builder.methods()) {
-			success &= validate(method, environment);
+			success &= validate(method);
 		}
 
 		return success;
 	}
 
-	public boolean validate(MethodBuilder builder, Environment environment) {
+	public boolean validate(MethodBuilder builder) {
 		boolean success = true;
 		Messager messager = environment.getMessager();
 
@@ -75,13 +81,13 @@ public class BuilderValidator {
 					messager.printMessage(Diagnostic.Kind.WARNING, "Unknown variable kind " + argument.getKind() + ", this is an internal error", argument.getElement());
 			}
 
-			success &= validate(argument, environment);
+			success &= validate(argument);
 		}
 
 		return success;
 	}
 
-	public boolean validate(ArgumentBuilder builder, Environment environment) {
+	public boolean validate(ArgumentBuilder builder) {
 		Messager messager = environment.getMessager();
 		boolean success = true;
 

@@ -30,7 +30,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 	public final String ARG_ARGS = "args";
 	public final String VAR_REST = "rest";
 
-	public final Environment environment;
+	protected final Environment environment;
 
 	public IPeripheralWriter(Environment environment) {
 		this.environment = environment;

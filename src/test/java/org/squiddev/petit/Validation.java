@@ -119,7 +119,7 @@ public class Validation {
 		wrapper.call("customConverter", "bar", "foo");
 
 		ExpectException.expect(
-			"Expected " + Testing.class.getCanonicalName(),
+			"Expected foo",
 			wrapper.runMethod("customConverter"),
 			wrapper.runMethod("customConverter", 1.0),
 			wrapper.runMethod("customConverter", 1.0, false),
@@ -134,7 +134,7 @@ public class Validation {
 			this.name = name;
 		}
 
-		@Inbound(backends = IPeripheral.class)
+		@Inbound(value = "foo", backends = IPeripheral.class)
 		public static Testing fromLua(Object object) {
 			return object instanceof String ? new Testing((String) object) : null;
 		}
