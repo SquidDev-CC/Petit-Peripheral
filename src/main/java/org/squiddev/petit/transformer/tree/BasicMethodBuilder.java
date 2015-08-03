@@ -1,10 +1,10 @@
 package org.squiddev.petit.transformer.tree;
 
 import org.squiddev.petit.api.LuaFunction;
-import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.backend.Backend;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
+import org.squiddev.petit.api.compile.tree.ArgumentKind;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;

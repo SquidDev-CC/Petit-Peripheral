@@ -3,11 +3,11 @@ package org.squiddev.petit.transformer;
 import org.squiddev.petit.api.Alias;
 import org.squiddev.petit.api.Optional;
 import org.squiddev.petit.api.Provided;
-import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.transformer.TransformerContainer;
 import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
+import org.squiddev.petit.api.compile.tree.ArgumentKind;
 
 import java.util.Collections;
 

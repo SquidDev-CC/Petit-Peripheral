@@ -1,9 +1,9 @@
 package org.squiddev.petit.backend;
 
-import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.backend.Backend;
 import org.squiddev.petit.api.compile.backend.InboundConverter;
 import org.squiddev.petit.api.compile.backend.OutboundConverter;
+import org.squiddev.petit.api.compile.tree.ArgumentKind;
 
 import javax.lang.model.type.TypeMirror;
 import java.util.HashSet;

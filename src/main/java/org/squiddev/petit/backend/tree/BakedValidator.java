@@ -1,14 +1,17 @@
 package org.squiddev.petit.backend.tree;
 
 import org.squiddev.petit.api.compile.Environment;
-import org.squiddev.petit.api.compile.Validator;
 import org.squiddev.petit.api.compile.backend.Backend;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.backend.tree.MethodBaked;
+import org.squiddev.petit.api.compile.tree.SyntheticMethod;
+import org.squiddev.petit.api.compile.tree.Validator;
 
 import javax.annotation.processing.Messager;
+import javax.lang.model.type.TypeKind;
 import javax.tools.Diagnostic;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +35,15 @@ public class BakedValidator implements Validator<ClassBaked> {
 			for (String name : method.getNames()) {
 				if (!names.add(name)) {
 					messager.printMessage(Diagnostic.Kind.ERROR, "Duplicate name '" + name + "'", method.getElement());
+					success = false;
+				}
+			}
+		}
+
+		for (Collection<SyntheticMethod> synthetics : baked.getSyntheticMethods().values()) {
+			if (synthetics.size() > 1 && synthetics.iterator().next().getReturnType().getKind() != TypeKind.VOID) {
+				for (SyntheticMethod method : synthetics) {
+					messager.printMessage(Diagnostic.Kind.ERROR, "Multiple synthetic methods for non-void return type", method.getElement());
 					success = false;
 				}
 			}

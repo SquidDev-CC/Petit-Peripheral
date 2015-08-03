@@ -1,18 +1,17 @@
-package org.squiddev.petit.backend;
+package org.squiddev.petit.backend.iperipheral;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import org.squiddev.petit.api.compile.Environment;
-import org.squiddev.petit.api.compile.Validator;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
+import org.squiddev.petit.api.compile.tree.Validator;
 import org.squiddev.petit.backend.converter.inbound.AbstractInboundConverter;
 import org.squiddev.petit.backend.converter.inbound.InstanceofConverter;
 import org.squiddev.petit.backend.converter.inbound.PrimitiveTypeConverter;
 import org.squiddev.petit.backend.converter.inbound.ProvidedConverter;
 import org.squiddev.petit.backend.converter.outbound.SimpleConverter;
-import org.squiddev.petit.backend.tree.BakedValidator;
 import org.squiddev.petit.backend.tree.BasicClassBaked;
 
 import javax.lang.model.type.TypeKind;
@@ -20,7 +19,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.Collections;
 
 public class IPeripheralBackend extends IPeripheralWriter {
-	private final Validator<ClassBaked> validator = new BakedValidator(this, environment);
+	private final Validator<ClassBaked> validator = new IPeripheralValidator(this, environment);
 
 	public IPeripheralBackend(Environment environment) {
 		super(environment);
@@ -55,7 +54,7 @@ public class IPeripheralBackend extends IPeripheralWriter {
 	@Override
 	public ClassBaked bake(ClassBuilder builder) {
 		String[] fullName = environment.getElementUtils().getBinaryName(builder.getElement()).toString().split("\\.");
-		return new BasicClassBaked(fullName[fullName.length - 1].replace("$", "_") + "_Peripheral", builder, this);
+		return new BasicClassBaked(fullName[fullName.length - 1].replace("$", "_") + "_Peripheral", builder, this, environment);
 	}
 
 	@Override

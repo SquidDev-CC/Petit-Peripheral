@@ -1,8 +1,8 @@
 package org.squiddev.petit.api.compile.backend;
 
 import com.squareup.javapoet.CodeBlock;
-import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
+import org.squiddev.petit.api.compile.tree.ArgumentKind;
 
 import javax.lang.model.type.TypeMirror;
 

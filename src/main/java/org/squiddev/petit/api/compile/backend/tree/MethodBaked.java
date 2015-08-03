@@ -1,6 +1,6 @@
 package org.squiddev.petit.api.compile.backend.tree;
 
-import org.squiddev.petit.api.compile.Node;
+import org.squiddev.petit.api.compile.tree.Node;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;

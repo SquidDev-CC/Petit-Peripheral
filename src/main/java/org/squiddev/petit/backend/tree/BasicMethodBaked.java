@@ -1,11 +1,11 @@
 package org.squiddev.petit.backend.tree;
 
-import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.backend.tree.MethodBaked;
 import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
+import org.squiddev.petit.api.compile.tree.ArgumentKind;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.ArrayType;

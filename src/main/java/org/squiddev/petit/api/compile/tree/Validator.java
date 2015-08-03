@@ -1,4 +1,4 @@
-package org.squiddev.petit.api.compile;
+package org.squiddev.petit.api.compile.tree;
 
 /**
  * Validate an object

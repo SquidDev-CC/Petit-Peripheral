@@ -3,13 +3,14 @@ package org.squiddev.petit.transformer.tree;
 import org.squiddev.petit.api.LuaFunction;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
+import org.squiddev.petit.api.compile.tree.SyntheticMethod;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Data about the class we are generating
@@ -17,14 +18,15 @@ import java.util.Set;
 public class BasicClassBuilder implements ClassBuilder {
 	private final TypeElement klass;
 	private final String name;
-	private final Set<MethodBuilder> methods;
+	private final Collection<MethodBuilder> methods;
+	private final Collection<SyntheticMethod> synthetics = new ArrayList<SyntheticMethod>();
 
 	public BasicClassBuilder(String name, TypeElement klass) {
 		this.name = name;
 		this.klass = klass;
 
 		// Gather methods
-		Set<MethodBuilder> methods = this.methods = new HashSet<MethodBuilder>();
+		Collection<MethodBuilder> methods = this.methods = new ArrayList<MethodBuilder>();
 		for (Element element : klass.getEnclosedElements()) {
 			if (element.getKind() == ElementKind.METHOD) {
 				ExecutableElement method = (ExecutableElement) element;
@@ -46,7 +48,12 @@ public class BasicClassBuilder implements ClassBuilder {
 	}
 
 	@Override
-	public Set<MethodBuilder> methods() {
+	public Collection<MethodBuilder> methods() {
 		return methods;
+	}
+
+	@Override
+	public Collection<SyntheticMethod> syntheticMethods() {
+		return synthetics;
 	}
 }

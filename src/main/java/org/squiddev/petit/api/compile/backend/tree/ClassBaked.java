@@ -1,10 +1,13 @@
 package org.squiddev.petit.api.compile.backend.tree;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import org.squiddev.petit.api.compile.Node;
+import org.squiddev.petit.api.compile.tree.MethodSignature;
+import org.squiddev.petit.api.compile.tree.Node;
+import org.squiddev.petit.api.compile.tree.SyntheticMethod;
 
 import javax.lang.model.element.TypeElement;
 import java.util.Collection;
+import java.util.Map;
 
 public interface ClassBaked extends Node<TypeElement> {
 	/**
@@ -29,4 +32,11 @@ public interface ClassBaked extends Node<TypeElement> {
 	 * @return The methods
 	 */
 	Collection<MethodBaked> getMethods();
+
+	/**
+	 * Collection of additional methods to attach to the generated class
+	 *
+	 * @return The synthetic methods
+	 */
+	Map<MethodSignature, Collection<SyntheticMethod>> getSyntheticMethods();
 }

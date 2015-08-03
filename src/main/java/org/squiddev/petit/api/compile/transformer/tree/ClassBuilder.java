@@ -1,10 +1,11 @@
 package org.squiddev.petit.api.compile.transformer.tree;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import org.squiddev.petit.api.compile.Node;
+import org.squiddev.petit.api.compile.tree.Node;
+import org.squiddev.petit.api.compile.tree.SyntheticMethod;
 
 import javax.lang.model.element.TypeElement;
-import java.util.Set;
+import java.util.Collection;
 
 public interface ClassBuilder extends Node<TypeElement> {
 	/**
@@ -21,5 +22,12 @@ public interface ClassBuilder extends Node<TypeElement> {
 	 *
 	 * @return The methods
 	 */
-	Set<MethodBuilder> methods();
+	Collection<MethodBuilder> methods();
+
+	/**
+	 * Collection of additional methods to attach to the generated class
+	 *
+	 * @return The synthetic methods
+	 */
+	Collection<SyntheticMethod> syntheticMethods();
 }

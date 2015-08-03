@@ -1,4 +1,4 @@
-package org.squiddev.petit.backend;
+package org.squiddev.petit.backend.iperipheral;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
@@ -8,13 +8,15 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import org.squiddev.petit.api.compile.ArgumentKind;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.backend.InboundConverter;
 import org.squiddev.petit.api.compile.backend.Segment;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.backend.tree.MethodBaked;
+import org.squiddev.petit.api.compile.tree.ArgumentKind;
+import org.squiddev.petit.backend.AbstractBackend;
+import org.squiddev.petit.backend.Utils;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.ArrayType;

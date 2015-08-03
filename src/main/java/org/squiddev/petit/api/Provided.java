@@ -1,6 +1,6 @@
 package org.squiddev.petit.api;
 
-import org.squiddev.petit.api.compile.ArgumentKind;
+import org.squiddev.petit.api.compile.tree.ArgumentKind;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

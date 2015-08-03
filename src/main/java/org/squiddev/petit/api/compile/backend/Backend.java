@@ -1,10 +1,10 @@
 package org.squiddev.petit.api.compile.backend;
 
 import com.squareup.javapoet.TypeSpec;
-import org.squiddev.petit.api.compile.ArgumentKind;
-import org.squiddev.petit.api.compile.Validator;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
+import org.squiddev.petit.api.compile.tree.ArgumentKind;
+import org.squiddev.petit.api.compile.tree.Validator;
 
 import javax.lang.model.type.TypeMirror;
 
