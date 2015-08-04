@@ -15,6 +15,8 @@ import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.backend.tree.MethodBaked;
 import org.squiddev.petit.api.compile.tree.ArgumentKind;
+import org.squiddev.petit.api.compile.tree.MethodSignature;
+import org.squiddev.petit.api.compile.tree.SyntheticMethod;
 import org.squiddev.petit.backend.AbstractBackend;
 import org.squiddev.petit.backend.Utils;
 
@@ -23,7 +25,9 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public abstract class IPeripheralWriter extends AbstractBackend {
 	public final String ARG_COMPUTER = "computer";
@@ -51,27 +55,28 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 
 		// These should do something. First build and all that though.
 		spec.addMethod(
-			MethodSpec.methodBuilder("attach")
-				.addModifiers(Modifier.PUBLIC)
-				.addParameter(IComputerAccess.class, "comp")
-				.returns(void.class)
-				.build()
-		);
-		spec.addMethod(
-			MethodSpec.methodBuilder("detach")
-				.addModifiers(Modifier.PUBLIC)
-				.addParameter(IComputerAccess.class, "comp")
-				.returns(void.class)
-				.build()
-		);
-
-		spec.addMethod(
 			MethodSpec.constructorBuilder()
 				.addModifiers(Modifier.PUBLIC)
 				.addParameter(TypeName.get(baked.getElement().asType()), "instance")
 				.addStatement("this.$N = instance", FIELD_INSTANCE)
 				.build()
 		);
+
+		for (Map.Entry<MethodSignature, Collection<SyntheticMethod>> synthetic : baked.getSyntheticMethods().entrySet()) {
+			MethodSpec.Builder builder = MethodSpec.methodBuilder(synthetic.getKey().getName())
+				.addModifiers(Modifier.PUBLIC);
+
+			int i = 0;
+			for (TypeMirror type : synthetic.getKey().getParameters()) {
+				builder.addParameter(TypeName.get(type), "arg_" + i);
+			}
+			for (SyntheticMethod method : synthetic.getValue()) {
+				builder.returns(TypeName.get(method.getReturnType()));
+				builder.addCode(method.build());
+			}
+
+			spec.addMethod(builder.build());
+		}
 
 		return spec;
 	}

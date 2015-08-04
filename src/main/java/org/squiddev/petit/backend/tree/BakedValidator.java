@@ -41,10 +41,12 @@ public class BakedValidator implements Validator<ClassBaked> {
 		}
 
 		for (Collection<SyntheticMethod> synthetics : baked.getSyntheticMethods().values()) {
-			if (synthetics.size() > 1 && synthetics.iterator().next().getReturnType().getKind() != TypeKind.VOID) {
+			if (synthetics.size() > 1) {
 				for (SyntheticMethod method : synthetics) {
-					messager.printMessage(Diagnostic.Kind.ERROR, "Multiple synthetic methods for non-void return type", method.getElement());
-					success = false;
+					if (method.getReturnType().getKind() != TypeKind.VOID) {
+						messager.printMessage(Diagnostic.Kind.ERROR, "Multiple synthetic methods for non-void return type", method.getElement());
+						success = false;
+					}
 				}
 			}
 		}

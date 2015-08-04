@@ -77,8 +77,6 @@ public final class BaseTypeHelper implements TypeHelper {
 			return TypeKind.FLOAT;
 		} else if (type == double.class) {
 			return TypeKind.DOUBLE;
-		} else if (type == void.class) {
-			return TypeKind.VOID;
 		}
 
 		return null;
@@ -86,7 +84,9 @@ public final class BaseTypeHelper implements TypeHelper {
 
 	@Override
 	public TypeMirror getMirror(Class<?> type) {
-		if (type.isPrimitive()) {
+		if (type == void.class) {
+			return environment.getTypeUtils().getNoType(TypeKind.VOID);
+		} else if (type.isPrimitive()) {
 			return environment.getTypeUtils().getPrimitiveType(getKind(type));
 		} else if (type.isArray()) {
 			return environment.getTypeUtils().getArrayType(getMirror(type.getComponentType()));

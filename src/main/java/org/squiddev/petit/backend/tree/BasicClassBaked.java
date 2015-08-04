@@ -22,11 +22,13 @@ public class BasicClassBaked implements ClassBaked {
 	private final Collection<MethodBaked> methods;
 	private final Map<MethodSignature, Collection<SyntheticMethod>> synthetics;
 	private final TypeElement element;
+	private final Environment environment;
 
 	public BasicClassBaked(String generatedName, ClassBuilder builder, Backend backend, Environment environment) {
 		this.generatedName = generatedName;
 		this.name = builder.getName();
 		this.element = builder.getElement();
+		this.environment = environment;
 
 		Collection<MethodBaked> methods = new ArrayList<MethodBaked>();
 		this.methods = Collections.unmodifiableCollection(methods);
@@ -46,23 +48,30 @@ public class BasicClassBaked implements ClassBaked {
 			if (include) methods.add(new BasicMethodBaked(method, this));
 		}
 
-		Map<MethodSignature, Collection<SyntheticMethod>> synthetics = new HashMap<MethodSignature, Collection<SyntheticMethod>>();
-		this.synthetics = Collections.unmodifiableMap(synthetics);
+		/*
+			The synthetics method is intentionally modifiable
+			as wee need to be able to add to it in parent classes
+		 */
+		this.synthetics = new HashMap<MethodSignature, Collection<SyntheticMethod>>();
 
 		for (SyntheticMethod synthetic : builder.syntheticMethods()) {
 			for (TypeMirror target : synthetic.getBackends()) {
 				if (backend.compatibleWith(target)) {
-					MethodSignature signature = new BasicMethodSignature(synthetic.getName(), synthetic.getParameters(), environment);
-
-					Collection<SyntheticMethod> similar = synthetics.get(signature);
-					if (similar == null) synthetics.put(signature, similar = new ArrayList<SyntheticMethod>());
-
-					similar.add(synthetic);
+					addSynthetic(synthetic);
 
 					break;
 				}
 			}
 		}
+	}
+
+	protected void addSynthetic(SyntheticMethod synthetic) {
+		MethodSignature signature = new BasicMethodSignature(synthetic.getName(), synthetic.getParameters(), environment);
+
+		Collection<SyntheticMethod> similar = synthetics.get(signature);
+		if (similar == null) synthetics.put(signature, similar = new ArrayList<SyntheticMethod>());
+
+		similar.add(synthetic);
 	}
 
 	@Override
@@ -82,7 +91,7 @@ public class BasicClassBaked implements ClassBaked {
 
 	@Override
 	public Map<MethodSignature, Collection<SyntheticMethod>> getSyntheticMethods() {
-		return synthetics;
+		return Collections.unmodifiableMap(synthetics);
 	}
 
 	@Override
