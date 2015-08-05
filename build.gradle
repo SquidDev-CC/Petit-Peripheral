@@ -1,7 +1,8 @@
 group 'org.squiddev'
-version '1.0'
+version '0.1'
 
 apply plugin: 'java'
+apply plugin: 'maven'
 
 sourceCompatibility = 1.6
 
@@ -14,14 +15,73 @@ repositories {
 	}
 }
 
+configurations {
+	deployerJars
+}
+
 dependencies {
 	compile 'ComputerCraft:ComputerCraft:1.74:jar'
 	compile 'com.squareup:javapoet:1.1.0'
 	testCompile 'junit:junit:4.11'
+	deployerJars "org.apache.maven.wagon:wagon-ftp:2.2"
 }
 
 test {
 	testLogging {
 		events "passed", "skipped", "failed", "standardOut", "standardError"
+	}
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+artifacts {
+	archives jar
+
+	archives sourcesJar
+}
+
+uploadArchives {
+	repositories {
+		if (!project.hasProperty("ftpHost")) {
+			mavenLocal()
+		} else {
+			mavenDeployer {
+				configuration = configurations.deployerJars
+				repository(url: ftpHost) {
+					authentication(userName: ftpUser, password: ftpPass)
+				}
+
+				pom.project {
+					name 'PetitPeripheral'
+					packaging 'jar'
+					description 'A zero dependency, minimal overhead peripheral framework'
+					url 'https://github.com/SquidDev-CC/Petit-Peripheral'
+
+					scm {
+						url 'scm:git@github.com:SquidDev-CC/Petit-Peripheral.git'
+						connection 'scm:git@github.com:SquidDev-CC/Petit-Peripheral.git'
+						developerConnection 'scm:git@github.com:SquidDev-CC/Petit-Peripheral.git'
+					}
+
+					licenses {
+						license {
+							name 'MIT License'
+							url 'http://opensource.org/licenses/mit-license.php'
+							distribution 'repo'
+						}
+					}
+
+					developers {
+						developer {
+							id 'SquidDev'
+							name 'SquidDev'
+						}
+					}
+				}
+			}
+		}
 	}
 }
