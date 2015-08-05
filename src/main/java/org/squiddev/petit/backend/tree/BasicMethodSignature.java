@@ -3,6 +3,8 @@ package org.squiddev.petit.backend.tree;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.tree.MethodSignature;
 
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.util.ArrayList;
@@ -21,11 +23,20 @@ public final class BasicMethodSignature implements MethodSignature {
 
 	public BasicMethodSignature(String name, Environment environment, Class<?>... parameters) {
 		this.name = name;
+		this.helpers = environment.getTypeUtils();
 		List<TypeMirror> params = this.parameters = new ArrayList<TypeMirror>(parameters.length);
 		for (Class<?> param : parameters) {
 			params.add(environment.getTypeHelpers().getMirror(param));
 		}
+	}
+
+	public BasicMethodSignature(ExecutableElement element, Environment environment) {
+		this.name = element.getSimpleName().toString();
 		this.helpers = environment.getTypeUtils();
+		List<TypeMirror> params = this.parameters = new ArrayList<TypeMirror>(element.getParameters().size());
+		for (VariableElement param : element.getParameters()) {
+			params.add(param.asType());
+		}
 	}
 
 	@Override

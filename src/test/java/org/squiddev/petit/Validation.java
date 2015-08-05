@@ -4,15 +4,16 @@ package org.squiddev.petit;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import org.junit.Test;
-import org.squiddev.petit.api.LuaFunction;
-import org.squiddev.petit.api.Optional;
-import org.squiddev.petit.api.Peripheral;
-import org.squiddev.petit.api.Provided;
+import org.squiddev.petit.api.*;
 import org.squiddev.petit.api.runtime.Inbound;
 import org.squiddev.petit.api.runtime.Outbound;
 
+import static org.junit.Assert.assertEquals;
+
 public class Validation {
-	public final PeripheralWrapper wrapper = new PeripheralWrapper(PeripheralHelper.create(new Embed()));
+	public final Embed embed = new Embed();
+	public final IPeripheral peripheral = PeripheralHelper.create(embed);
+	public final PeripheralWrapper wrapper = new PeripheralWrapper(peripheral);
 
 	@Test
 	public void emptyArguments() {
@@ -145,8 +146,16 @@ public class Validation {
 		}
 	}
 
+	@Test
+	public void handler() {
+		peripheral.attach(null);
+		assertEquals(1, embed.counter);
+	}
+
 	@Peripheral("peripheral")
 	public static class Embed {
+		public int counter = 0;
+
 		@LuaFunction
 		public void emptyArguments() {
 		}
@@ -182,6 +191,11 @@ public class Validation {
 		@LuaFunction
 		public Testing customConverter(Testing foo) {
 			return foo;
+		}
+
+		@Handler(IPeripheral.class)
+		public void attach(IComputerAccess access) {
+			counter++;
 		}
 	}
 }

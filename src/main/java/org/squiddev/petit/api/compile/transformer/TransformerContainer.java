@@ -14,6 +14,8 @@ import java.util.Collection;
  * Finds annotations on the element and applies the correct transformer.
  */
 public interface TransformerContainer {
+	void add(GenericTransformer transformer);
+
 	<A extends Annotation> void add(Class<A> annotation, Transformer<A> transformer);
 
 	void transform(ClassBuilder klass);

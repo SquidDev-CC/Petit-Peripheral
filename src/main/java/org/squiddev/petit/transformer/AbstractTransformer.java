@@ -1,6 +1,7 @@
 package org.squiddev.petit.transformer;
 
 import org.squiddev.petit.api.Peripheral;
+import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.transformer.Transformer;
 import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
@@ -17,7 +18,7 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class AbstractTransformer<T extends Annotation> implements Transformer<T> {
-	protected final org.squiddev.petit.api.compile.Environment environment;
+	protected final Environment environment;
 
 	public AbstractTransformer(org.squiddev.petit.api.compile.Environment environment) {
 		this.environment = environment;

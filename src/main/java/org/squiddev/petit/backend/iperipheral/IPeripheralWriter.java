@@ -68,7 +68,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 
 			int i = 0;
 			for (TypeMirror type : synthetic.getKey().getParameters()) {
-				builder.addParameter(TypeName.get(type), "arg_" + i);
+				builder.addParameter(TypeName.get(type), SyntheticMethod.ARG_PREFIX + i);
 			}
 			for (SyntheticMethod method : synthetic.getValue()) {
 				builder.returns(TypeName.get(method.getReturnType()));

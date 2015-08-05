@@ -1,5 +1,6 @@
 package org.squiddev.petit.compile;
 
+import org.squiddev.petit.api.compile.ElementHelper;
 import org.squiddev.petit.api.compile.Environment;
 import org.squiddev.petit.api.compile.TypeHelper;
 import org.squiddev.petit.api.compile.transformer.TransformerContainer;
@@ -18,14 +19,16 @@ import java.util.Map;
 /**
  * The environment used for writing classes
  */
-public class BaseEnvironment implements Environment {
+public final class BaseEnvironment implements Environment {
 	private final TransformerContainer transformer = new Transformers();
 	private final TypeHelper typeHelper;
 	private final ProcessingEnvironment processingEnvironment;
+	private final ElementHelper elementHelper;
 
 	public BaseEnvironment(ProcessingEnvironment processingEnvironment) {
 		this.processingEnvironment = processingEnvironment;
 		this.typeHelper = new BaseTypeHelper(processingEnvironment);
+		this.elementHelper = new BaseElementHelper(this);
 		DefaultTransformers.add(this);
 	}
 
@@ -62,6 +65,11 @@ public class BaseEnvironment implements Environment {
 	@Override
 	public Locale getLocale() {
 		return processingEnvironment.getLocale();
+	}
+
+	@Override
+	public ElementHelper getElementHelpers() {
+		return elementHelper;
 	}
 
 	@Override

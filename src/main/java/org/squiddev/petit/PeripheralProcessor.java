@@ -31,7 +31,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.io.IOException;
@@ -149,7 +148,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 	@SuppressWarnings("unchecked")
 	public Collection<TypeMirror> getTypeMirrors(Element element, Class<? extends Annotation> annotation, String name) {
-		Object contents = getValue(element, annotation, name);
+		Object contents = environment.getElementHelpers().getValue(element, annotation, name);
 		if (contents == null) return null;
 		Collection<AnnotationValue> values = (Collection<AnnotationValue>) contents;
 		List<TypeMirror> mirrors = new ArrayList<TypeMirror>(values.size());
@@ -157,23 +156,6 @@ public class PeripheralProcessor extends AbstractProcessor {
 			mirrors.add((TypeMirror) value.getValue());
 		}
 		return mirrors;
-	}
-
-	public Object getValue(Element element, Class<? extends Annotation> annotation, String name) {
-		String annotationName = annotation.getName();
-		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
-			DeclaredType annotationType = annotationMirror.getAnnotationType();
-			TypeElement annotationElement = (TypeElement) annotationType.asElement();
-
-			if (annotationElement.getQualifiedName().contentEquals(annotationName)) {
-				for (Map.Entry<? extends ExecutableElement, AnnotationValue> entry : Collections.unmodifiableMap(annotationMirror.getElementValues()).entrySet()) {
-					if (entry.getKey().getSimpleName().contentEquals(name)) {
-						return entry.getValue().getValue();
-					}
-				}
-			}
-		}
-		return null;
 	}
 
 	public void addInboundConverters(Iterable<Backend> backends, RoundEnvironment round) {
@@ -187,7 +169,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 				continue;
 			}
 
-			Object name = getValue(element, Inbound.class, "value");
+			Object name = environment.getElementHelpers().getValue(element, Inbound.class, "value");
 			InboundConverter converter = new AbstractInboundConverter(environment, name == null || ((String) name).isEmpty() ? method.getReturnType().toString() : (String) name) {
 				@Override
 				public Segment validate(ArgumentBaked argument, String from) {

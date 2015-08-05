@@ -1,5 +1,6 @@
 package org.squiddev.petit.transformer;
 
+import org.squiddev.petit.api.compile.transformer.GenericTransformer;
 import org.squiddev.petit.api.compile.transformer.Transformer;
 import org.squiddev.petit.api.compile.transformer.TransformerContainer;
 import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
@@ -11,10 +12,17 @@ import javax.lang.model.element.Element;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class Transformers implements TransformerContainer {
+	protected final Collection<GenericTransformer> generics = new HashSet<GenericTransformer>();
 	protected final Map<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> transformers = new HashMap<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>>();
+
+	@Override
+	public void add(GenericTransformer transformer) {
+		generics.add(transformer);
+	}
 
 	@Override
 	public <A extends Annotation> void add(Class<A> annotation, Transformer<A> transformer) {
@@ -26,7 +34,12 @@ public class Transformers implements TransformerContainer {
 
 	@Override
 	public void transform(ClassBuilder klass) {
+		for (GenericTransformer transformer : generics) {
+			transformer.transform(klass);
+		}
+
 		if (klass.getElement() == null) return;
+
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			Annotation annotation = klass.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(klass, annotation);
@@ -35,6 +48,10 @@ public class Transformers implements TransformerContainer {
 
 	@Override
 	public void transform(MethodBuilder method) {
+		for (GenericTransformer transformer : generics) {
+			transformer.transform(method);
+		}
+
 		if (method.getElement() == null) return;
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			Annotation annotation = method.getElement().getAnnotation(entry.getKey());
@@ -44,7 +61,12 @@ public class Transformers implements TransformerContainer {
 
 	@Override
 	public void transform(ArgumentBuilder arg) {
+		for (GenericTransformer transformer : generics) {
+			transformer.transform(arg);
+		}
+
 		if (arg.getElement() == null) return;
+
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			Annotation annotation = arg.getElement().getAnnotation(entry.getKey());
 			if (annotation != null) entry.getValue().transform(arg, annotation);
@@ -54,6 +76,10 @@ public class Transformers implements TransformerContainer {
 	@Override
 	public boolean validate(RoundEnvironment environment) {
 		boolean success = true;
+		for (GenericTransformer transformer : generics) {
+			success &= transformer.validate(environment);
+		}
+
 		for (Map.Entry<Class<? extends Annotation>, AnnotationWrapper<? extends Annotation>> entry : transformers.entrySet()) {
 			for (Element element : environment.getElementsAnnotatedWith(entry.getKey())) {
 				success &= entry.getValue().validate(element, element.getAnnotation(entry.getKey()));

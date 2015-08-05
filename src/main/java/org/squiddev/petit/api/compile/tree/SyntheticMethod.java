@@ -13,6 +13,8 @@ import java.util.List;
  * There can be synthetic methods for one Java method, but only if the return type is {@code void}
  */
 public interface SyntheticMethod extends Node<Element> {
+	String ARG_PREFIX = "arg_";
+
 	/**
 	 * Get the types this method is suitable for
 	 *
