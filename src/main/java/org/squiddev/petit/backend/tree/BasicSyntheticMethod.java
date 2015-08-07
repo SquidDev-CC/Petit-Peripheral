@@ -2,6 +2,8 @@ package org.squiddev.petit.backend.tree;
 
 import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.backend.Backend;
+import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.tree.MethodSignature;
 
 import javax.lang.model.element.Element;
@@ -23,7 +25,7 @@ public class BasicSyntheticMethod extends AbstractSyntheticMethod {
 	}
 
 	@Override
-	public CodeBlock build() {
+	public CodeBlock build(Backend backend, ClassBaked baked) {
 		return codeBlock;
 	}
 

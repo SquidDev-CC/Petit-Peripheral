@@ -72,7 +72,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			}
 			for (SyntheticMethod method : synthetic.getValue()) {
 				builder.returns(TypeName.get(method.getReturnType()));
-				builder.addCode(method.build());
+				builder.addCode(method.build(this, baked));
 			}
 
 			spec.addMethod(builder.build());

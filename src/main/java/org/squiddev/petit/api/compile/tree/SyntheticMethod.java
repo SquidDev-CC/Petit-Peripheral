@@ -1,6 +1,8 @@
 package org.squiddev.petit.api.compile.tree;
 
 import com.squareup.javapoet.CodeBlock;
+import org.squiddev.petit.api.compile.backend.Backend;
+import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
@@ -48,7 +50,9 @@ public interface SyntheticMethod extends Node<Element> {
 	/**
 	 * Convert the synthetic method into a code block.
 	 *
+	 * @param backend The backend to generate with
+	 * @param baked   The baked class to generate under
 	 * @return The generated code
 	 */
-	CodeBlock build();
+	CodeBlock build(Backend backend, ClassBaked baked);
 }
