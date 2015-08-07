@@ -12,15 +12,15 @@ import java.util.Collections;
 /**
  * Simply checks if it is an instance of the class and casts it to it.
  */
-public class InstanceofConverter extends AbstractInboundConverter {
+public class InstanceOfConverter extends AbstractInboundConverter {
 	protected final TypeMirror type;
 
-	public InstanceofConverter(Environment env, TypeMirror type, String name) {
+	public InstanceOfConverter(Environment env, TypeMirror type, String name) {
 		super(env, name);
 		this.type = type;
 	}
 
-	public InstanceofConverter(Environment env, Class<?> type, String name) {
+	public InstanceOfConverter(Environment env, Class<?> type, String name) {
 		this(env, env.getTypeHelpers().getMirror(type), name);
 	}
 

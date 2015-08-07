@@ -4,16 +4,16 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import org.squiddev.petit.api.compile.Environment;
+import org.squiddev.petit.api.compile.backend.InboundConverter;
+import org.squiddev.petit.api.compile.backend.OutboundConverter;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
 import org.squiddev.petit.api.compile.tree.Validator;
 import org.squiddev.petit.backend.converter.inbound.AbstractInboundConverter;
-import org.squiddev.petit.backend.converter.inbound.InstanceofConverter;
 import org.squiddev.petit.backend.converter.inbound.PrimitiveTypeConverter;
 import org.squiddev.petit.backend.converter.inbound.ProvidedConverter;
 import org.squiddev.petit.backend.converter.outbound.SimpleConverter;
 
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.Collections;
 
@@ -30,24 +30,16 @@ public class IPeripheralBackend extends IPeripheralWriter {
 			}
 		});
 
-		for (TypeKind type : new TypeKind[]{TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG, TypeKind.FLOAT, TypeKind.DOUBLE}) {
-			addInboundConverter(new PrimitiveTypeConverter.NumberConverter(environment, type));
+		for (InboundConverter converter : PrimitiveTypeConverter.add(environment)) {
+			addInboundConverter(converter);
 		}
-		addInboundConverter(new PrimitiveTypeConverter(environment, TypeKind.BOOLEAN, "boolean"));
-		addInboundConverter(new PrimitiveTypeConverter.CharConverter(environment));
-		addInboundConverter(new InstanceofConverter(environment, String.class, "string"));
 
 		addInboundConverter(new ProvidedConverter(environment, IComputerAccess.class, ARG_COMPUTER));
 		addInboundConverter(new ProvidedConverter(environment, ILuaContext.class, ARG_LUA_CONTEXT));
 
-		addOutboundConverter(new SimpleConverter(environment, byte.class));
-		addOutboundConverter(new SimpleConverter(environment, short.class));
-		addOutboundConverter(new SimpleConverter(environment, int.class));
-		addOutboundConverter(new SimpleConverter(environment, long.class));
-		addOutboundConverter(new SimpleConverter(environment, float.class));
-		addOutboundConverter(new SimpleConverter(environment, double.class));
-		addOutboundConverter(new SimpleConverter(environment, String.class));
-		addOutboundConverter(new SimpleConverter(environment, Object.class));
+		for (OutboundConverter converter : SimpleConverter.addBasics(environment)) {
+			addOutboundConverter(converter);
+		}
 	}
 
 	@Override
