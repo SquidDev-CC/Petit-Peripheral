@@ -12,6 +12,7 @@ import org.squiddev.petit.api.compile.backend.OutboundConverter;
 import org.squiddev.petit.api.compile.backend.Segment;
 import org.squiddev.petit.api.compile.backend.tree.ArgumentBaked;
 import org.squiddev.petit.api.compile.backend.tree.ClassBaked;
+import org.squiddev.petit.api.compile.transformer.TransformerContainer;
 import org.squiddev.petit.api.compile.transformer.tree.ArgumentBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.ClassBuilder;
 import org.squiddev.petit.api.compile.transformer.tree.MethodBuilder;
@@ -22,6 +23,8 @@ import org.squiddev.petit.backend.converter.inbound.AbstractInboundConverter;
 import org.squiddev.petit.backend.converter.outbound.AbstractOutboundConverter;
 import org.squiddev.petit.backend.iperipheral.IPeripheralBackend;
 import org.squiddev.petit.compile.BaseEnvironment;
+import org.squiddev.petit.transformer.DefaultTransformers;
+import org.squiddev.petit.transformer.Transformers;
 import org.squiddev.petit.transformer.tree.BasicClassBuilder;
 import org.squiddev.petit.transformer.tree.BuilderValidator;
 
@@ -45,6 +48,7 @@ import java.util.*;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class PeripheralProcessor extends AbstractProcessor {
 	protected Environment environment;
+	protected TransformerContainer transformers;
 	protected BuilderValidator builderValidator;
 
 	@Override
@@ -52,6 +56,8 @@ public class PeripheralProcessor extends AbstractProcessor {
 		super.init(processingEnv);
 		environment = new BaseEnvironment(processingEnv);
 		builderValidator = new BuilderValidator(environment);
+		transformers = new Transformers();
+		DefaultTransformers.add(transformers, environment);
 	}
 
 	@Override
@@ -65,7 +71,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 			process(elem, backends);
 		}
 
-		environment.getTransformer().validate(roundEnvironment);
+		transformers.validate(roundEnvironment);
 
 		return true;
 	}
@@ -81,11 +87,11 @@ public class PeripheralProcessor extends AbstractProcessor {
 			builder = new BasicClassBuilder(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem);
 			for (MethodBuilder method : builder.methods()) {
 				for (ArgumentBuilder argument : method.getArguments()) {
-					environment.getTransformer().transform(argument);
+					transformers.transform(argument);
 				}
-				environment.getTransformer().transform(method);
+				transformers.transform(method);
 			}
-			environment.getTransformer().transform(builder);
+			transformers.transform(builder);
 
 			if (!builderValidator.validate(builder)) return;
 		} catch (Exception e) {
@@ -124,7 +130,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 		types.add(Inbound.class.getName());
 		types.add(Outbound.class.getName());
 
-		for (Class annotation : environment.getTransformer().annotations()) {
+		for (Class annotation : transformers.annotations()) {
 			types.add(annotation.getName());
 		}
 

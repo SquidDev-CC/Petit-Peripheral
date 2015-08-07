@@ -33,9 +33,7 @@ public final class DefaultTransformers {
 		throw new IllegalStateException("Cannot create this class");
 	}
 
-	public static <T extends Environment> T add(T environment) {
-		TransformerContainer transformer = environment.getTransformer();
-
+	public static void add(TransformerContainer transformer, Environment environment) {
 		transformer.add(Alias.class, new AbstractTransformer<Alias>(environment) {
 			@Override
 			public void transform(MethodBuilder target, Alias annotation) {
@@ -140,7 +138,5 @@ public final class DefaultTransformers {
 				return success;
 			}
 		});
-
-		return environment;
 	}
 }
