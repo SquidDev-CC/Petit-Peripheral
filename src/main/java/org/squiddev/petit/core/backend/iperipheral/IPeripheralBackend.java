@@ -7,8 +7,8 @@ import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.InboundConverter;
 import org.squiddev.petit.api.backend.OutboundConverter;
 import org.squiddev.petit.api.tree.Validator;
-import org.squiddev.petit.api.tree.baked.ClassBaked;
-import org.squiddev.petit.api.tree.builder.ClassBuilder;
+import org.squiddev.petit.api.tree.baked.IClassBaked;
+import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.base.backend.AbstractInboundConverter;
 import org.squiddev.petit.core.backend.converter.inbound.PrimitiveTypeConverter;
 import org.squiddev.petit.core.backend.converter.inbound.ProvidedConverter;
@@ -18,7 +18,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.Collections;
 
 public class IPeripheralBackend extends IPeripheralWriter {
-	private final Validator<ClassBaked> validator = new IPeripheralValidator(this, environment);
+	private final Validator<IClassBaked> validator = new IPeripheralValidator(this, environment);
 
 	public IPeripheralBackend(Environment environment) {
 		super(environment);
@@ -43,7 +43,7 @@ public class IPeripheralBackend extends IPeripheralWriter {
 	}
 
 	@Override
-	public ClassBaked bake(ClassBuilder builder) {
+	public IClassBaked bake(IClassBuilder builder) {
 		String[] fullName = environment.getElementUtils().getBinaryName(builder.getElement()).toString().split("\\.");
 		return new IPeripheralBaked(fullName[fullName.length - 1].replace("$", "_") + "_Peripheral", builder, this, environment);
 	}
@@ -54,7 +54,7 @@ public class IPeripheralBackend extends IPeripheralWriter {
 	}
 
 	@Override
-	public Validator<ClassBaked> getValidator() {
+	public Validator<IClassBaked> getValidator() {
 		return validator;
 	}
 }

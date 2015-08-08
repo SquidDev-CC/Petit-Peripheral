@@ -1,48 +1,45 @@
 package org.squiddev.petit.api.transformer;
 
-import org.squiddev.petit.api.tree.builder.ArgumentBuilder;
-import org.squiddev.petit.api.tree.builder.ClassBuilder;
-import org.squiddev.petit.api.tree.builder.MethodBuilder;
+import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
+import org.squiddev.petit.api.tree.builder.IClassBuilder;
+import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
-import javax.lang.model.element.Element;
+import javax.annotation.processing.RoundEnvironment;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 
 /**
- * Adds or modifies information on nodes
- *
- * @param <A> The annotation that this handles
+ * A generic transformer is not bound to a specific annotation
  */
-public interface Transformer<A extends Annotation> {
+public interface Transformer {
 	/**
 	 * Modify a class
 	 *
-	 * @param klass      The class to modify
-	 * @param annotation The annotation to modify
+	 * @param klass The class to modify
 	 */
-	void transform(ClassBuilder klass, A annotation);
+	void transform(IClassBuilder klass);
 
 	/**
 	 * Modify a method
 	 *
-	 * @param method     The method to modify
-	 * @param annotation The annotation to modify
+	 * @param method The method to modify
 	 */
-	void transform(MethodBuilder method, A annotation);
+	void transform(IMethodBuilder method);
 
 	/**
 	 * Modify a argument
 	 *
-	 * @param argument   The argument to modify
-	 * @param annotation The annotation to modify
+	 * @param argument The argument to modify
 	 */
-	void transform(ArgumentBuilder argument, A annotation);
+	void transform(IArgumentBuilder argument);
 
 	/**
-	 * Validate an annotation on an item.
+	 * Validate an environment
 	 *
-	 * @param target     The value to modify
-	 * @param annotation The annotation about this item
-	 * @return If validation was successful (no errors occured).
+	 * @param environment The environment to scan in
+	 * @return If validation was successful (no errors occurred).
 	 */
-	boolean validate(Element target, A annotation);
+	boolean validate(RoundEnvironment environment);
+
+	Collection<Class<? extends Annotation>> getAnnotations();
 }

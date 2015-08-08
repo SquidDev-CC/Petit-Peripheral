@@ -5,7 +5,7 @@ import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.InboundConverter;
 import org.squiddev.petit.api.backend.Segment;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -34,17 +34,17 @@ public abstract class AbstractInboundConverter implements InboundConverter {
 	}
 
 	@Override
-	public CodeBlock convert(ArgumentBaked argument, String from) {
+	public CodeBlock convert(IArgumentBaked argument, String from) {
 		return null;
 	}
 
 	@Override
-	public CodeBlock preamble(ArgumentBaked argument) {
+	public CodeBlock preamble(IArgumentBaked argument) {
 		return null;
 	}
 
 	@Override
-	public Segment validate(ArgumentBaked argument, String from) {
+	public Segment validate(IArgumentBaked argument, String from) {
 		return null;
 	}
 }

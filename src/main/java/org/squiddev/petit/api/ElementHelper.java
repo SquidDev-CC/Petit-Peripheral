@@ -1,6 +1,6 @@
 package org.squiddev.petit.api;
 
-import org.squiddev.petit.api.tree.MethodSignature;
+import org.squiddev.petit.api.tree.IMethodSignature;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -56,5 +56,5 @@ public interface ElementHelper {
 	 * @param signature The signature to match
 	 * @return The found element or {@code null} if not found
 	 */
-	ExecutableElement getMethod(TypeElement element, MethodSignature signature);
+	ExecutableElement getMethod(TypeElement element, IMethodSignature signature);
 }

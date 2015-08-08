@@ -1,11 +1,11 @@
 package org.squiddev.petit.base.tree.baked;
 
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
-import org.squiddev.petit.api.tree.baked.ClassBaked;
-import org.squiddev.petit.api.tree.baked.MethodBaked;
-import org.squiddev.petit.api.tree.builder.ArgumentBuilder;
-import org.squiddev.petit.api.tree.builder.MethodBuilder;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IClassBaked;
+import org.squiddev.petit.api.tree.baked.IMethodBaked;
+import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
+import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.ArrayType;
@@ -15,18 +15,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class BasicMethodBaked implements MethodBaked {
+public class MethodBaked implements IMethodBaked {
 	private final Collection<String> names;
-	private final List<ArgumentBaked> arguments;
-	private final List<ArgumentBaked> actualArguments;
-	private final ClassBaked parent;
+	private final List<IArgumentBaked> arguments;
+	private final List<IArgumentBaked> actualArguments;
+	private final IClassBaked parent;
 	private final String error;
 	private final boolean varReturn;
 	private final ExecutableElement element;
 	private final TypeMirror type;
 	private final String target;
 
-	public BasicMethodBaked(MethodBuilder builder, ClassBaked parent) {
+	public MethodBaked(IMethodBuilder builder, IClassBaked parent) {
 		this.names = Collections.unmodifiableCollection(builder.names());
 		this.parent = parent;
 		this.error = builder.getErrorMessage();
@@ -38,18 +38,18 @@ public class BasicMethodBaked implements MethodBaked {
 		if (builder.getVarReturn()) type = ((ArrayType) type).getComponentType();
 		this.type = type;
 
-		List<ArgumentBaked> arguments = new ArrayList<ArgumentBaked>();
-		List<ArgumentBaked> actualArguments = new ArrayList<ArgumentBaked>();
+		List<IArgumentBaked> arguments = new ArrayList<IArgumentBaked>();
+		List<IArgumentBaked> actualArguments = new ArrayList<IArgumentBaked>();
 		this.arguments = Collections.unmodifiableList(arguments);
 		this.actualArguments = Collections.unmodifiableList(actualArguments);
 
 		int index = 0;
-		for (ArgumentBuilder argument : builder.getArguments()) {
-			ArgumentBaked baked;
+		for (IArgumentBuilder argument : builder.getArguments()) {
+			IArgumentBaked baked;
 			if (argument.getKind() == ArgumentKind.PROVIDED) {
-				baked = new BasicArgumentBaked(argument, -1, this);
+				baked = new ArgumentBaked(argument, -1, this);
 			} else {
-				baked = new BasicArgumentBaked(argument, index, this);
+				baked = new ArgumentBaked(argument, index, this);
 				actualArguments.add(baked);
 				index++;
 			}
@@ -64,17 +64,17 @@ public class BasicMethodBaked implements MethodBaked {
 	}
 
 	@Override
-	public List<ArgumentBaked> getArguments() {
+	public List<IArgumentBaked> getArguments() {
 		return arguments;
 	}
 
 	@Override
-	public List<ArgumentBaked> getActualArguments() {
+	public List<IArgumentBaked> getActualArguments() {
 		return actualArguments;
 	}
 
 	@Override
-	public ClassBaked getParent() {
+	public IClassBaked getParent() {
 		return parent;
 	}
 

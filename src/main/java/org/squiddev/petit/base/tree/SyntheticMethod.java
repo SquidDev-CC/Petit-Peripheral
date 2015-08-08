@@ -3,29 +3,29 @@ package org.squiddev.petit.base.tree;
 import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.Backend;
-import org.squiddev.petit.api.tree.MethodSignature;
-import org.squiddev.petit.api.tree.baked.ClassBaked;
+import org.squiddev.petit.api.tree.IMethodSignature;
+import org.squiddev.petit.api.tree.baked.IClassBaked;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
-public class BasicSyntheticMethod extends AbstractSyntheticMethod {
+public class SyntheticMethod extends AbstractSyntheticMethod {
 	private final CodeBlock codeBlock;
 
-	public BasicSyntheticMethod(Collection<TypeMirror> backends, String name, List<TypeMirror> parameters, TypeMirror returnType, Element element, CodeBlock codeBlock) {
+	public SyntheticMethod(Collection<TypeMirror> backends, String name, List<TypeMirror> parameters, TypeMirror returnType, Element element, CodeBlock codeBlock) {
 		super(backends, name, parameters, returnType, element);
 		this.codeBlock = codeBlock;
 	}
 
-	public BasicSyntheticMethod(Collection<TypeMirror> backends, MethodSignature signature, TypeMirror returnType, Element element, CodeBlock codeBlock) {
+	public SyntheticMethod(Collection<TypeMirror> backends, IMethodSignature signature, TypeMirror returnType, Element element, CodeBlock codeBlock) {
 		super(backends, signature, returnType, element);
 		this.codeBlock = codeBlock;
 	}
 
 	@Override
-	public CodeBlock build(Backend backend, ClassBaked baked) {
+	public CodeBlock build(Backend backend, IClassBaked baked) {
 		return codeBlock;
 	}
 
@@ -115,8 +115,8 @@ public class BasicSyntheticMethod extends AbstractSyntheticMethod {
 			return this;
 		}
 
-		public BasicSyntheticMethod build() {
-			return new BasicSyntheticMethod(
+		public SyntheticMethod build() {
+			return new SyntheticMethod(
 				backends,
 				name,
 				parameters,

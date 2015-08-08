@@ -4,7 +4,7 @@ import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.InboundConverter;
 import org.squiddev.petit.api.backend.Segment;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 import org.squiddev.petit.core.backend.Utils;
 
 import javax.lang.model.type.PrimitiveType;
@@ -44,12 +44,12 @@ public class PrimitiveTypeConverter extends InstanceOfConverter {
 		}
 
 		@Override
-		public Segment validate(ArgumentBaked argument, String from) {
+		public Segment validate(IArgumentBaked argument, String from) {
 			return new Segment("$N instanceof Number", from);
 		}
 
 		@Override
-		public CodeBlock convert(ArgumentBaked argument, String from) {
+		public CodeBlock convert(IArgumentBaked argument, String from) {
 			return Utils.block("((Number)($N))." + primitive.toString() + "Value()", from);
 		}
 	}
@@ -61,12 +61,12 @@ public class PrimitiveTypeConverter extends InstanceOfConverter {
 		}
 
 		@Override
-		public Segment validate(ArgumentBaked argument, String from) {
+		public Segment validate(IArgumentBaked argument, String from) {
 			return new Segment("$N instanceof String && ((String)$N).length() == 1", from, from);
 		}
 
 		@Override
-		public CodeBlock convert(ArgumentBaked argument, String from) {
+		public CodeBlock convert(IArgumentBaked argument, String from) {
 			return Utils.block("((String)$N).charAt(0)", from);
 		}
 	}

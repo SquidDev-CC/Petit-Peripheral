@@ -2,7 +2,7 @@ package org.squiddev.petit.api.backend;
 
 import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -34,7 +34,7 @@ public interface InboundConverter {
 	 * @param argument The argument information
 	 * @return The CodeBlock that adds additional information, {@code null} if none is required.
 	 */
-	CodeBlock preamble(ArgumentBaked argument);
+	CodeBlock preamble(IArgumentBaked argument);
 
 	/**
 	 * Returns an expression or statement that checks if {@code from} is valid.
@@ -48,7 +48,7 @@ public interface InboundConverter {
 	 * @param from     The expression to convert from. If the argument is {@link ArgumentKind#PROVIDED} then this will be null.
 	 * @return The CodeBlock that validates, {@code null} if none is required.
 	 */
-	Segment validate(ArgumentBaked argument, String from);
+	Segment validate(IArgumentBaked argument, String from);
 
 	/**
 	 * Returns an expression that converts from {@code from}.
@@ -57,5 +57,5 @@ public interface InboundConverter {
 	 * @param from     The expression to convert from. If the argument is {@link ArgumentKind#PROVIDED} then this will be null.
 	 * @return The CodeBlock that adds converts, {@code null} if none is required.
 	 */
-	CodeBlock convert(ArgumentBaked argument, String from);
+	CodeBlock convert(IArgumentBaked argument, String from);
 }

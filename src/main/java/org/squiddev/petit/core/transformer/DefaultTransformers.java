@@ -7,15 +7,15 @@ import org.squiddev.petit.annotation.Provided;
 import org.squiddev.petit.api.ElementHelper;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.Backend;
-import org.squiddev.petit.api.transformer.TransformerContainer;
+import org.squiddev.petit.api.transformer.ITransformerContainer;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.SyntheticMethod;
-import org.squiddev.petit.api.tree.builder.ArgumentBuilder;
-import org.squiddev.petit.api.tree.builder.ClassBuilder;
-import org.squiddev.petit.api.tree.builder.MethodBuilder;
-import org.squiddev.petit.base.transformer.AbstractGenericTransformer;
+import org.squiddev.petit.api.tree.ISyntheticMethod;
+import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
+import org.squiddev.petit.api.tree.builder.IClassBuilder;
+import org.squiddev.petit.api.tree.builder.IMethodBuilder;
+import org.squiddev.petit.base.transformer.AbstractAnnotationTransformer;
 import org.squiddev.petit.base.transformer.AbstractTransformer;
-import org.squiddev.petit.base.tree.BasicSyntheticMethod;
+import org.squiddev.petit.base.tree.SyntheticMethod;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;
@@ -24,6 +24,8 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
+import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Collections;
 
 
@@ -35,33 +37,33 @@ public final class DefaultTransformers {
 		throw new IllegalStateException("Cannot create this class");
 	}
 
-	public static void add(TransformerContainer transformer, Environment environment) {
-		transformer.add(Alias.class, new AbstractTransformer<Alias>(environment) {
+	public static void add(ITransformerContainer transformer, Environment environment) {
+		transformer.add(new AbstractAnnotationTransformer<Alias>(Alias.class, environment) {
 			@Override
-			public void transform(MethodBuilder target, Alias annotation) {
+			public void transform(IMethodBuilder target, Alias annotation) {
 				String[] names = annotation.value();
 				if (names == null) return;
 				Collections.addAll(target.names(), names);
 			}
 		});
 
-		transformer.add(Optional.class, new AbstractTransformer<Optional>(environment) {
+		transformer.add(new AbstractAnnotationTransformer<Optional>(Optional.class, environment) {
 			@Override
-			public void transform(ArgumentBuilder argument, Optional annotation) {
+			public void transform(IArgumentBuilder argument, Optional annotation) {
 				argument.setKind(ArgumentKind.OPTIONAL);
 			}
 		});
 
-		transformer.add(Provided.class, new AbstractTransformer<Provided>(environment) {
+		transformer.add(new AbstractAnnotationTransformer<Provided>(Provided.class, environment) {
 			@Override
-			public void transform(ArgumentBuilder argument, Provided annotation) {
+			public void transform(IArgumentBuilder argument, Provided annotation) {
 				argument.setKind(ArgumentKind.PROVIDED);
 			}
 		});
 
-		transformer.add(new AbstractGenericTransformer(environment) {
+		transformer.add(new AbstractTransformer(environment) {
 			@Override
-			public void transform(ClassBuilder klass) {
+			public void transform(IClassBuilder klass) {
 				super.transform(klass);
 				if (klass.getElement() == null) return;
 
@@ -72,7 +74,7 @@ public final class DefaultTransformers {
 					if (enclosed.getKind() == ElementKind.METHOD && (backend = helpers.getValue(enclosed, Handler.class, "value")) instanceof TypeMirror) {
 						ExecutableElement element = (ExecutableElement) enclosed;
 
-						BasicSyntheticMethod.Builder builder = new BasicSyntheticMethod.Builder(element.getSimpleName().toString(), element, environment)
+						SyntheticMethod.Builder builder = new SyntheticMethod.Builder(element.getSimpleName().toString(), element, environment)
 							.addBackends((TypeMirror) backend)
 							.returns(element.getReturnType())
 							.addCode("$[");
@@ -87,7 +89,7 @@ public final class DefaultTransformers {
 							builder.addParameters(arg.asType());
 
 							if (index > 0) builder.addCode(", ");
-							builder.addCode(SyntheticMethod.ARG_PREFIX + index);
+							builder.addCode(ISyntheticMethod.ARG_PREFIX + index);
 							index++;
 						}
 
@@ -138,6 +140,11 @@ public final class DefaultTransformers {
 				}
 
 				return success;
+			}
+
+			@Override
+			public Collection<Class<? extends Annotation>> getAnnotations() {
+				return Collections.<Class<? extends Annotation>>singleton(Handler.class);
 			}
 		});
 	}

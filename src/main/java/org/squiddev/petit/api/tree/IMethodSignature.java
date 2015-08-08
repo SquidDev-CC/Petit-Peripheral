@@ -8,7 +8,7 @@ import java.util.List;
  *
  * This should implement {@link Object#hashCode()} and {@link Object#equals(Object)}
  */
-public interface MethodSignature {
+public interface IMethodSignature {
 	/**
 	 * Get the parameters for a method.
 	 *

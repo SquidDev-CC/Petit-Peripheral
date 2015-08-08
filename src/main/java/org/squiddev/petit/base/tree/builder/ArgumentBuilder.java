@@ -1,8 +1,8 @@
 package org.squiddev.petit.base.tree.builder;
 
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.builder.ArgumentBuilder;
-import org.squiddev.petit.api.tree.builder.MethodBuilder;
+import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
+import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -10,12 +10,12 @@ import javax.lang.model.type.TypeMirror;
 /**
  * Stores one argument of a Lua method
  */
-public class BasicArgumentBuilder implements ArgumentBuilder {
-	private final MethodBuilder method;
+public class ArgumentBuilder implements IArgumentBuilder {
+	private final IMethodBuilder method;
 	private final VariableElement parameter;
 	private ArgumentKind kind = ArgumentKind.REQUIRED;
 
-	public BasicArgumentBuilder(MethodBuilder method, VariableElement parameter, ArgumentKind kind) {
+	public ArgumentBuilder(IMethodBuilder method, VariableElement parameter, ArgumentKind kind) {
 		this.parameter = parameter;
 		this.method = method;
 		this.kind = kind;
@@ -37,7 +37,7 @@ public class BasicArgumentBuilder implements ArgumentBuilder {
 	}
 
 	@Override
-	public MethodBuilder getParent() {
+	public IMethodBuilder getParent() {
 		return method;
 	}
 

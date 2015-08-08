@@ -3,7 +3,7 @@ package org.squiddev.petit.core.backend.converter.inbound;
 import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.Segment;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 import org.squiddev.petit.base.backend.AbstractInboundConverter;
 import org.squiddev.petit.core.backend.Utils;
 
@@ -26,12 +26,12 @@ public class InstanceOfConverter extends AbstractInboundConverter {
 	}
 
 	@Override
-	public Segment validate(ArgumentBaked argument, String from) {
+	public Segment validate(IArgumentBaked argument, String from) {
 		return new Segment("$N instanceof $T", from, type);
 	}
 
 	@Override
-	public CodeBlock convert(ArgumentBaked argument, String from) {
+	public CodeBlock convert(IArgumentBaked argument, String from) {
 		return Utils.block("($T)$N", type, from);
 	}
 

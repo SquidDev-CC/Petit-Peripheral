@@ -12,11 +12,11 @@ import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.InboundConverter;
 import org.squiddev.petit.api.backend.Segment;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.MethodSignature;
-import org.squiddev.petit.api.tree.SyntheticMethod;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
-import org.squiddev.petit.api.tree.baked.ClassBaked;
-import org.squiddev.petit.api.tree.baked.MethodBaked;
+import org.squiddev.petit.api.tree.IMethodSignature;
+import org.squiddev.petit.api.tree.ISyntheticMethod;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IClassBaked;
+import org.squiddev.petit.api.tree.baked.IMethodBaked;
 import org.squiddev.petit.base.backend.AbstractBackend;
 import org.squiddev.petit.core.backend.Utils;
 
@@ -43,7 +43,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 	}
 
 	@Override
-	public TypeSpec.Builder writeClass(ClassBaked baked) {
+	public TypeSpec.Builder writeClass(IClassBaked baked) {
 		TypeSpec.Builder spec = TypeSpec.classBuilder(baked.getGeneratedName())
 			.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 			.addSuperinterface(IPeripheral.class)
@@ -62,15 +62,15 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 				.build()
 		);
 
-		for (Map.Entry<MethodSignature, Collection<SyntheticMethod>> synthetic : baked.getSyntheticMethods().entrySet()) {
+		for (Map.Entry<IMethodSignature, Collection<ISyntheticMethod>> synthetic : baked.getSyntheticMethods().entrySet()) {
 			MethodSpec.Builder builder = MethodSpec.methodBuilder(synthetic.getKey().getName())
 				.addModifiers(Modifier.PUBLIC);
 
 			int i = 0;
 			for (TypeMirror type : synthetic.getKey().getParameters()) {
-				builder.addParameter(TypeName.get(type), SyntheticMethod.ARG_PREFIX + i);
+				builder.addParameter(TypeName.get(type), ISyntheticMethod.ARG_PREFIX + i);
 			}
-			for (SyntheticMethod method : synthetic.getValue()) {
+			for (ISyntheticMethod method : synthetic.getValue()) {
 				builder.returns(TypeName.get(method.getReturnType()));
 				builder.addCode(method.build(this, baked));
 			}
@@ -86,9 +86,9 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 	 */
 	public class ArgumentMeta {
 		public final InboundConverter converter;
-		public final ArgumentBaked argument;
+		public final IArgumentBaked argument;
 
-		public ArgumentMeta(ArgumentBaked argument) {
+		public ArgumentMeta(IArgumentBaked argument) {
 			this.argument = argument;
 
 			TypeMirror type = argument.getElement().asType();
@@ -204,7 +204,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 		}
 	}
 
-	public CodeBlock writeMethod(MethodBaked method) {
+	public CodeBlock writeMethod(IMethodBaked method) {
 		CodeBlock.Builder spec = CodeBlock.builder();
 		spec.addStatement("// $L", method.toString());
 		StringBuilder errorMessage = new StringBuilder("Expected ");
@@ -213,7 +213,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 		List<ArgumentMeta> actualArguments = new ArrayList<ArgumentMeta>(method.getArguments().size());
 		int requiredLength = 0;
 
-		for (ArgumentBaked argument : method.getArguments()) {
+		for (IArgumentBaked argument : method.getArguments()) {
 			ArgumentMeta meta = new ArgumentMeta(argument);
 			arguments.add(meta);
 
@@ -332,7 +332,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 	//endregion
 
 	//region IPeripheral functions
-	public MethodSpec writeMethodNames(ClassBaked klass) {
+	public MethodSpec writeMethodNames(IClassBaked klass) {
 		MethodSpec.Builder spec = MethodSpec.methodBuilder("getMethodNames")
 			.addModifiers(Modifier.PUBLIC)
 			.returns(String[].class);
@@ -340,7 +340,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 
 		spec.addCode("$[");
 		spec.addCode("return new String[]{");
-		for (MethodBaked method : klass.getMethods()) {
+		for (IMethodBaked method : klass.getMethods()) {
 			for (String name : method.getNames()) {
 				spec.addCode("$S, ", name);
 			}
@@ -350,7 +350,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 		return spec.build();
 	}
 
-	public MethodSpec writeEquals(ClassBaked klass) {
+	public MethodSpec writeEquals(IClassBaked klass) {
 		String name = klass.getGeneratedName();
 
 		return MethodSpec.methodBuilder("equals")
@@ -361,7 +361,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			.build();
 	}
 
-	public MethodSpec writeType(ClassBaked klass) {
+	public MethodSpec writeType(IClassBaked klass) {
 		return MethodSpec.methodBuilder("getType")
 			.addModifiers(Modifier.PUBLIC)
 			.returns(String.class)
@@ -369,7 +369,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			.build();
 	}
 
-	public MethodSpec writeCall(ClassBaked klass) {
+	public MethodSpec writeCall(IClassBaked klass) {
 		MethodSpec.Builder spec = MethodSpec.methodBuilder("callMethod")
 			.addModifiers(Modifier.PUBLIC)
 			.addParameter(IComputerAccess.class, ARG_COMPUTER)
@@ -383,7 +383,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 		spec.beginControlFlow("switch(index)");
 
 		int i = 0;
-		for (MethodBaked method : klass.getMethods()) {
+		for (IMethodBaked method : klass.getMethods()) {
 			int end = i + method.getNames().size();
 			for (; i < end; i++) {
 				spec.addCode("case $L:", i);

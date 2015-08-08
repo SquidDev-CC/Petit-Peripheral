@@ -8,7 +8,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
 import java.util.List;
 
-public interface MethodBaked extends Node<ExecutableElement> {
+public interface IMethodBaked extends Node<ExecutableElement> {
 	/**
 	 * Get the names of this method
 	 *
@@ -21,7 +21,7 @@ public interface MethodBaked extends Node<ExecutableElement> {
 	 *
 	 * @return This method's arguments
 	 */
-	List<ArgumentBaked> getArguments();
+	List<IArgumentBaked> getArguments();
 
 	/**
 	 * Get the arguments that must be specified - non
@@ -29,14 +29,14 @@ public interface MethodBaked extends Node<ExecutableElement> {
 	 *
 	 * @return This method's arguments
 	 */
-	List<ArgumentBaked> getActualArguments();
+	List<IArgumentBaked> getActualArguments();
 
 	/**
 	 * Get the owning class for this method
 	 *
 	 * @return The methods's class
 	 */
-	ClassBaked getParent();
+	IClassBaked getParent();
 
 	/**
 	 * Get the error message thrown on validation errors

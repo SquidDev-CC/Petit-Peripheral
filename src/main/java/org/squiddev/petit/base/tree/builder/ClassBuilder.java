@@ -1,9 +1,9 @@
 package org.squiddev.petit.base.tree.builder;
 
 import org.squiddev.petit.annotation.LuaFunction;
-import org.squiddev.petit.api.tree.SyntheticMethod;
-import org.squiddev.petit.api.tree.builder.ClassBuilder;
-import org.squiddev.petit.api.tree.builder.MethodBuilder;
+import org.squiddev.petit.api.tree.ISyntheticMethod;
+import org.squiddev.petit.api.tree.builder.IClassBuilder;
+import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -15,23 +15,23 @@ import java.util.Collection;
 /**
  * Data about the class we are generating
  */
-public class BasicClassBuilder implements ClassBuilder {
+public class ClassBuilder implements IClassBuilder {
 	private final TypeElement klass;
 	private final String name;
-	private final Collection<MethodBuilder> methods;
-	private final Collection<SyntheticMethod> synthetics = new ArrayList<SyntheticMethod>();
+	private final Collection<IMethodBuilder> methods;
+	private final Collection<ISyntheticMethod> synthetics = new ArrayList<ISyntheticMethod>();
 
-	public BasicClassBuilder(String name, TypeElement klass) {
+	public ClassBuilder(String name, TypeElement klass) {
 		this.name = name;
 		this.klass = klass;
 
 		// Gather methods
-		Collection<MethodBuilder> methods = this.methods = new ArrayList<MethodBuilder>();
+		Collection<IMethodBuilder> methods = this.methods = new ArrayList<IMethodBuilder>();
 		for (Element element : klass.getEnclosedElements()) {
 			if (element.getKind() == ElementKind.METHOD) {
 				ExecutableElement method = (ExecutableElement) element;
 				if (method.getAnnotation(LuaFunction.class) != null) {
-					methods.add(new BasicMethodBuilder(this, method));
+					methods.add(new MethodBuilder(this, method));
 				}
 			}
 		}
@@ -48,12 +48,12 @@ public class BasicClassBuilder implements ClassBuilder {
 	}
 
 	@Override
-	public Collection<MethodBuilder> methods() {
+	public Collection<IMethodBuilder> methods() {
 		return methods;
 	}
 
 	@Override
-	public Collection<SyntheticMethod> syntheticMethods() {
+	public Collection<ISyntheticMethod> syntheticMethods() {
 		return synthetics;
 	}
 }

@@ -1,22 +1,22 @@
 package org.squiddev.petit.base.tree.baked;
 
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
-import org.squiddev.petit.api.tree.baked.MethodBaked;
-import org.squiddev.petit.api.tree.builder.ArgumentBuilder;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IMethodBaked;
+import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
 
-public class BasicArgumentBaked implements ArgumentBaked {
+public class ArgumentBaked implements IArgumentBaked {
 	private final ArgumentKind kind;
-	private final MethodBaked parent;
+	private final IMethodBaked parent;
 	private final int index;
 	private final VariableElement element;
 	private final TypeMirror type;
 
-	public BasicArgumentBaked(ArgumentKind kind, int index, VariableElement element, TypeMirror type, MethodBaked parent) {
+	public ArgumentBaked(ArgumentKind kind, int index, VariableElement element, TypeMirror type, IMethodBaked parent) {
 		this.kind = kind;
 		this.parent = parent;
 		this.index = index;
@@ -26,7 +26,7 @@ public class BasicArgumentBaked implements ArgumentBaked {
 		this.type = type;
 	}
 
-	public BasicArgumentBaked(ArgumentBuilder builder, int index, MethodBaked parent) {
+	public ArgumentBaked(IArgumentBuilder builder, int index, IMethodBaked parent) {
 		this(builder.getKind(), index, builder.getElement(), builder.getType(), parent);
 	}
 
@@ -36,7 +36,7 @@ public class BasicArgumentBaked implements ArgumentBaked {
 	}
 
 	@Override
-	public MethodBaked getParent() {
+	public IMethodBaked getParent() {
 		return parent;
 	}
 

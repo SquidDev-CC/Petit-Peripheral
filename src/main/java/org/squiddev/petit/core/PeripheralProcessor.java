@@ -12,19 +12,18 @@ import org.squiddev.petit.api.backend.Backend;
 import org.squiddev.petit.api.backend.InboundConverter;
 import org.squiddev.petit.api.backend.OutboundConverter;
 import org.squiddev.petit.api.backend.Segment;
-import org.squiddev.petit.api.transformer.TransformerContainer;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
-import org.squiddev.petit.api.tree.baked.ClassBaked;
-import org.squiddev.petit.api.tree.builder.ArgumentBuilder;
-import org.squiddev.petit.api.tree.builder.ClassBuilder;
-import org.squiddev.petit.api.tree.builder.MethodBuilder;
+import org.squiddev.petit.api.transformer.ITransformerContainer;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IClassBaked;
+import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
+import org.squiddev.petit.api.tree.builder.IClassBuilder;
+import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 import org.squiddev.petit.base.backend.AbstractInboundConverter;
 import org.squiddev.petit.base.backend.AbstractOutboundConverter;
-import org.squiddev.petit.base.transformer.Transformers;
-import org.squiddev.petit.base.tree.builder.BasicClassBuilder;
+import org.squiddev.petit.base.transformer.TransformerContainer;
+import org.squiddev.petit.base.tree.builder.ClassBuilder;
 import org.squiddev.petit.core.backend.Utils;
 import org.squiddev.petit.core.backend.iperipheral.IPeripheralBackend;
-import org.squiddev.petit.core.compile.BaseEnvironment;
 import org.squiddev.petit.core.transformer.BuilderValidator;
 import org.squiddev.petit.core.transformer.DefaultTransformers;
 
@@ -48,7 +47,7 @@ import java.util.*;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class PeripheralProcessor extends AbstractProcessor {
 	protected Environment environment;
-	protected TransformerContainer transformers;
+	protected ITransformerContainer transformers;
 	protected BuilderValidator builderValidator;
 
 	@Override
@@ -56,7 +55,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 		super.init(processingEnv);
 		environment = new BaseEnvironment(processingEnv);
 		builderValidator = new BuilderValidator(environment);
-		transformers = new Transformers();
+		transformers = new TransformerContainer();
 		DefaultTransformers.add(transformers, environment);
 	}
 
@@ -82,11 +81,11 @@ public class PeripheralProcessor extends AbstractProcessor {
 			return;
 		}
 
-		ClassBuilder builder;
+		IClassBuilder builder;
 		try {
-			builder = new BasicClassBuilder(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem);
-			for (MethodBuilder method : builder.methods()) {
-				for (ArgumentBuilder argument : method.getArguments()) {
+			builder = new ClassBuilder(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem);
+			for (IMethodBuilder method : builder.methods()) {
+				for (IArgumentBuilder argument : method.getArguments()) {
 					transformers.transform(argument);
 				}
 				transformers.transform(method);
@@ -104,7 +103,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 		for (Backend backend : backends) {
 			try {
-				ClassBaked baked = backend.bake(builder);
+				IClassBaked baked = backend.bake(builder);
 				if (!backend.getValidator().validate(baked)) continue;
 				TypeSpec spec = backend.writeClass(baked).build();
 
@@ -130,7 +129,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 		types.add(Inbound.class.getName());
 		types.add(Outbound.class.getName());
 
-		for (Class annotation : transformers.annotations()) {
+		for (Class annotation : transformers.getAnnotations()) {
 			types.add(annotation.getName());
 		}
 
@@ -178,7 +177,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 			Object name = environment.getElementHelpers().getValue(element, Inbound.class, "value");
 			InboundConverter converter = new AbstractInboundConverter(environment, name == null || ((String) name).isEmpty() ? method.getReturnType().toString() : (String) name) {
 				@Override
-				public Segment validate(ArgumentBaked argument, String from) {
+				public Segment validate(IArgumentBaked argument, String from) {
 					return new Segment(
 						"($N = $T.$N($N)) != null",
 						"arg_" + argument.getIndex(),
@@ -189,14 +188,14 @@ public class PeripheralProcessor extends AbstractProcessor {
 				}
 
 				@Override
-				public CodeBlock preamble(ArgumentBaked argument) {
+				public CodeBlock preamble(IArgumentBaked argument) {
 					return CodeBlock.builder()
 						.addStatement("$T $N", method.getReturnType(), "arg_" + argument.getIndex())
 						.build();
 				}
 
 				@Override
-				public CodeBlock convert(ArgumentBaked argument, String from) {
+				public CodeBlock convert(IArgumentBaked argument, String from) {
 					return Utils.block("arg_" + argument.getIndex());
 				}
 

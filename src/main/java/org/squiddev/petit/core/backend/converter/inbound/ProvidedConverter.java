@@ -4,7 +4,7 @@ import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.Segment;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 import org.squiddev.petit.base.backend.AbstractInboundConverter;
 import org.squiddev.petit.core.backend.Utils;
 
@@ -33,7 +33,7 @@ public class ProvidedConverter extends AbstractInboundConverter {
 	}
 
 	@Override
-	public Segment validate(ArgumentBaked argument, String from) {
+	public Segment validate(IArgumentBaked argument, String from) {
 		if (argument.getKind() != ArgumentKind.PROVIDED) {
 			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Expected provided type, got " + argument.getKind(), argument.getElement());
 		}
@@ -42,7 +42,7 @@ public class ProvidedConverter extends AbstractInboundConverter {
 	}
 
 	@Override
-	public CodeBlock convert(ArgumentBaked argument, String from) {
+	public CodeBlock convert(IArgumentBaked argument, String from) {
 		return Utils.block(name);
 	}
 

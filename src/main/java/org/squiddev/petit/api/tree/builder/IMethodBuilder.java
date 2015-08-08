@@ -8,7 +8,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
 import java.util.List;
 
-public interface MethodBuilder extends Node<ExecutableElement> {
+public interface IMethodBuilder extends Node<ExecutableElement> {
 	/**
 	 * Get a writable collection of names of this method
 	 *
@@ -21,14 +21,14 @@ public interface MethodBuilder extends Node<ExecutableElement> {
 	 *
 	 * @return This method's arguments
 	 */
-	List<ArgumentBuilder> getArguments();
+	List<IArgumentBuilder> getArguments();
 
 	/**
 	 * Get the owning class for this method
 	 *
 	 * @return The methods's class
 	 */
-	ClassBuilder getParent();
+	IClassBuilder getParent();
 
 	/**
 	 * Get the error message thrown on validation errors

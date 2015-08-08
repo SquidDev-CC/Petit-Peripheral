@@ -3,8 +3,8 @@ package org.squiddev.petit.api.backend;
 import com.squareup.javapoet.TypeSpec;
 import org.squiddev.petit.api.tree.ArgumentKind;
 import org.squiddev.petit.api.tree.Validator;
-import org.squiddev.petit.api.tree.baked.ClassBaked;
-import org.squiddev.petit.api.tree.builder.ClassBuilder;
+import org.squiddev.petit.api.tree.baked.IClassBaked;
+import org.squiddev.petit.api.tree.builder.IClassBuilder;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -26,7 +26,7 @@ public interface Backend {
 	 * @param builder The builder to bake
 	 * @return The baked class
 	 */
-	ClassBaked bake(ClassBuilder builder);
+	IClassBaked bake(IClassBuilder builder);
 
 	/**
 	 * Compile a baked class
@@ -37,7 +37,7 @@ public interface Backend {
 	 * @param baked The class to compile
 	 * @return The source of the class
 	 */
-	TypeSpec.Builder writeClass(ClassBaked baked);
+	TypeSpec.Builder writeClass(IClassBaked baked);
 
 	/**
 	 * Add an inbound converter
@@ -86,5 +86,5 @@ public interface Backend {
 	 *
 	 * @return The backend's validator
 	 */
-	Validator<ClassBaked> getValidator();
+	Validator<IClassBaked> getValidator();
 }

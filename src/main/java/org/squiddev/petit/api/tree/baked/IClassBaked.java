@@ -1,14 +1,23 @@
-package org.squiddev.petit.api.tree.builder;
+package org.squiddev.petit.api.tree.baked;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import org.squiddev.petit.annotation.Peripheral;
+import org.squiddev.petit.api.tree.IMethodSignature;
+import org.squiddev.petit.api.tree.ISyntheticMethod;
 import org.squiddev.petit.api.tree.Node;
-import org.squiddev.petit.api.tree.SyntheticMethod;
 
 import javax.lang.model.element.TypeElement;
 import java.util.Collection;
+import java.util.Map;
 
-public interface ClassBuilder extends Node<TypeElement> {
+public interface IClassBaked extends Node<TypeElement> {
+	/**
+	 * Get the name of the generated class
+	 *
+	 * @return The name of the generated class
+	 */
+	String getGeneratedName();
+
 	/**
 	 * Get the name of the peripheral
 	 *
@@ -23,12 +32,12 @@ public interface ClassBuilder extends Node<TypeElement> {
 	 *
 	 * @return The methods
 	 */
-	Collection<MethodBuilder> methods();
+	Collection<IMethodBaked> getMethods();
 
 	/**
 	 * Collection of additional methods to attach to the generated class
 	 *
 	 * @return The synthetic methods
 	 */
-	Collection<SyntheticMethod> syntheticMethods();
+	Map<IMethodSignature, Collection<ISyntheticMethod>> getSyntheticMethods();
 }

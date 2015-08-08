@@ -1,9 +1,9 @@
-package org.squiddev.petit.core.compile;
+package org.squiddev.petit.core;
 
 import org.squiddev.petit.api.ElementHelper;
 import org.squiddev.petit.api.Environment;
-import org.squiddev.petit.api.tree.MethodSignature;
-import org.squiddev.petit.base.tree.BasicMethodSignature;
+import org.squiddev.petit.api.tree.IMethodSignature;
+import org.squiddev.petit.base.tree.MethodSignature;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
@@ -55,12 +55,12 @@ public final class BaseElementHelper implements ElementHelper {
 
 	@Override
 	public ExecutableElement getMethod(TypeElement element, ExecutableElement signature) {
-		ExecutableElement executable = getMethod(element, new BasicMethodSignature(signature, environment));
+		ExecutableElement executable = getMethod(element, new MethodSignature(signature, environment));
 		return executable != null && environment.getTypeUtils().isSameType(signature.getReturnType(), executable.getReturnType()) ? executable : null;
 	}
 
 	@Override
-	public ExecutableElement getMethod(TypeElement element, MethodSignature signature) {
+	public ExecutableElement getMethod(TypeElement element, IMethodSignature signature) {
 		String name = signature.getName();
 		List<TypeMirror> params = signature.getParameters();
 		int size = params.size();

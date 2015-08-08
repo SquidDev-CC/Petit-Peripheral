@@ -3,24 +3,24 @@ package org.squiddev.petit.base.tree.builder;
 import org.squiddev.petit.annotation.LuaFunction;
 import org.squiddev.petit.api.backend.Backend;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.builder.ArgumentBuilder;
-import org.squiddev.petit.api.tree.builder.ClassBuilder;
-import org.squiddev.petit.api.tree.builder.MethodBuilder;
+import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
+import org.squiddev.petit.api.tree.builder.IClassBuilder;
+import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
-public class BasicMethodBuilder implements MethodBuilder {
-	private final ClassBuilder klass;
+public class MethodBuilder implements IMethodBuilder {
+	private final IClassBuilder klass;
 	private final ExecutableElement method;
 	private boolean returnsVarags;
 	private String errorMessage;
-	private final List<ArgumentBuilder> arguments;
+	private final List<IArgumentBuilder> arguments;
 	private final List<String> names = new ArrayList<String>();
 
-	public BasicMethodBuilder(ClassBuilder klass, ExecutableElement method) {
+	public MethodBuilder(IClassBuilder klass, ExecutableElement method) {
 		this.klass = klass;
 		this.method = method;
 
@@ -44,9 +44,9 @@ public class BasicMethodBuilder implements MethodBuilder {
 		// Create a list of arguments
 		List<? extends VariableElement> params = method.getParameters();
 		int size = params.size();
-		ArgumentBuilder[] arguments = new ArgumentBuilder[size];
+		IArgumentBuilder[] arguments = new IArgumentBuilder[size];
 		for (int i = 0; i < size; i++) {
-			arguments[i] = new BasicArgumentBuilder(this, params.get(i), i == size - 1 && method.isVarArgs() ? ArgumentKind.VARIABLE : ArgumentKind.REQUIRED);
+			arguments[i] = new ArgumentBuilder(this, params.get(i), i == size - 1 && method.isVarArgs() ? ArgumentKind.VARIABLE : ArgumentKind.REQUIRED);
 		}
 		this.arguments = Collections.unmodifiableList(Arrays.asList(arguments));
 	}
@@ -57,12 +57,12 @@ public class BasicMethodBuilder implements MethodBuilder {
 	}
 
 	@Override
-	public List<ArgumentBuilder> getArguments() {
+	public List<IArgumentBuilder> getArguments() {
 		return arguments;
 	}
 
 	@Override
-	public ClassBuilder getParent() {
+	public IClassBuilder getParent() {
 		return klass;
 	}
 

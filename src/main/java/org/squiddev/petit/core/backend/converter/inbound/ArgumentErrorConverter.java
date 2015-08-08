@@ -4,7 +4,7 @@ import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.backend.InboundConverter;
 import org.squiddev.petit.api.backend.Segment;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 
 import javax.lang.model.type.TypeMirror;
 import java.util.Map;
@@ -32,12 +32,12 @@ public class ArgumentErrorConverter implements InboundConverter {
 	}
 
 	@Override
-	public CodeBlock preamble(ArgumentBaked argument) {
+	public CodeBlock preamble(IArgumentBaked argument) {
 		return converter.preamble(argument);
 	}
 
 	@Override
-	public Segment validate(ArgumentBaked argument, String from) {
+	public Segment validate(IArgumentBaked argument, String from) {
 		Segment segment = converter.validate(argument, from);
 		if (segment.isStatement()) return segment;
 
@@ -60,7 +60,7 @@ public class ArgumentErrorConverter implements InboundConverter {
 	}
 
 	@Override
-	public CodeBlock convert(ArgumentBaked argument, String from) {
+	public CodeBlock convert(IArgumentBaked argument, String from) {
 		return converter.convert(argument, from);
 	}
 

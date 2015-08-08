@@ -6,7 +6,7 @@ import org.squiddev.petit.api.tree.Node;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-public interface ArgumentBaked extends Node<VariableElement> {
+public interface IArgumentBaked extends Node<VariableElement> {
 	/**
 	 * Get the kind for this argument.
 	 *
@@ -19,14 +19,14 @@ public interface ArgumentBaked extends Node<VariableElement> {
 	 *
 	 * @return The argument's method
 	 */
-	MethodBaked getParent();
+	IMethodBaked getParent();
 
 	/**
 	 * Get the index this method exists at.
 	 * For {@link ArgumentKind#PROVIDED} this is {@code -1}.
 	 *
 	 * @return The index this method exists at.
-	 * @see MethodBaked#getActualArguments()
+	 * @see IMethodBaked#getActualArguments()
 	 */
 	int getIndex();
 

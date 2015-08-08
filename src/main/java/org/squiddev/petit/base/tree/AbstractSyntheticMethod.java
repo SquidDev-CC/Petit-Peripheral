@@ -1,7 +1,7 @@
 package org.squiddev.petit.base.tree;
 
-import org.squiddev.petit.api.tree.MethodSignature;
-import org.squiddev.petit.api.tree.SyntheticMethod;
+import org.squiddev.petit.api.tree.IMethodSignature;
+import org.squiddev.petit.api.tree.ISyntheticMethod;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AbstractSyntheticMethod implements SyntheticMethod {
+public abstract class AbstractSyntheticMethod implements ISyntheticMethod {
 	private final Collection<TypeMirror> backends;
 	private final TypeMirror returnType;
 	private final List<TypeMirror> parameters;
@@ -24,7 +24,7 @@ public abstract class AbstractSyntheticMethod implements SyntheticMethod {
 		this.element = element;
 	}
 
-	public AbstractSyntheticMethod(Collection<TypeMirror> backends, MethodSignature signature, TypeMirror returnType, Element element) {
+	public AbstractSyntheticMethod(Collection<TypeMirror> backends, IMethodSignature signature, TypeMirror returnType, Element element) {
 		this(backends, signature.getName(), signature.getParameters(), returnType, element);
 	}
 

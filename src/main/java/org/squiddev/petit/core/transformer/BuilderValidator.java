@@ -2,9 +2,9 @@ package org.squiddev.petit.core.transformer;
 
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.builder.ArgumentBuilder;
-import org.squiddev.petit.api.tree.builder.ClassBuilder;
-import org.squiddev.petit.api.tree.builder.MethodBuilder;
+import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
+import org.squiddev.petit.api.tree.builder.IClassBuilder;
+import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.ExecutableElement;
@@ -23,16 +23,16 @@ public class BuilderValidator {
 		this.environment = environment;
 	}
 
-	public boolean validate(ClassBuilder builder) {
+	public boolean validate(IClassBuilder builder) {
 		boolean success = true;
-		for (MethodBuilder method : builder.methods()) {
+		for (IMethodBuilder method : builder.methods()) {
 			success &= validate(method);
 		}
 
 		return success;
 	}
 
-	public boolean validate(MethodBuilder builder) {
+	public boolean validate(IMethodBuilder builder) {
 		boolean success = true;
 		Messager messager = environment.getMessager();
 
@@ -56,7 +56,7 @@ public class BuilderValidator {
 		}
 
 		ArgumentKind state = ArgumentKind.REQUIRED;
-		for (ArgumentBuilder argument : builder.getArguments()) {
+		for (IArgumentBuilder argument : builder.getArguments()) {
 			switch (argument.getKind()) {
 				case REQUIRED:
 					if (state != ArgumentKind.REQUIRED) {
@@ -87,7 +87,7 @@ public class BuilderValidator {
 		return success;
 	}
 
-	public boolean validate(ArgumentBuilder builder) {
+	public boolean validate(IArgumentBuilder builder) {
 		Messager messager = environment.getMessager();
 		boolean success = true;
 

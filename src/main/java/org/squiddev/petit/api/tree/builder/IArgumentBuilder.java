@@ -6,7 +6,7 @@ import org.squiddev.petit.api.tree.Node;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-public interface ArgumentBuilder extends Node<VariableElement> {
+public interface IArgumentBuilder extends Node<VariableElement> {
 	/**
 	 * Get the kind for this argument.
 	 *
@@ -37,5 +37,5 @@ public interface ArgumentBuilder extends Node<VariableElement> {
 	 *
 	 * @return The argument's method
 	 */
-	MethodBuilder getParent();
+	IMethodBuilder getParent();
 }

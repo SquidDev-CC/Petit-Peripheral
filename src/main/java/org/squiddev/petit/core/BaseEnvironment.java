@@ -1,4 +1,4 @@
-package org.squiddev.petit.core.compile;
+package org.squiddev.petit.core;
 
 import org.squiddev.petit.api.ElementHelper;
 import org.squiddev.petit.api.Environment;

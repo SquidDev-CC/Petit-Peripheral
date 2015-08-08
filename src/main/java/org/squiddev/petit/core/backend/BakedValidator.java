@@ -2,11 +2,11 @@ package org.squiddev.petit.core.backend;
 
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.Backend;
-import org.squiddev.petit.api.tree.SyntheticMethod;
+import org.squiddev.petit.api.tree.ISyntheticMethod;
 import org.squiddev.petit.api.tree.Validator;
-import org.squiddev.petit.api.tree.baked.ArgumentBaked;
-import org.squiddev.petit.api.tree.baked.ClassBaked;
-import org.squiddev.petit.api.tree.baked.MethodBaked;
+import org.squiddev.petit.api.tree.baked.IArgumentBaked;
+import org.squiddev.petit.api.tree.baked.IClassBaked;
+import org.squiddev.petit.api.tree.baked.IMethodBaked;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.type.TypeKind;
@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BakedValidator implements Validator<ClassBaked> {
+public class BakedValidator implements Validator<IClassBaked> {
 	protected final Backend backend;
 	protected final Environment environment;
 
@@ -25,12 +25,12 @@ public class BakedValidator implements Validator<ClassBaked> {
 	}
 
 	@Override
-	public boolean validate(ClassBaked baked) {
+	public boolean validate(IClassBaked baked) {
 		Messager messager = environment.getMessager();
 		boolean success = true;
 
 		Set<String> names = new HashSet<String>();
-		for (MethodBaked method : baked.getMethods()) {
+		for (IMethodBaked method : baked.getMethods()) {
 			success &= validate(method);
 			for (String name : method.getNames()) {
 				if (!names.add(name)) {
@@ -40,9 +40,9 @@ public class BakedValidator implements Validator<ClassBaked> {
 			}
 		}
 
-		for (Collection<SyntheticMethod> synthetics : baked.getSyntheticMethods().values()) {
+		for (Collection<ISyntheticMethod> synthetics : baked.getSyntheticMethods().values()) {
 			if (synthetics.size() > 1) {
-				for (SyntheticMethod method : synthetics) {
+				for (ISyntheticMethod method : synthetics) {
 					if (method.getReturnType().getKind() != TypeKind.VOID) {
 						messager.printMessage(Diagnostic.Kind.ERROR, "Multiple synthetic methods for non-void return type", method.getElement());
 						success = false;
@@ -54,15 +54,15 @@ public class BakedValidator implements Validator<ClassBaked> {
 		return success;
 	}
 
-	protected boolean validate(MethodBaked baked) {
+	protected boolean validate(IMethodBaked baked) {
 		boolean success = true;
-		for (ArgumentBaked argument : baked.getArguments()) {
+		for (IArgumentBaked argument : baked.getArguments()) {
 			success &= validate(argument);
 		}
 		return success;
 	}
 
-	protected boolean validate(ArgumentBaked baked) {
+	protected boolean validate(IArgumentBaked baked) {
 		if (backend.getInboundConverter(baked.getKind(), baked.getType()) == null) {
 			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "[" + backend + "] No converter", baked.getElement());
 			return false;

@@ -1,7 +1,7 @@
 package org.squiddev.petit.base.tree;
 
 import org.squiddev.petit.api.Environment;
-import org.squiddev.petit.api.tree.MethodSignature;
+import org.squiddev.petit.api.tree.IMethodSignature;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
@@ -10,18 +10,18 @@ import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class BasicMethodSignature implements MethodSignature {
+public final class MethodSignature implements IMethodSignature {
 	private final List<TypeMirror> parameters;
 	private final String name;
 	private final Types helpers;
 
-	public BasicMethodSignature(String name, List<TypeMirror> parameters, Environment environment) {
+	public MethodSignature(String name, List<TypeMirror> parameters, Environment environment) {
 		this.name = name;
 		this.parameters = parameters;
 		this.helpers = environment.getTypeUtils();
 	}
 
-	public BasicMethodSignature(String name, Environment environment, Class<?>... parameters) {
+	public MethodSignature(String name, Environment environment, Class<?>... parameters) {
 		this.name = name;
 		this.helpers = environment.getTypeUtils();
 		List<TypeMirror> params = this.parameters = new ArrayList<TypeMirror>(parameters.length);
@@ -30,7 +30,7 @@ public final class BasicMethodSignature implements MethodSignature {
 		}
 	}
 
-	public BasicMethodSignature(ExecutableElement element, Environment environment) {
+	public MethodSignature(ExecutableElement element, Environment environment) {
 		this.name = element.getSimpleName().toString();
 		this.helpers = environment.getTypeUtils();
 		List<TypeMirror> params = this.parameters = new ArrayList<TypeMirror>(element.getParameters().size());
@@ -52,9 +52,9 @@ public final class BasicMethodSignature implements MethodSignature {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof MethodSignature)) return false;
+		if (!(o instanceof IMethodSignature)) return false;
 
-		MethodSignature that = (MethodSignature) o;
+		IMethodSignature that = (IMethodSignature) o;
 
 		if (!name.equals(that.getName())) return false;
 

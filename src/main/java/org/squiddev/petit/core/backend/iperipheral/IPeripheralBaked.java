@@ -4,19 +4,19 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.Backend;
-import org.squiddev.petit.api.tree.builder.ClassBuilder;
-import org.squiddev.petit.base.tree.BasicSyntheticMethod;
-import org.squiddev.petit.base.tree.baked.BasicClassBaked;
+import org.squiddev.petit.api.tree.builder.IClassBuilder;
+import org.squiddev.petit.base.tree.SyntheticMethod;
+import org.squiddev.petit.base.tree.baked.ClassBaked;
 
 /**
  * Peripheral baker with additional information
  */
-public class IPeripheralBaked extends BasicClassBaked {
-	public IPeripheralBaked(String generatedName, ClassBuilder builder, Backend backend, Environment environment) {
+public class IPeripheralBaked extends ClassBaked {
+	public IPeripheralBaked(String generatedName, IClassBuilder builder, Backend backend, Environment environment) {
 		super(generatedName, builder, backend, environment);
 
 		addSynthetic(
-			new BasicSyntheticMethod.Builder("attach", getElement(), environment)
+			new SyntheticMethod.Builder("attach", getElement(), environment)
 				.addBackends(IPeripheral.class)
 				.addParameters(IComputerAccess.class)
 				.returns(void.class)
@@ -24,7 +24,7 @@ public class IPeripheralBaked extends BasicClassBaked {
 		);
 
 		addSynthetic(
-			new BasicSyntheticMethod.Builder("detach", getElement(), environment)
+			new SyntheticMethod.Builder("detach", getElement(), environment)
 				.addBackends(IPeripheral.class)
 				.addParameters(IComputerAccess.class)
 				.returns(void.class)
