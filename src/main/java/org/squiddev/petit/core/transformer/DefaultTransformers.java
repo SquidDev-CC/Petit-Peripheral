@@ -1,9 +1,6 @@
 package org.squiddev.petit.core.transformer;
 
-import org.squiddev.petit.annotation.Alias;
-import org.squiddev.petit.annotation.Handler;
-import org.squiddev.petit.annotation.Optional;
-import org.squiddev.petit.annotation.Provided;
+import org.squiddev.petit.annotation.*;
 import org.squiddev.petit.api.ElementHelper;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.Backend;
@@ -14,11 +11,9 @@ import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 import org.squiddev.petit.base.transformer.AbstractAnnotationTransformer;
-import org.squiddev.petit.base.transformer.AbstractTransformer;
 import org.squiddev.petit.base.tree.SyntheticMethod;
 
 import javax.annotation.processing.Messager;
-import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -61,7 +56,7 @@ public final class DefaultTransformers {
 			}
 		});
 
-		transformer.add(new AbstractTransformer(environment) {
+		transformer.add(new AbstractAnnotationTransformer<Handler>(Handler.class, environment) {
 			@Override
 			public void transform(IClassBuilder klass) {
 				super.transform(klass);
@@ -99,44 +94,39 @@ public final class DefaultTransformers {
 			}
 
 			@Override
-			public boolean validate(RoundEnvironment round) {
-				boolean success = super.validate(round);
+			public boolean validate(Element element, Handler annotation) {
+				boolean success = super.validate(element, annotation);
 
 				Messager messager = environment.getMessager();
 				ElementHelper helpers = environment.getElementHelpers();
 
-				for (Element element : round.getElementsAnnotatedWith(Handler.class)) {
-					if (element.getEnclosingElement().getKind() != ElementKind.CLASS) {
-						messager.printMessage(Diagnostic.Kind.ERROR, "@Handler must be a child of a class", element);
-						success = false;
-					}
-					if (element.getKind() != ElementKind.METHOD) {
-						messager.printMessage(Diagnostic.Kind.ERROR, "@Handler must be on a method", element);
-						success = false;
-						continue;
-					}
+				if (element.getEnclosingElement().getKind() != ElementKind.CLASS) {
+					messager.printMessage(Diagnostic.Kind.ERROR, "@Handler must be a child of a class", element);
+					success = false;
+				}
+				if (element.getKind() != ElementKind.METHOD) {
+					messager.printMessage(Diagnostic.Kind.ERROR, "@Handler must be on a method", element);
+					return false;
+				}
 
-					Object backendValue;
+				Object backendValue;
 
-					if (!((backendValue = helpers.getValue(element, Handler.class, "value")) instanceof TypeMirror)) {
-						messager.printMessage(Diagnostic.Kind.ERROR, "@Handler must specify backend", element);
-						success = false;
-						continue;
-					}
+				if (!((backendValue = helpers.getValue(element, Handler.class, "value")) instanceof TypeMirror)) {
+					messager.printMessage(Diagnostic.Kind.ERROR, "@Handler must specify backend", element);
+					return false;
+				}
 
-					if (((TypeMirror) backendValue).getKind() != TypeKind.DECLARED) {
-						messager.printMessage(Diagnostic.Kind.ERROR, "Backend must be a class", element);
-						success = false;
-						continue;
-					}
+				if (((TypeMirror) backendValue).getKind() != TypeKind.DECLARED) {
+					messager.printMessage(Diagnostic.Kind.ERROR, "Backend must be a class", element);
+					return false;
+				}
 
-					ExecutableElement method = (ExecutableElement) element;
-					ExecutableElement other = helpers.getMethod((TypeElement) ((DeclaredType) backendValue).asElement(), method);
+				ExecutableElement method = (ExecutableElement) element;
+				ExecutableElement other = helpers.getMethod((TypeElement) ((DeclaredType) backendValue).asElement(), method);
 
-					if (other == null) {
-						messager.printMessage(Diagnostic.Kind.ERROR, "Cannot find method " + method.getSimpleName(), element);
-						success = false;
-					}
+				if (other == null) {
+					messager.printMessage(Diagnostic.Kind.ERROR, "Cannot find method " + method.getSimpleName(), element);
+					success = false;
 				}
 
 				return success;
@@ -146,6 +136,10 @@ public final class DefaultTransformers {
 			public Collection<Class<? extends Annotation>> getAnnotations() {
 				return Collections.<Class<? extends Annotation>>singleton(Handler.class);
 			}
+		});
+
+		// TODO: Copy stuff from the builder into here
+		transformer.add(new AbstractAnnotationTransformer<LuaFunction>(LuaFunction.class, environment) {
 		});
 	}
 }

@@ -56,7 +56,8 @@ public abstract class AbstractAnnotationTransformer<T extends Annotation> implem
 	public boolean validate(RoundEnvironment environment) {
 		boolean success = true;
 		for (Element element : environment.getElementsAnnotatedWith(klass)) {
-			success &= validate(element, element.getAnnotation(klass));
+			T annotation = element.getAnnotation(klass);
+			if (annotation != null) success &= validate(element, annotation);
 		}
 		return success;
 	}
