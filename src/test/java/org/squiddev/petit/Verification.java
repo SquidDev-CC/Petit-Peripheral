@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 
 public class Verification {
 	public static final Pattern ANNOTATION = Pattern.compile("@([a-z]+)", Pattern.CASE_INSENSITIVE);
@@ -48,11 +49,15 @@ public class Verification {
 		));
 
 		for (String node : filter(new CustomJavaFileObject("NoConverter"), "[IPeripheral] No converter")) {
-			System.out.println(node);
 			collector.checkThat("Expected " + node, matched.remove(node), equalTo(true));
 		}
 
 		collector.checkThat(matched.toString(), matched.size(), equalTo(0));
+	}
+
+	@Test
+	public void argumentOrder() throws Exception {
+		assertEquals(1, filter(new CustomJavaFileObject("ArgumentOrder"), "Unexpected required argument after optional one").size());
 	}
 
 	//region File loading
@@ -107,13 +112,11 @@ public class Verification {
 		List<String> result = new ArrayList<String>();
 
 		for (Diagnostic diagnostic : diagnostics) {
-			if (diagnostic.getCode().endsWith(".proc.messager") && diagnostic.getMessage(null).equals(message)) {
+			if (diagnostic.getCode().endsWith(".proc.messager") && (message == null || diagnostic.getMessage(null).equals(message))) {
 				result.add(object.getCharContent(true).subSequence(
 					(int) diagnostic.getStartPosition(),
 					(int) diagnostic.getEndPosition()
 				).toString());
-			} else {
-				System.out.println(diagnostic.getMessage(null));
 			}
 		}
 
