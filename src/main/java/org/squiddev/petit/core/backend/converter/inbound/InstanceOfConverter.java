@@ -3,6 +3,7 @@ package org.squiddev.petit.core.backend.converter.inbound;
 import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.Segment;
+import org.squiddev.petit.api.tree.ArgumentKind;
 import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 import org.squiddev.petit.base.backend.AbstractInboundConverter;
 import org.squiddev.petit.core.backend.Utils;
@@ -23,6 +24,11 @@ public class InstanceOfConverter extends AbstractInboundConverter {
 
 	public InstanceOfConverter(Environment env, Class<?> type, String name) {
 		this(env, env.getTypeHelpers().getMirror(type), name);
+	}
+
+	@Override
+	public boolean matches(ArgumentKind kind, TypeMirror type) {
+		return kind != ArgumentKind.PROVIDED && super.matches(kind, type);
 	}
 
 	@Override

@@ -16,44 +16,43 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertFalse;
 
 public class Verification {
+	public static final Pattern ANNOTATION = Pattern.compile("@([a-z]+)", Pattern.CASE_INSENSITIVE);
+
 	@Rule
 	public ErrorCollector collector = new ErrorCollector();
 
 	@Test
 	public void noPeripheral() throws Exception {
-		int errors = 0;
+		Set<String> matched = new HashSet<String>(Arrays.asList("Alias", "Handler", "LuaFunction", "Optional", "Provided"));
 
-		JavaFileObject object = new CustomJavaFileObject("NoPeripheral");
-		Set<String> matched = new HashSet<String>();
-		Pattern findAnnotation = Pattern.compile("@([A-Za-z]+)", Pattern.CASE_INSENSITIVE);
-
-		for (Diagnostic diagnostic : run(object)) {
-			if (diagnostic.getCode().equals("compiler.warn.proc.messager")) {
-				if (diagnostic.getMessage(null).equals("Cannot find @Peripheral")) {
-					errors++;
-
-					// Extract annotation name for validation helping
-					String node = object.getCharContent(true).subSequence(
-						(int) diagnostic.getStartPosition(),
-						(int) diagnostic.getEndPosition()
-					).toString();
-
-					Matcher matcher = findAnnotation.matcher(node);
-					if (matcher.find()) matched.add(matcher.group(1));
-				}
+		for (String node : filter(new CustomJavaFileObject("NoPeripheral"), "Cannot find @Peripheral")) {
+			Matcher matcher = ANNOTATION.matcher(node);
+			if (matcher.find()) {
+				collector.checkThat("Expected " + matcher.group(1), matched.remove(matcher.group(1)), equalTo(true));
 			}
 		}
 
-		for (String node : new String[]{"Alias", "Handler", "LuaFunction", "Optional", "Provided"}) {
-			if (!matched.remove(node)) {
-				collector.checkThat("Expected " + node, matched.remove(node), equalTo(true));
-			}
+		collector.checkThat(matched.toString(), matched.size(), equalTo(0));
+	}
+
+	@Test
+	public void noConverter() throws Exception {
+		Set<String> matched = new HashSet<String>(Arrays.asList(
+			"Environment noConverter",
+			"IComputerAccess notProvided"
+			/*
+			 We don't include @Provider String as that should be stripped
+			 */
+		));
+
+		for (String node : filter(new CustomJavaFileObject("NoConverter"), "[IPeripheral] No converter")) {
+			System.out.println(node);
+			collector.checkThat("Expected " + node, matched.remove(node), equalTo(true));
 		}
 
-		collector.checkThat(errors, equalTo(5));
+		collector.checkThat(matched.toString(), matched.size(), equalTo(0));
 	}
 
 	//region File loading
@@ -75,7 +74,8 @@ public class Verification {
 
 	public List<Diagnostic<? extends JavaFileObject>> run(JavaFileObject object) throws Exception {
 		JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, Collections.singleton(object));
-		assertFalse("File should not pass", task.call());
+
+		collector.checkThat("File should not pass", task.call(), equalTo(false));
 
 		return diagnostics.getDiagnostics();
 	}
@@ -97,6 +97,27 @@ public class Verification {
 		public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
 			return contents;
 		}
+	}
+
+	public List<String> filter(JavaFileObject object, String message) throws Exception {
+		return filter(run(object), object, message);
+	}
+
+	public List<String> filter(List<? extends Diagnostic> diagnostics, JavaFileObject object, String message) throws IOException {
+		List<String> result = new ArrayList<String>();
+
+		for (Diagnostic diagnostic : diagnostics) {
+			if (diagnostic.getCode().endsWith(".proc.messager") && diagnostic.getMessage(null).equals(message)) {
+				result.add(object.getCharContent(true).subSequence(
+					(int) diagnostic.getStartPosition(),
+					(int) diagnostic.getEndPosition()
+				).toString());
+			} else {
+				System.out.println(diagnostic.getMessage(null));
+			}
+		}
+
+		return result;
 	}
 	//endregion
 }
