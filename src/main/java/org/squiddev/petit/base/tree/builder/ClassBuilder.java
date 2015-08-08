@@ -11,6 +11,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Data about the class we are generating
@@ -31,7 +32,27 @@ public class ClassBuilder implements IClassBuilder {
 			if (element.getKind() == ElementKind.METHOD) {
 				ExecutableElement method = (ExecutableElement) element;
 				if (method.getAnnotation(LuaFunction.class) != null) {
-					methods.add(new MethodBuilder(this, method));
+					MethodBuilder builder = new MethodBuilder(this, method);
+					methods.add(builder);
+
+					LuaFunction function = method.getAnnotation(LuaFunction.class);
+
+					// Get default isVarArgs
+					builder.setVarReturn(function.isVarReturn());
+
+					// Get default error message
+					String errorMessage = function.error();
+					if (errorMessage != null && !errorMessage.isEmpty()) {
+						builder.setErrorMessage(errorMessage);
+					}
+
+					// Create the names of this function
+					String[] luaName = function.value();
+					if (luaName == null || luaName.length == 0 || (luaName.length == 1 && luaName[0].isEmpty())) {
+						builder.names().add(method.getSimpleName().toString());
+					} else {
+						Collections.addAll(builder.names(), luaName);
+					}
 				}
 			}
 		}

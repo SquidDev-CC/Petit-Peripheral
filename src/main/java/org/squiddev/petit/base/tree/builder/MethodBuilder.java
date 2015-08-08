@@ -1,6 +1,5 @@
 package org.squiddev.petit.base.tree.builder;
 
-import org.squiddev.petit.annotation.LuaFunction;
 import org.squiddev.petit.api.backend.Backend;
 import org.squiddev.petit.api.tree.ArgumentKind;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
@@ -23,23 +22,6 @@ public class MethodBuilder implements IMethodBuilder {
 	public MethodBuilder(IClassBuilder klass, ExecutableElement method) {
 		this.klass = klass;
 		this.method = method;
-
-		LuaFunction function = method.getAnnotation(LuaFunction.class);
-
-		// Get default isVarArgs
-		this.returnsVarags = function.isVarReturn();
-
-		// Get default error message
-		String errorMessage = function.error();
-		this.errorMessage = errorMessage == null || errorMessage.isEmpty() ? null : errorMessage;
-
-		// Create the names of this function
-		String[] luaName = function.value();
-		if (luaName == null || luaName.length == 0 || (luaName.length == 1 && luaName[0].isEmpty())) {
-			names.add(method.getSimpleName().toString());
-		} else {
-			Collections.addAll(names, luaName);
-		}
 
 		// Create a list of arguments
 		List<? extends VariableElement> params = method.getParameters();
