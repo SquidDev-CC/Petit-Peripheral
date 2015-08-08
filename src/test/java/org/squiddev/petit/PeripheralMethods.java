@@ -2,8 +2,8 @@ package org.squiddev.petit;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import org.junit.Test;
-import org.squiddev.petit.api.LuaFunction;
-import org.squiddev.petit.api.Peripheral;
+import org.squiddev.petit.annotation.LuaFunction;
+import org.squiddev.petit.annotation.Peripheral;
 
 import static org.junit.Assert.*;
 

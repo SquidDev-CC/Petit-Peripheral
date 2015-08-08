@@ -4,9 +4,9 @@ package org.squiddev.petit;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import org.junit.Test;
-import org.squiddev.petit.api.*;
-import org.squiddev.petit.api.runtime.Inbound;
-import org.squiddev.petit.api.runtime.Outbound;
+import org.squiddev.petit.annotation.*;
+import org.squiddev.petit.annotation.converter.Inbound;
+import org.squiddev.petit.annotation.converter.Outbound;
 
 import static org.junit.Assert.assertEquals;
 
