@@ -80,6 +80,16 @@ public class Verification {
 		assertEquals(2, filter(new CustomJavaFileObject("IllegalName"), "Invalid name").size());
 	}
 
+	@Test
+	public void implementIPeripheral() throws Exception {
+		assertEquals(4, filter(new CustomJavaFileObject("ImplementIPeripheral"), "Cannot implement").size());
+	}
+
+	@Test
+	public void accessLevels() throws Exception {
+		assertEquals(2, filter(new CustomJavaFileObject("AccessLevels"), "Method must be public, non-static").size());
+	}
+
 	//region File loading
 	public JavaCompiler compiler;
 	public DiagnosticCollector<JavaFileObject> diagnostics;
