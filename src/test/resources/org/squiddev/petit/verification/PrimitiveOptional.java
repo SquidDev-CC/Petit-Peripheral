@@ -8,8 +8,12 @@ import org.squiddev.petit.annotation.Peripheral;
  * Check that optionals do not appear before required arguments
  */
 @Peripheral("test")
-public class ArgumentOrder {
+public class PrimitiveOptional {
 	@LuaFunction
-	public void badOrder(@Optional String bar, String foo) {
+	public void primitiveOptional(@Optional int bar) {
+	}
+
+	@LuaFunction
+	public void nonPrimitiveOptional(@Optional Integer bar) {
 	}
 }

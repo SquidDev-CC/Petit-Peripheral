@@ -60,6 +60,26 @@ public class Verification {
 		assertEquals(1, filter(new CustomJavaFileObject("ArgumentOrder"), "Unexpected required argument after optional one").size());
 	}
 
+	@Test
+	public void duplicateMethods() throws Exception {
+		assertEquals(1, filter(new CustomJavaFileObject("DuplicateMethods"), "Duplicate name 'foo'").size());
+	}
+
+	@Test
+	public void primitiveOptional() throws Exception {
+		assertEquals(1, filter(new CustomJavaFileObject("PrimitiveOptional"), "Primitive cannot be optional").size());
+	}
+
+	@Test
+	public void variableReturn() throws Exception {
+		assertEquals(1, filter(new CustomJavaFileObject("VariableReturn"), "Expected array for variable return").size());
+	}
+
+	@Test
+	public void illegalName() throws Exception {
+		assertEquals(2, filter(new CustomJavaFileObject("IllegalName"), "Invalid name").size());
+	}
+
 	//region File loading
 	public JavaCompiler compiler;
 	public DiagnosticCollector<JavaFileObject> diagnostics;
@@ -112,7 +132,7 @@ public class Verification {
 		List<String> result = new ArrayList<String>();
 
 		for (Diagnostic diagnostic : diagnostics) {
-			if (diagnostic.getCode().endsWith(".proc.messager") && (message == null || diagnostic.getMessage(null).equals(message))) {
+			if (diagnostic.getCode().endsWith(".proc.messager") && (message == null || diagnostic.getMessage(null).contains(message))) {
 				result.add(object.getCharContent(true).subSequence(
 					(int) diagnostic.getStartPosition(),
 					(int) diagnostic.getEndPosition()
