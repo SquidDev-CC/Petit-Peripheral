@@ -7,7 +7,7 @@ import org.squiddev.petit.api.tree.baked.IMethodBaked;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
-import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Element;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class MethodBaked implements IMethodBaked {
 	private final IClassBaked parent;
 	private final String error;
 	private final boolean varReturn;
-	private final ExecutableElement element;
+	private final Element element;
 	private final TypeMirror type;
 	private final String target;
 
@@ -99,7 +99,7 @@ public class MethodBaked implements IMethodBaked {
 	}
 
 	@Override
-	public ExecutableElement getElement() {
+	public Element getElement() {
 		return element;
 	}
 }

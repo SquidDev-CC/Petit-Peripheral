@@ -6,6 +6,7 @@ import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -30,7 +31,17 @@ public class MethodBuilder implements IMethodBuilder {
 		for (int i = 0; i < size; i++) {
 			arguments[i] = new ArgumentBuilder(this, params.get(i), i == size - 1 && method.isVarArgs() ? ArgumentKind.VARIABLE : ArgumentKind.REQUIRED);
 		}
-		this.arguments = Collections.unmodifiableList(Arrays.asList(arguments));
+		this.arguments = Arrays.asList(arguments);
+	}
+
+	public MethodBuilder(IClassBuilder klass) {
+		this.klass = klass;
+		this.method = null;
+		this.arguments = new ArrayList<IArgumentBuilder>();
+	}
+
+	protected List<IArgumentBuilder> arguments() {
+		return arguments;
 	}
 
 	@Override
@@ -40,7 +51,7 @@ public class MethodBuilder implements IMethodBuilder {
 
 	@Override
 	public List<IArgumentBuilder> getArguments() {
-		return arguments;
+		return Collections.unmodifiableList(arguments);
 	}
 
 	@Override
@@ -70,7 +81,7 @@ public class MethodBuilder implements IMethodBuilder {
 
 	@Override
 	public TypeMirror getReturnType() {
-		return getElement().getReturnType();
+		return ((ExecutableElement) getElement()).getReturnType();
 	}
 
 	@Override
@@ -79,7 +90,7 @@ public class MethodBuilder implements IMethodBuilder {
 	}
 
 	@Override
-	public ExecutableElement getElement() {
+	public Element getElement() {
 		return method;
 	}
 

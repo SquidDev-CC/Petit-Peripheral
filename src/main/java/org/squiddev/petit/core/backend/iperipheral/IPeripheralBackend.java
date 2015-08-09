@@ -14,6 +14,7 @@ import org.squiddev.petit.core.backend.converter.inbound.PrimitiveTypeConverter;
 import org.squiddev.petit.core.backend.converter.inbound.ProvidedConverter;
 import org.squiddev.petit.core.backend.converter.outbound.SimpleConverter;
 
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.Collections;
 
@@ -44,7 +45,7 @@ public class IPeripheralBackend extends IPeripheralWriter {
 
 	@Override
 	public IClassBaked bake(IClassBuilder builder) {
-		String[] fullName = environment.getElementUtils().getBinaryName(builder.getElement()).toString().split("\\.");
+		String[] fullName = environment.getElementUtils().getBinaryName((TypeElement) builder.getElement()).toString().split("\\.");
 		return new IPeripheralBaked(fullName[fullName.length - 1].replace("$", "_") + "_Peripheral", builder, this, environment);
 	}
 

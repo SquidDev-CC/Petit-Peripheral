@@ -8,9 +8,9 @@ import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
 import javax.annotation.processing.Messager;
-import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.tools.Diagnostic;
 
@@ -38,9 +38,9 @@ public class BuilderValidator implements Validator<IClassBuilder> {
 		boolean success = true;
 		Messager messager = environment.getMessager();
 
-		ExecutableElement element = builder.getElement();
+		Element element = builder.getElement();
 
-		if (!element.getModifiers().contains(Modifier.PUBLIC) || element.getModifiers().contains(Modifier.STATIC)) {
+		if (element.getKind() == ElementKind.METHOD && (!element.getModifiers().contains(Modifier.PUBLIC) || element.getModifiers().contains(Modifier.STATIC))) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Method must be public, non-static", element);
 			success = false;
 		}
@@ -52,7 +52,7 @@ public class BuilderValidator implements Validator<IClassBuilder> {
 			}
 		}
 
-		if (builder.getVarReturn() && element.getReturnType().getKind() != TypeKind.ARRAY) {
+		if (builder.getVarReturn() && builder.getReturnType().getKind() != TypeKind.ARRAY) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Expected array for variable return", element);
 			success = false;
 		}
@@ -94,7 +94,7 @@ public class BuilderValidator implements Validator<IClassBuilder> {
 		boolean success = true;
 
 		ArgumentKind kind = builder.getKind();
-		VariableElement element = builder.getElement();
+		Element element = builder.getElement();
 		TypeKind typeKind = builder.getType().getKind();
 
 		if (kind == ArgumentKind.VARIABLE && typeKind != TypeKind.ARRAY) {

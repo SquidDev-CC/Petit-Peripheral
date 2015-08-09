@@ -4,7 +4,7 @@ import org.squiddev.petit.api.tree.ArgumentKind;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 
 /**
@@ -12,10 +12,10 @@ import javax.lang.model.type.TypeMirror;
  */
 public class ArgumentBuilder implements IArgumentBuilder {
 	private final IMethodBuilder method;
-	private final VariableElement parameter;
+	private final Element parameter;
 	private ArgumentKind kind = ArgumentKind.REQUIRED;
 
-	public ArgumentBuilder(IMethodBuilder method, VariableElement parameter, ArgumentKind kind) {
+	public ArgumentBuilder(IMethodBuilder method, Element parameter, ArgumentKind kind) {
 		this.parameter = parameter;
 		this.method = method;
 		this.kind = kind;
@@ -42,7 +42,7 @@ public class ArgumentBuilder implements IArgumentBuilder {
 	}
 
 	@Override
-	public VariableElement getElement() {
+	public Element getElement() {
 		return parameter;
 	}
 

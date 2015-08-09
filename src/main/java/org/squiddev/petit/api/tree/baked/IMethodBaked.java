@@ -3,12 +3,11 @@ package org.squiddev.petit.api.tree.baked;
 import org.squiddev.petit.api.backend.Backend;
 import org.squiddev.petit.api.tree.Node;
 
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
 import java.util.List;
 
-public interface IMethodBaked extends Node<ExecutableElement> {
+public interface IMethodBaked extends Node {
 	/**
 	 * Get the names of this method
 	 *

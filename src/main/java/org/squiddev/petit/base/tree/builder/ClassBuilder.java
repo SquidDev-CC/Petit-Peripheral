@@ -59,7 +59,7 @@ public class ClassBuilder implements IClassBuilder {
 	}
 
 	@Override
-	public TypeElement getElement() {
+	public Element getElement() {
 		return klass;
 	}
 

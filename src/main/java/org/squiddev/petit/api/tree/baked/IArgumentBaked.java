@@ -3,10 +3,9 @@ package org.squiddev.petit.api.tree.baked;
 import org.squiddev.petit.api.tree.ArgumentKind;
 import org.squiddev.petit.api.tree.Node;
 
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-public interface IArgumentBaked extends Node<VariableElement> {
+public interface IArgumentBaked extends Node {
 	/**
 	 * Get the kind for this argument.
 	 *

@@ -6,15 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Handles a method on an interface
+ * Mark a peripheral as providing documentation.
+ * This is extracted directly from the javadoc of a method/class
  */
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface Handler {
-	/**
-	 * The interface we handle the method on
-	 *
-	 * @return The method's interface
-	 */
-	Class<?> value();
+public @interface Document {
 }

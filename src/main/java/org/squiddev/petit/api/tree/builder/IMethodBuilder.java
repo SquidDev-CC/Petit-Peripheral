@@ -3,12 +3,11 @@ package org.squiddev.petit.api.tree.builder;
 import org.squiddev.petit.api.backend.Backend;
 import org.squiddev.petit.api.tree.Node;
 
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
 import java.util.List;
 
-public interface IMethodBuilder extends Node<ExecutableElement> {
+public interface IMethodBuilder extends Node {
 	/**
 	 * Get a writable collection of names of this method
 	 *

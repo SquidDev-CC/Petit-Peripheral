@@ -13,7 +13,7 @@ import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 import org.squiddev.petit.base.tree.MethodSignature;
 
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
@@ -22,7 +22,7 @@ public class ClassBaked implements IClassBaked {
 	private final String name;
 	private final Collection<IMethodBaked> methods;
 	private final Map<IMethodSignature, Collection<ISyntheticMethod>> synthetics;
-	private final TypeElement element;
+	private final Element element;
 	private final Environment environment;
 
 	public ClassBaked(String generatedName, IClassBuilder builder, Backend backend, Environment environment) {
@@ -56,11 +56,14 @@ public class ClassBaked implements IClassBaked {
 		this.synthetics = new HashMap<IMethodSignature, Collection<ISyntheticMethod>>();
 
 		for (ISyntheticMethod synthetic : builder.syntheticMethods()) {
-			for (TypeMirror target : synthetic.getBackends()) {
-				if (backend.compatibleWith(target)) {
-					addSynthetic(synthetic);
-
-					break;
+			if (synthetic.getBackends().size() == 0) {
+				addSynthetic(synthetic);
+			} else {
+				for (TypeMirror target : synthetic.getBackends()) {
+					if (backend.compatibleWith(target)) {
+						addSynthetic(synthetic);
+						break;
+					}
 				}
 			}
 		}
@@ -96,7 +99,7 @@ public class ClassBaked implements IClassBaked {
 	}
 
 	@Override
-	public TypeElement getElement() {
+	public Element getElement() {
 		return element;
 	}
 }

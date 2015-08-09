@@ -5,7 +5,7 @@ import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 import org.squiddev.petit.api.tree.baked.IMethodBaked;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.Element;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
 
@@ -13,10 +13,10 @@ public class ArgumentBaked implements IArgumentBaked {
 	private final ArgumentKind kind;
 	private final IMethodBaked parent;
 	private final int index;
-	private final VariableElement element;
+	private final Element element;
 	private final TypeMirror type;
 
-	public ArgumentBaked(ArgumentKind kind, int index, VariableElement element, TypeMirror type, IMethodBaked parent) {
+	public ArgumentBaked(ArgumentKind kind, int index, Element element, TypeMirror type, IMethodBaked parent) {
 		this.kind = kind;
 		this.parent = parent;
 		this.index = index;
@@ -51,7 +51,7 @@ public class ArgumentBaked implements IArgumentBaked {
 	}
 
 	@Override
-	public VariableElement getElement() {
+	public Element getElement() {
 		return element;
 	}
 }

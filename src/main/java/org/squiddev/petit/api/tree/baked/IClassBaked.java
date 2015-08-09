@@ -6,11 +6,10 @@ import org.squiddev.petit.api.tree.IMethodSignature;
 import org.squiddev.petit.api.tree.ISyntheticMethod;
 import org.squiddev.petit.api.tree.Node;
 
-import javax.lang.model.element.TypeElement;
 import java.util.Collection;
 import java.util.Map;
 
-public interface IClassBaked extends Node<TypeElement> {
+public interface IClassBaked extends Node {
 	/**
 	 * Get the name of the generated class
 	 *

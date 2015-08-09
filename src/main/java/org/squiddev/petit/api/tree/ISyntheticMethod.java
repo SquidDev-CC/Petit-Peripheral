@@ -4,7 +4,6 @@ import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.backend.Backend;
 import org.squiddev.petit.api.tree.baked.IClassBaked;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
  *
  * There can be synthetic methods for one Java method, but only if the return type is {@code void}
  */
-public interface ISyntheticMethod extends Node<Element> {
+public interface ISyntheticMethod extends Node {
 	String ARG_PREFIX = "arg_";
 
 	/**

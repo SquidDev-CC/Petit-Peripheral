@@ -5,10 +5,9 @@ import org.squiddev.petit.annotation.Peripheral;
 import org.squiddev.petit.api.tree.ISyntheticMethod;
 import org.squiddev.petit.api.tree.Node;
 
-import javax.lang.model.element.TypeElement;
 import java.util.Collection;
 
-public interface IClassBuilder extends Node<TypeElement> {
+public interface IClassBuilder extends Node {
 	/**
 	 * Get the name of the peripheral
 	 *

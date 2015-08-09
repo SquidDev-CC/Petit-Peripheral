@@ -21,9 +21,9 @@ import org.squiddev.petit.base.backend.AbstractBackend;
 import org.squiddev.petit.core.backend.Utils;
 
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -90,15 +90,15 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 		public ArgumentMeta(IArgumentBaked argument) {
 			this.argument = argument;
 
-			TypeMirror type = argument.getElement().asType();
-			if (argument.getKind() == ArgumentKind.VARIABLE) {
-				type = ((ArrayType) type).getComponentType();
-			}
+			TypeMirror type = argument.getType();
 			this.converter = getInboundConverter(argument.getKind(), type);
+			if (converter == null) {
+				environment.getMessager().printMessage(Diagnostic.Kind.WARNING, "Um " + argument.getKind() + " " + type);
+			}
 		}
 
 		public boolean isTrivial() {
-			return argument.getKind() == ArgumentKind.VARIABLE && environment.getTypeHelpers().isObjectArray(argument.getElement().asType());
+			return argument.getKind() == ArgumentKind.VARIABLE && environment.getTypeHelpers().isObject(argument.getType());
 		}
 	}
 
