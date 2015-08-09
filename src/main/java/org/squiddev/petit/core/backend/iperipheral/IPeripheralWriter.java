@@ -32,7 +32,6 @@ import java.util.Map;
 public abstract class IPeripheralWriter extends AbstractBackend {
 	public final String ARG_COMPUTER = "computer";
 	public final String ARG_LUA_CONTEXT = "luaContext";
-	public final String FIELD_INSTANCE = "instance";
 	public final String ARG_ARGS = "args";
 	public final String VAR_REST = "rest";
 
@@ -290,7 +289,9 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 
 		spec.add("$[");
 		if (method.getReturnType().getKind() != TypeKind.VOID) {
-			spec.add("$T $N = ", method.getReturnType(), "funcResult");
+			TypeMirror type = method.getReturnType();
+			if (method.getVarReturn()) type = environment.getTypeUtils().getArrayType(type);
+			spec.add("$T $N = ", type, "result");
 		}
 
 		spec.add("$N(", method.getTarget());
@@ -315,12 +316,18 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 		spec.add(");$]\n");
 
 		if (method.getReturnType().getKind() != TypeKind.VOID) {
-			CodeBlock block = getToConverter(method.getReturnType()).convertTo("funcResult");
-			if (block == null) {
-				spec.addStatement("return funcResult");
+			if (method.getVarReturn()) {
+				spec.addStatement("int resultLength = result.length");
+				spec.addStatement("Object[] resultConverted = new Object[resultLength]");
+				spec.beginControlFlow("for(int i = 0; i < resultLength; i++)");
+				spec.add("$[resultConverted[i] = ");
+				spec.add(getToConverter(method.getReturnType()).convert(method, "result[i]"));
+				spec.add(";\n$]");
+				spec.endControlFlow();
+				spec.addStatement("return resultConverted");
 			} else {
 				spec.add("$[return ");
-				spec.add(block);
+				spec.add(getToConverter(method.getReturnType()).convert(method, "result"));
 				spec.add(";\n$]");
 			}
 		} else {

@@ -1,6 +1,7 @@
 package org.squiddev.petit.api.backend;
 
 import com.squareup.javapoet.CodeBlock;
+import org.squiddev.petit.api.tree.baked.IMethodBaked;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -19,8 +20,12 @@ public interface OutboundConverter {
 	/**
 	 * Returns an expression that converts from {@code from}.
 	 *
-	 * @param from The expression that contains the value.
-	 * @return The conversion expression, or {@code null} if none is required.
+	 * If the method returns multiple values ({@link IMethodBaked#getVarReturn()}) then
+	 * you should return an object rather than an object array.
+	 *
+	 * @param method The method we are converting for
+	 * @param from   The expression that contains the value.
+	 * @return The conversion expression
 	 */
-	CodeBlock convertTo(String from);
+	CodeBlock convert(IMethodBaked method, String from);
 }

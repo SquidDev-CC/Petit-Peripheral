@@ -3,6 +3,7 @@ package org.squiddev.petit.core.backend.converter.outbound;
 import com.squareup.javapoet.CodeBlock;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.OutboundConverter;
+import org.squiddev.petit.api.tree.baked.IMethodBaked;
 import org.squiddev.petit.base.backend.AbstractOutboundConverter;
 import org.squiddev.petit.core.backend.Utils;
 
@@ -23,8 +24,8 @@ public class SimpleConverter extends AbstractOutboundConverter {
 	}
 
 	@Override
-	public CodeBlock convertTo(String fromToken) {
-		return Utils.block("new Object[] { $N }", fromToken);
+	public CodeBlock convert(IMethodBaked method, String from) {
+		return method.getVarReturn() ? Utils.block(from) : Utils.block("new Object[] { $N }", from);
 	}
 
 	public static Iterable<OutboundConverter> addBasics(Environment environment) {

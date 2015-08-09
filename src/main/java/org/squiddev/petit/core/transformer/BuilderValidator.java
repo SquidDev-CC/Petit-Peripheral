@@ -52,7 +52,7 @@ public class BuilderValidator implements Validator<IClassBuilder> {
 			}
 		}
 
-		if (builder.getVarReturn() && element.asType().getKind() != TypeKind.ARRAY) {
+		if (builder.getVarReturn() && element.getReturnType().getKind() != TypeKind.ARRAY) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Expected array for variable return", element);
 			success = false;
 		}

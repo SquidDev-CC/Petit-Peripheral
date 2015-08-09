@@ -15,6 +15,7 @@ import org.squiddev.petit.api.backend.Segment;
 import org.squiddev.petit.api.transformer.ITransformerContainer;
 import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 import org.squiddev.petit.api.tree.baked.IClassBaked;
+import org.squiddev.petit.api.tree.baked.IMethodBaked;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
@@ -243,7 +244,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 			OutboundConverter converter = new AbstractOutboundConverter(environment, params.get(0).asType()) {
 				@Override
-				public CodeBlock convertTo(String from) {
+				public CodeBlock convert(IMethodBaked baked, String from) {
 					return Utils.block("$T.$N($N)", method.getEnclosingElement(), method.getSimpleName(), from);
 				}
 			};

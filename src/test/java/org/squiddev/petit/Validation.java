@@ -197,5 +197,10 @@ public class Validation {
 		public void attach(IComputerAccess access) {
 			counter++;
 		}
+
+		@LuaFunction(isVarReturn = true)
+		public String[] arrayReturn() {
+			return new String[]{"a", "b", "c"};
+		}
 	}
 }
