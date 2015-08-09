@@ -2,6 +2,7 @@ package org.squiddev.petit.core.transformer;
 
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.tree.ArgumentKind;
+import org.squiddev.petit.api.tree.Validator;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
@@ -16,13 +17,14 @@ import javax.tools.Diagnostic;
 /**
  * Validates a tree of objects
  */
-public class BuilderValidator {
+public class BuilderValidator implements Validator<IClassBuilder> {
 	protected final Environment environment;
 
 	public BuilderValidator(Environment environment) {
 		this.environment = environment;
 	}
 
+	@Override
 	public boolean validate(IClassBuilder builder) {
 		boolean success = true;
 		for (IMethodBuilder method : builder.methods()) {
@@ -32,7 +34,7 @@ public class BuilderValidator {
 		return success;
 	}
 
-	public boolean validate(IMethodBuilder builder) {
+	protected boolean validate(IMethodBuilder builder) {
 		boolean success = true;
 		Messager messager = environment.getMessager();
 
@@ -44,7 +46,7 @@ public class BuilderValidator {
 		}
 
 		for (String name : builder.names()) {
-			if (name.matches("^[a-zA-Z][a-z0-9A-Z]$")) {
+			if (!name.matches("^[a-zA-Z][a-z0-9A-Z]*$")) {
 				messager.printMessage(Diagnostic.Kind.ERROR, "Invalid name '" + name + "'", element);
 				success = false;
 			}
@@ -87,7 +89,7 @@ public class BuilderValidator {
 		return success;
 	}
 
-	public boolean validate(IArgumentBuilder builder) {
+	protected boolean validate(IArgumentBuilder builder) {
 		Messager messager = environment.getMessager();
 		boolean success = true;
 

@@ -57,4 +57,9 @@ public class IPeripheralBackend extends IPeripheralWriter {
 	public Validator<IClassBaked> getValidator() {
 		return validator;
 	}
+
+	@Override
+	public String toString() {
+		return "IPeripheral";
+	}
 }

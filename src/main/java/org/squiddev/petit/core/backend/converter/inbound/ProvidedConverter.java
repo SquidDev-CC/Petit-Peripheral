@@ -9,7 +9,6 @@ import org.squiddev.petit.base.backend.AbstractInboundConverter;
 import org.squiddev.petit.core.backend.Utils;
 
 import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic;
 import java.util.Collections;
 
 /**
@@ -34,10 +33,6 @@ public class ProvidedConverter extends AbstractInboundConverter {
 
 	@Override
 	public Segment validate(IArgumentBaked argument, String from) {
-		if (argument.getKind() != ArgumentKind.PROVIDED) {
-			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Expected provided type, got " + argument.getKind(), argument.getElement());
-		}
-
 		return super.validate(argument, from);
 	}
 
