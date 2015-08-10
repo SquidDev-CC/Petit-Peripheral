@@ -153,6 +153,7 @@ public class Validation {
 	}
 
 	@Peripheral("peripheral")
+	@Document
 	public static class Embed {
 		public int counter = 0;
 
