@@ -49,6 +49,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			.addMethod(writeType(baked))
 			.addMethod(writeEquals(baked))
 			.addMethod(writeMethodNames(baked))
+			.addMethod(writeGenericEquals(baked))
 			.addMethod(writeCall(baked))
 			.addField(TypeName.get(baked.getElement().asType()), FIELD_INSTANCE, Modifier.PRIVATE);
 
@@ -365,6 +366,15 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			.addParameter(IPeripheral.class, "other")
 			.returns(boolean.class)
 			.addStatement("return other instanceof " + name + " && ((" + name + ")other).$N.equals($N)", FIELD_INSTANCE, FIELD_INSTANCE)
+			.build();
+	}
+
+	public MethodSpec writeGenericEquals(IClassBaked klass) {
+		return MethodSpec.methodBuilder("equals")
+			.addModifiers(Modifier.PUBLIC)
+			.addParameter(Object.class, "other")
+			.returns(boolean.class)
+			.addStatement("return other instanceof $T && equals(($T)other)", IPeripheral.class, IPeripheral.class)
 			.build();
 	}
 

@@ -21,6 +21,7 @@ public class IPeripheralVerifier extends BakedVerifier {
 		super(backend, environment);
 		blacklist = new HashSet<IMethodSignature>(Arrays.asList(
 			new MethodSignature("equals", environment, IPeripheral.class),
+			new MethodSignature("equals", environment, Object.class),
 			new MethodSignature("getMethodNames", environment),
 			new MethodSignature("getType", environment),
 			new MethodSignature("callMethod", environment, IComputerAccess.class, ILuaContext.class, int.class, Object[].class)
