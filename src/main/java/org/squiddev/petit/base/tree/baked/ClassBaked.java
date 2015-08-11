@@ -6,6 +6,7 @@ import org.squiddev.petit.api.backend.InboundConverter;
 import org.squiddev.petit.api.tree.ArgumentKind;
 import org.squiddev.petit.api.tree.IMethodSignature;
 import org.squiddev.petit.api.tree.ISyntheticMethod;
+import org.squiddev.petit.api.tree.ParentKind;
 import org.squiddev.petit.api.tree.baked.IClassBaked;
 import org.squiddev.petit.api.tree.baked.IMethodBaked;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
@@ -14,6 +15,7 @@ import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 import org.squiddev.petit.base.tree.MethodSignature;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
@@ -24,6 +26,7 @@ public class ClassBaked implements IClassBaked {
 	private final Map<IMethodSignature, Collection<ISyntheticMethod>> synthetics;
 	private final Element element;
 	private final Environment environment;
+	private final Collection<DeclaredType> parents;
 
 	public ClassBaked(String generatedName, IClassBuilder builder, Backend backend, Environment environment) {
 		this.generatedName = generatedName;
@@ -51,7 +54,7 @@ public class ClassBaked implements IClassBaked {
 
 		/*
 			The synthetics method is intentionally modifiable
-			as wee need to be able to add to it in parent classes
+			as we need to be able to add to it in parent classes
 		 */
 		this.synthetics = new HashMap<IMethodSignature, Collection<ISyntheticMethod>>();
 
@@ -65,6 +68,14 @@ public class ClassBaked implements IClassBaked {
 						break;
 					}
 				}
+			}
+		}
+
+		Collection<DeclaredType> parents = new ArrayList<DeclaredType>();
+		this.parents = Collections.unmodifiableCollection(parents);
+		for (Map.Entry<TypeMirror, ParentKind> parent : builder.parents()) {
+			if (parent.getValue() == ParentKind.REQUIRED || backend.compatibleWith(parent.getKey())) {
+				parents.add((DeclaredType) parent.getKey());
 			}
 		}
 	}
@@ -96,6 +107,11 @@ public class ClassBaked implements IClassBaked {
 	@Override
 	public Map<IMethodSignature, Collection<ISyntheticMethod>> getSyntheticMethods() {
 		return Collections.unmodifiableMap(synthetics);
+	}
+
+	@Override
+	public Collection<DeclaredType> getParents() {
+		return parents;
 	}
 
 	@Override

@@ -4,8 +4,11 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import org.squiddev.petit.annotation.Peripheral;
 import org.squiddev.petit.api.tree.ISyntheticMethod;
 import org.squiddev.petit.api.tree.Node;
+import org.squiddev.petit.api.tree.ParentKind;
 
+import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
+import java.util.Map;
 
 public interface IClassBuilder extends Node {
 	/**
@@ -30,4 +33,15 @@ public interface IClassBuilder extends Node {
 	 * @return The synthetic methods
 	 */
 	Collection<ISyntheticMethod> syntheticMethods();
+
+	/**
+	 * Collection of 'parent' implementations
+	 *
+	 * This is entirely up to the backend on how to handle this.
+	 * This will be loaded from the interface and extends list by
+	 * default
+	 *
+	 * @return The 'parent' implementations
+	 */
+	Collection<Map.Entry<TypeMirror, ParentKind>> parents();
 }

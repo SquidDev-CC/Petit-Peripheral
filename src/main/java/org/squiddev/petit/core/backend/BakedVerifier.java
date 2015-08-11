@@ -61,19 +61,14 @@ public class BakedVerifier implements Verifier<IClassBaked> {
 		}
 
 		TypeMirror superClass = null;
-		for (TypeMirror parent : baked.getParents()) {
-			if (parent.getKind() != TypeKind.DECLARED) {
-				messager.printMessage(Diagnostic.Kind.ERROR, "Expected declared type, got " + parent, baked.getElement());
-				success = false;
-			} else {
-				Element element = ((DeclaredType) parent).asElement();
-				if (element.getKind() == ElementKind.CLASS) {
-					if (superClass != null) {
-						messager.printMessage(Diagnostic.Kind.ERROR, "Multiple super classes: " + parent + " and " + superClass, baked.getElement());
-						success = false;
-					}
-					superClass = parent;
+		for (DeclaredType parent : baked.getParents()) {
+			Element element = parent.asElement();
+			if (element.getKind() == ElementKind.CLASS) {
+				if (superClass != null) {
+					messager.printMessage(Diagnostic.Kind.ERROR, "Multiple super classes: " + parent + " and " + superClass, baked.getElement());
+					success = false;
 				}
+				superClass = parent;
 			}
 		}
 

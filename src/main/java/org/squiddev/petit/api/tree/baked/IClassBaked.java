@@ -6,6 +6,7 @@ import org.squiddev.petit.api.tree.IMethodSignature;
 import org.squiddev.petit.api.tree.ISyntheticMethod;
 import org.squiddev.petit.api.tree.Node;
 
+import javax.lang.model.type.DeclaredType;
 import java.util.Collection;
 import java.util.Map;
 
@@ -39,4 +40,11 @@ public interface IClassBaked extends Node {
 	 * @return The synthetic methods
 	 */
 	Map<IMethodSignature, Collection<ISyntheticMethod>> getSyntheticMethods();
+
+	/**
+	 * Get the parent classes/interfaces for this type
+	 *
+	 * @return The parent types
+	 */
+	Collection<DeclaredType> getParents();
 }

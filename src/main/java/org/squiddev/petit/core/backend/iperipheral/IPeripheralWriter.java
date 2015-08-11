@@ -20,7 +20,9 @@ import org.squiddev.petit.api.tree.baked.IMethodBaked;
 import org.squiddev.petit.base.backend.AbstractBackend;
 import org.squiddev.petit.core.backend.Utils;
 
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
@@ -52,6 +54,12 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			.addMethod(writeGenericEquals(baked))
 			.addMethod(writeCall(baked))
 			.addField(TypeName.get(baked.getElement().asType()), FIELD_INSTANCE, Modifier.PRIVATE);
+
+		for (DeclaredType mirror : baked.getParents()) {
+			if (mirror.asElement().getKind() == ElementKind.INTERFACE) {
+				spec.addSuperinterface(TypeName.get(mirror));
+			}
+		}
 
 		// These should do something. First build and all that though.
 		spec.addMethod(
