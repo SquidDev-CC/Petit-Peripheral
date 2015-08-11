@@ -9,7 +9,11 @@ import org.squiddev.petit.api.tree.baked.IClassBaked;
 import org.squiddev.petit.api.tree.baked.IMethodBaked;
 
 import javax.annotation.processing.Messager;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,6 +44,11 @@ public class BakedVerifier implements Verifier<IClassBaked> {
 			}
 		}
 
+		if (baked.getMethods().size() == 0) {
+			messager.printMessage(Diagnostic.Kind.ERROR, "No methods for peripheral", baked.getElement());
+			success = false;
+		}
+
 		for (Collection<ISyntheticMethod> synthetics : baked.getSyntheticMethods().values()) {
 			if (synthetics.size() > 1) {
 				for (ISyntheticMethod method : synthetics) {
@@ -47,6 +56,23 @@ public class BakedVerifier implements Verifier<IClassBaked> {
 						messager.printMessage(Diagnostic.Kind.ERROR, "Multiple synthetic methods for non-void return type", method.getElement());
 						success = false;
 					}
+				}
+			}
+		}
+
+		TypeMirror superClass = null;
+		for (TypeMirror parent : baked.getParents()) {
+			if (parent.getKind() != TypeKind.DECLARED) {
+				messager.printMessage(Diagnostic.Kind.ERROR, "Expected declared type, got " + parent, baked.getElement());
+				success = false;
+			} else {
+				Element element = ((DeclaredType) parent).asElement();
+				if (element.getKind() == ElementKind.CLASS) {
+					if (superClass != null) {
+						messager.printMessage(Diagnostic.Kind.ERROR, "Multiple super classes: " + parent + " and " + superClass, baked.getElement());
+						success = false;
+					}
+					superClass = parent;
 				}
 			}
 		}

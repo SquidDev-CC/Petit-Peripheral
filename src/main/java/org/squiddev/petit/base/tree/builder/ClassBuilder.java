@@ -1,6 +1,7 @@
 package org.squiddev.petit.base.tree.builder;
 
 import org.squiddev.petit.annotation.LuaFunction;
+import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.tree.ISyntheticMethod;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
@@ -22,13 +23,13 @@ public class ClassBuilder implements IClassBuilder {
 	private final Collection<IMethodBuilder> methods;
 	private final Collection<ISyntheticMethod> synthetics = new ArrayList<ISyntheticMethod>();
 
-	public ClassBuilder(String name, TypeElement klass) {
+	public ClassBuilder(String name, TypeElement klass, Environment environment) {
 		this.name = name;
 		this.klass = klass;
 
 		// Gather methods
 		Collection<IMethodBuilder> methods = this.methods = new ArrayList<IMethodBuilder>();
-		for (Element element : klass.getEnclosedElements()) {
+		for (Element element : environment.getElementUtils().getAllMembers(klass)) {
 			if (element.getKind() == ElementKind.METHOD) {
 				ExecutableElement method = (ExecutableElement) element;
 				if (method.getAnnotation(LuaFunction.class) != null) {

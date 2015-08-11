@@ -84,7 +84,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 		IClassBuilder builder;
 		try {
-			builder = new ClassBuilder(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem);
+			builder = new ClassBuilder(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem, environment);
 			for (IMethodBuilder method : builder.methods()) {
 				for (IArgumentBuilder argument : method.getArguments()) {
 					transformers.transform(argument);

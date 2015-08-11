@@ -31,6 +31,11 @@ public class BuilderVerifier implements Verifier<IClassBuilder> {
 			success &= validate(method);
 		}
 
+		if (builder.methods().size() == 0) {
+			environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "No methods for peripheral", builder.getElement());
+			success = false;
+		}
+
 		return success;
 	}
 

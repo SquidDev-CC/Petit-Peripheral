@@ -5,6 +5,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import org.squiddev.petit.annotation.Handler;
+import org.squiddev.petit.annotation.LuaFunction;
 import org.squiddev.petit.annotation.Peripheral;
 
 /**
@@ -24,8 +25,10 @@ public class ImplementIPeripheral implements IPeripheral {
 
 	@Handler(IPeripheral.class)
 	public void detach(IComputerAccess iComputerAccess) {
-
 	}
+
+	@LuaFunction
+	public void stub() { }
 
 	@Handler(IPeripheral.class)
 	public boolean equals(IPeripheral iPeripheral) {
