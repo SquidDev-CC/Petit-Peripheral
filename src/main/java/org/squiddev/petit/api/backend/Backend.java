@@ -2,7 +2,7 @@ package org.squiddev.petit.api.backend;
 
 import com.squareup.javapoet.TypeSpec;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.Validator;
+import org.squiddev.petit.api.tree.Verifier;
 import org.squiddev.petit.api.tree.baked.IClassBaked;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
 
@@ -82,9 +82,9 @@ public interface Backend {
 	boolean compatibleWith(TypeMirror type);
 
 	/**
-	 * Get the validator for this backend
+	 * Get the verifier for this backend
 	 *
-	 * @return The backend's validator
+	 * @return The backend's verifier
 	 */
-	Validator<IClassBaked> getValidator();
+	Verifier<IClassBaked> getVerifier();
 }

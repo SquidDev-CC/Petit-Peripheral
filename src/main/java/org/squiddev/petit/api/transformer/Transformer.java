@@ -34,12 +34,12 @@ public interface Transformer {
 	void transform(IArgumentBuilder argument);
 
 	/**
-	 * Validate an environment
+	 * Verify an environment
 	 *
 	 * @param environment The environment to scan in
-	 * @return If validation was successful (no errors occurred).
+	 * @return If verification was successful (no errors occurred).
 	 */
-	boolean validate(RoundEnvironment environment);
+	boolean verify(RoundEnvironment environment);
 
 	Collection<Class<? extends Annotation>> getAnnotations();
 }

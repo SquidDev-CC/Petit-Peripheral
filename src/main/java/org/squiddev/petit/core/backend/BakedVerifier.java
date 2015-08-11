@@ -3,7 +3,7 @@ package org.squiddev.petit.core.backend;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.Backend;
 import org.squiddev.petit.api.tree.ISyntheticMethod;
-import org.squiddev.petit.api.tree.Validator;
+import org.squiddev.petit.api.tree.Verifier;
 import org.squiddev.petit.api.tree.baked.IArgumentBaked;
 import org.squiddev.petit.api.tree.baked.IClassBaked;
 import org.squiddev.petit.api.tree.baked.IMethodBaked;
@@ -15,17 +15,17 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BakedValidator implements Validator<IClassBaked> {
+public class BakedVerifier implements Verifier<IClassBaked> {
 	protected final Backend backend;
 	protected final Environment environment;
 
-	public BakedValidator(Backend backend, Environment environment) {
+	public BakedVerifier(Backend backend, Environment environment) {
 		this.backend = backend;
 		this.environment = environment;
 	}
 
 	@Override
-	public boolean validate(IClassBaked baked) {
+	public boolean verify(IClassBaked baked) {
 		Messager messager = environment.getMessager();
 		boolean success = true;
 

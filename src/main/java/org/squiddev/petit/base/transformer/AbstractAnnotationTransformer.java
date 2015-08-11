@@ -53,7 +53,7 @@ public abstract class AbstractAnnotationTransformer<T extends Annotation> implem
 	}
 
 	@Override
-	public boolean validate(RoundEnvironment environment) {
+	public boolean verify(RoundEnvironment environment) {
 		boolean success = true;
 		for (Element element : environment.getElementsAnnotatedWith(klass)) {
 			T annotation = element.getAnnotation(klass);

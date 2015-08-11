@@ -42,10 +42,10 @@ public class TransformerContainer implements ITransformerContainer {
 	}
 
 	@Override
-	public boolean validate(RoundEnvironment environment) {
+	public boolean verify(RoundEnvironment environment) {
 		boolean success = true;
 		for (Transformer transformer : this.transformers) {
-			success &= transformer.validate(environment);
+			success &= transformer.verify(environment);
 		}
 
 		return success;

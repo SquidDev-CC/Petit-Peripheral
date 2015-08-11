@@ -28,7 +28,7 @@ public abstract class AbstractTransformer implements Transformer {
 	}
 
 	@Override
-	public boolean validate(RoundEnvironment environment) {
+	public boolean verify(RoundEnvironment environment) {
 		return true;
 	}
 }

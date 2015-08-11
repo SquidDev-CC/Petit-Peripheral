@@ -25,7 +25,7 @@ import org.squiddev.petit.base.transformer.TransformerContainer;
 import org.squiddev.petit.base.tree.builder.ClassBuilder;
 import org.squiddev.petit.core.backend.Utils;
 import org.squiddev.petit.core.backend.iperipheral.IPeripheralBackend;
-import org.squiddev.petit.core.transformer.BuilderValidator;
+import org.squiddev.petit.core.transformer.BuilderVerifier;
 import org.squiddev.petit.core.transformer.DefaultTransformers;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -49,13 +49,13 @@ import java.util.*;
 public class PeripheralProcessor extends AbstractProcessor {
 	protected Environment environment;
 	protected ITransformerContainer transformers;
-	protected BuilderValidator builderValidator;
+	protected BuilderVerifier builderVerifier;
 
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		environment = new BaseEnvironment(processingEnv);
-		builderValidator = new BuilderValidator(environment);
+		builderVerifier = new BuilderVerifier(environment);
 		transformers = new TransformerContainer();
 		DefaultTransformers.add(transformers, environment);
 	}
@@ -71,7 +71,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 			process(elem, backends);
 		}
 
-		transformers.validate(roundEnvironment);
+		transformers.verify(roundEnvironment);
 
 		return true;
 	}
@@ -93,7 +93,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 			}
 			transformers.transform(builder);
 
-			if (!builderValidator.validate(builder)) return;
+			if (!builderVerifier.verify(builder)) return;
 		} catch (Exception e) {
 			StringWriter buffer = new StringWriter();
 			e.printStackTrace(new PrintWriter(buffer));
@@ -105,7 +105,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 		for (Backend backend : backends) {
 			try {
 				IClassBaked baked = backend.bake(builder);
-				if (!backend.getValidator().validate(baked)) continue;
+				if (!backend.getVerifier().verify(baked)) continue;
 				TypeSpec spec = backend.writeClass(baked).build();
 
 				JavaFile

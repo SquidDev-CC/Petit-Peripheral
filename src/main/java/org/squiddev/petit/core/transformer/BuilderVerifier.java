@@ -2,7 +2,7 @@ package org.squiddev.petit.core.transformer;
 
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.tree.ArgumentKind;
-import org.squiddev.petit.api.tree.Validator;
+import org.squiddev.petit.api.tree.Verifier;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
@@ -17,15 +17,15 @@ import javax.tools.Diagnostic;
 /**
  * Validates a tree of objects
  */
-public class BuilderValidator implements Validator<IClassBuilder> {
+public class BuilderVerifier implements Verifier<IClassBuilder> {
 	protected final Environment environment;
 
-	public BuilderValidator(Environment environment) {
+	public BuilderVerifier(Environment environment) {
 		this.environment = environment;
 	}
 
 	@Override
-	public boolean validate(IClassBuilder builder) {
+	public boolean verify(IClassBuilder builder) {
 		boolean success = true;
 		for (IMethodBuilder method : builder.methods()) {
 			success &= validate(method);

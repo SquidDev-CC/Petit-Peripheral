@@ -9,15 +9,15 @@ import org.squiddev.petit.api.tree.IMethodSignature;
 import org.squiddev.petit.api.tree.ISyntheticMethod;
 import org.squiddev.petit.api.tree.baked.IClassBaked;
 import org.squiddev.petit.base.tree.MethodSignature;
-import org.squiddev.petit.core.backend.BakedValidator;
+import org.squiddev.petit.core.backend.BakedVerifier;
 
 import javax.tools.Diagnostic;
 import java.util.*;
 
-public class IPeripheralValidator extends BakedValidator {
+public class IPeripheralVerifier extends BakedVerifier {
 	private final Set<IMethodSignature> blacklist;
 
-	public IPeripheralValidator(Backend backend, Environment environment) {
+	public IPeripheralVerifier(Backend backend, Environment environment) {
 		super(backend, environment);
 		blacklist = new HashSet<IMethodSignature>(Arrays.asList(
 			new MethodSignature("equals", environment, IPeripheral.class),
@@ -28,8 +28,8 @@ public class IPeripheralValidator extends BakedValidator {
 	}
 
 	@Override
-	public boolean validate(IClassBaked baked) {
-		boolean success = super.validate(baked);
+	public boolean verify(IClassBaked baked) {
+		boolean success = super.verify(baked);
 
 		for (Map.Entry<IMethodSignature, Collection<ISyntheticMethod>> methods : baked.getSyntheticMethods().entrySet()) {
 			if (blacklist.contains(methods.getKey())) {

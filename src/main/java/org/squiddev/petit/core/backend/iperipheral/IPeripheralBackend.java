@@ -6,7 +6,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.backend.InboundConverter;
 import org.squiddev.petit.api.backend.OutboundConverter;
-import org.squiddev.petit.api.tree.Validator;
+import org.squiddev.petit.api.tree.Verifier;
 import org.squiddev.petit.api.tree.baked.IClassBaked;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.base.backend.AbstractInboundConverter;
@@ -19,7 +19,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.Collections;
 
 public class IPeripheralBackend extends IPeripheralWriter {
-	private final Validator<IClassBaked> validator = new IPeripheralValidator(this, environment);
+	private final Verifier<IClassBaked> verifier = new IPeripheralVerifier(this, environment);
 
 	public IPeripheralBackend(Environment environment) {
 		super(environment);
@@ -55,8 +55,8 @@ public class IPeripheralBackend extends IPeripheralWriter {
 	}
 
 	@Override
-	public Validator<IClassBaked> getValidator() {
-		return validator;
+	public Verifier<IClassBaked> getVerifier() {
+		return verifier;
 	}
 
 	@Override
