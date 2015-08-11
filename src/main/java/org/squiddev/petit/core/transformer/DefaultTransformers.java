@@ -141,5 +141,7 @@ public final class DefaultTransformers {
 		// TODO: Copy stuff from the builder into here
 		transformer.add(new AbstractAnnotationTransformer<LuaFunction>(LuaFunction.class, environment) {
 		});
+
+		transformer.add(new DocumentationProvider(environment));
 	}
 }
