@@ -39,7 +39,6 @@ import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -84,7 +83,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 
 		IClassBuilder builder;
 		try {
-			builder = new ClassBuilder(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem);
+			builder = new ClassBuilder(elem.getAnnotation(Peripheral.class).value(), (TypeElement) elem, environment);
 			for (IMethodBuilder method : builder.methods()) {
 				for (IArgumentBuilder argument : method.getArguments()) {
 					transformers.transform(argument);
@@ -152,18 +151,6 @@ public class PeripheralProcessor extends AbstractProcessor {
 		return method;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Collection<TypeMirror> getTypeMirrors(Element element, Class<? extends Annotation> annotation, String name) {
-		Object contents = environment.getElementHelpers().getValue(element, annotation, name);
-		if (contents == null) return null;
-		Collection<AnnotationValue> values = (Collection<AnnotationValue>) contents;
-		List<TypeMirror> mirrors = new ArrayList<TypeMirror>(values.size());
-		for (AnnotationValue value : values) {
-			mirrors.add((TypeMirror) value.getValue());
-		}
-		return mirrors;
-	}
-
 	public void addInboundConverters(Iterable<Backend> backends, RoundEnvironment round) {
 		for (Element element : round.getElementsAnnotatedWith(Inbound.class)) {
 			final ExecutableElement method = getStaticMethod(element, Inbound.class);
@@ -206,7 +193,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 				}
 			};
 
-			Collection<TypeMirror> validBackends = getTypeMirrors(element, Inbound.class, "backends");
+			Collection<TypeMirror> validBackends = environment.getElementHelpers().getTypeMirrors(element, Inbound.class, "backends");
 			for (Backend backend : backends) {
 				if (validBackends == null || validBackends.size() == 0) {
 					backend.addInboundConverter(converter);
@@ -249,7 +236,7 @@ public class PeripheralProcessor extends AbstractProcessor {
 				}
 			};
 
-			Collection<TypeMirror> validBackends = getTypeMirrors(element, Outbound.class, "backends");
+			Collection<TypeMirror> validBackends = environment.getElementHelpers().getTypeMirrors(element, Outbound.class, "backends");
 			for (Backend backend : backends) {
 				if (validBackends == null || validBackends.size() == 0) {
 					backend.addOutboundConverter(converter);

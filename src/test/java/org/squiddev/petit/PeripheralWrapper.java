@@ -39,4 +39,8 @@ public class PeripheralWrapper {
 			}
 		};
 	}
+
+	public static PeripheralWrapper create(Object instance) {
+		return new PeripheralWrapper(PeripheralHelper.create(instance));
+	}
 }

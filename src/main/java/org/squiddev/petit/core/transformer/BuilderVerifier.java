@@ -2,6 +2,7 @@ package org.squiddev.petit.core.transformer;
 
 import org.squiddev.petit.api.Environment;
 import org.squiddev.petit.api.tree.ArgumentKind;
+import org.squiddev.petit.api.tree.ParentKind;
 import org.squiddev.petit.api.tree.Verifier;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
@@ -12,7 +13,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
+import java.util.Map;
 
 /**
  * Validates a tree of objects
@@ -29,6 +32,19 @@ public class BuilderVerifier implements Verifier<IClassBuilder> {
 		boolean success = true;
 		for (IMethodBuilder method : builder.methods()) {
 			success &= validate(method);
+		}
+
+		Messager messager = environment.getMessager();
+		if (builder.methods().size() == 0) {
+			messager.printMessage(Diagnostic.Kind.ERROR, "No methods for peripheral", builder.getElement());
+			success = false;
+		}
+
+		for (Map.Entry<TypeMirror, ParentKind> parent : builder.parents()) {
+			if (parent.getKey().getKind() != TypeKind.DECLARED) {
+				messager.printMessage(Diagnostic.Kind.ERROR, "Expected declared type, got " + parent, builder.getElement());
+				success = false;
+			}
 		}
 
 		return success;

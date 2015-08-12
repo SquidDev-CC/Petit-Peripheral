@@ -8,6 +8,7 @@ import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
 
 import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.tools.Diagnostic;
@@ -19,59 +20,59 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AbstractAnnotationTransformer<T extends Annotation> implements Transformer {
+public abstract class AbstractAnnotationMirrorTransformer implements Transformer {
 	protected final Environment environment;
-	private final Class<? extends T> klass;
+	private final Class<? extends Annotation> klass;
 
-	public AbstractAnnotationTransformer(Class<? extends T> klass, Environment environment) {
+	public AbstractAnnotationMirrorTransformer(Class<? extends Annotation> klass, Environment environment) {
 		this.environment = environment;
 		this.klass = klass;
 	}
 
 	@Override
-	public void transform(IArgumentBuilder argument) {
-		if (argument.getElement() == null) return;
+	public void transform(IArgumentBuilder builder) {
+		if (builder.getElement() == null) return;
 
-		T annotation = argument.getElement().getAnnotation(klass);
-		if (annotation != null) transform(argument, annotation);
+		AnnotationMirror annotation = environment.getElementHelpers().getAnnotation(builder.getElement(), klass);
+		if (annotation != null) transform(builder, annotation);
 	}
 
 	@Override
-	public void transform(IClassBuilder klass) {
-		if (klass.getElement() == null) return;
+	public void transform(IClassBuilder builder) {
+		if (builder.getElement() == null) return;
 
-		T annotation = klass.getElement().getAnnotation(this.klass);
-		if (annotation != null) transform(klass, annotation);
+		AnnotationMirror annotation = environment.getElementHelpers().getAnnotation(builder.getElement(), klass);
+		if (annotation != null) transform(builder, annotation);
 	}
 
 	@Override
-	public void transform(IMethodBuilder method) {
-		if (method.getElement() == null) return;
+	public void transform(IMethodBuilder builder) {
+		if (builder.getElement() == null) return;
 
-		T annotation = method.getElement().getAnnotation(klass);
-		if (annotation != null) transform(method, annotation);
+		AnnotationMirror annotation = environment.getElementHelpers().getAnnotation(builder.getElement(), klass);
+		if (annotation != null) transform(builder, annotation);
 	}
 
 	@Override
 	public boolean verify(RoundEnvironment environment) {
 		boolean success = true;
 		for (Element element : environment.getElementsAnnotatedWith(klass)) {
-			T annotation = element.getAnnotation(klass);
+			AnnotationMirror annotation = this.environment.getElementHelpers().getAnnotation(element, klass);
 			if (annotation != null) success &= validate(element, annotation);
 		}
 		return success;
 	}
 
-	public void transform(IClassBuilder klass, T annotation) {
+	public void transform(IClassBuilder klass, AnnotationMirror annotation) {
 	}
 
-	public void transform(IMethodBuilder method, T annotation) {
+	public void transform(IMethodBuilder method, AnnotationMirror annotation) {
 	}
 
-	public void transform(IArgumentBuilder argument, T annotation) {
+	public void transform(IArgumentBuilder argument, AnnotationMirror annotation) {
 	}
 
-	public boolean validate(Element target, T annotation) {
+	public boolean validate(Element target, AnnotationMirror annotation) {
 		boolean success = true;
 
 		Target t = klass.getClass().getAnnotation(Target.class);

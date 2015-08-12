@@ -20,7 +20,9 @@ import org.squiddev.petit.api.tree.baked.IMethodBaked;
 import org.squiddev.petit.base.backend.AbstractBackend;
 import org.squiddev.petit.core.backend.Utils;
 
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
@@ -30,10 +32,16 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class IPeripheralWriter extends AbstractBackend {
-	public final String ARG_COMPUTER = "computer";
-	public final String ARG_LUA_CONTEXT = "luaContext";
-	public final String ARG_ARGS = "args";
-	public final String VAR_REST = "rest";
+	public final static String ARG_COMPUTER = "computer";
+	public final static String ARG_LUA_CONTEXT = "luaContext";
+	public final static String ARG_ARGS = "args";
+	public final static String VAR_REST = "rest";
+
+	public final static String FIELD_METHOD_LENGTH = "methodLength";
+	public final static String FIELD_METHODS = "methods";
+	public final static String VAR_METHODS = "methodsTemp";
+	public final static String VAR_METHODS_LENGTH = "mLength";
+	public final static String VAR_METHODS_NEW = "methodsNew";
 
 	protected final Environment environment;
 
@@ -50,26 +58,51 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			.addMethod(writeEquals(baked))
 			.addMethod(writeMethodNames(baked))
 			.addMethod(writeGenericEquals(baked))
-			.addMethod(writeCall(baked))
-			.addField(TypeName.get(baked.getElement().asType()), FIELD_INSTANCE, Modifier.PRIVATE);
+			.addField(TypeName.get(baked.getElement().asType()), FIELD_INSTANCE, Modifier.PRIVATE, Modifier.FINAL)
+			.addField(String[].class, FIELD_METHODS, Modifier.PRIVATE, Modifier.FINAL);
 
-		// These should do something. First build and all that though.
-		spec.addMethod(
-			MethodSpec.constructorBuilder()
-				.addModifiers(Modifier.PUBLIC)
-				.addParameter(TypeName.get(baked.getElement().asType()), "instance")
-				.addStatement("this.$N = instance", FIELD_INSTANCE)
-				.build()
-		);
+		DeclaredType superClass = null;
+		for (DeclaredType mirror : baked.getParents()) {
+			if (mirror.asElement().getKind() == ElementKind.INTERFACE) {
+				spec.addSuperinterface(TypeName.get(mirror));
+			} else {
+				spec.superclass(TypeName.get(mirror));
+				if (compatibleWith(mirror)) {
+					spec.addField(int.class, FIELD_METHOD_LENGTH, Modifier.PRIVATE, Modifier.FINAL);
+					superClass = mirror;
+				}
+			}
+		}
+
+		spec
+			.addMethod(writeConstructor(baked, superClass != null))
+			.addMethod(writeCall(baked, superClass != null));
 
 		for (Map.Entry<IMethodSignature, Collection<ISyntheticMethod>> synthetic : baked.getSyntheticMethods().entrySet()) {
 			MethodSpec.Builder builder = MethodSpec.methodBuilder(synthetic.getKey().getName())
 				.addModifiers(Modifier.PUBLIC);
 
 			int i = 0;
+			StringBuilder args = new StringBuilder();
 			for (TypeMirror type : synthetic.getKey().getParameters()) {
 				builder.addParameter(TypeName.get(type), ISyntheticMethod.ARG_PREFIX + i);
+				args.append(",").append(ISyntheticMethod.ARG_PREFIX).append(i);
 			}
+
+			if (superClass != null) {
+				exit:
+				for (ISyntheticMethod method : synthetic.getValue()) {
+					for (TypeMirror backend : method.getBackends()) {
+						if (environment.getTypeUtils().isAssignable(superClass, backend)) {
+							String argNames = args.toString();
+							if (!argNames.isEmpty()) argNames = argNames.substring(1);
+							builder.addStatement("super.$N(" + argNames + ")", method.getName());
+							break exit;
+						}
+					}
+				}
+			}
+
 			for (ISyntheticMethod method : synthetic.getValue()) {
 				builder.returns(TypeName.get(method.getReturnType()));
 				builder.addCode(method.build(this, baked));
@@ -340,21 +373,44 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 	//endregion
 
 	//region IPeripheral functions
+	public MethodSpec writeConstructor(IClassBaked klass, boolean hasSuper) {
+		MethodSpec.Builder spec = MethodSpec.constructorBuilder()
+			.addModifiers(Modifier.PUBLIC)
+			.addParameter(TypeName.get(klass.getElement().asType()), "instance")
+			.addStatement("this.$N = instance", FIELD_INSTANCE);
+		if (hasSuper) {
+			spec
+				.addStatement("String[] $N = super.getMethodNames()", VAR_METHODS)
+				.addStatement("int $N = $N = $N.length", VAR_METHODS_LENGTH, FIELD_METHOD_LENGTH, VAR_METHODS)
+				.addStatement("String[] $N = $N = new String[$N.length + $L]", VAR_METHODS_NEW, FIELD_METHODS, VAR_METHODS, klass.getMethods().size())
+				.addStatement("System.arraycopy($N, 0, $N, 0, $N.length)", VAR_METHODS, VAR_METHODS_NEW, VAR_METHODS);
+
+			int counter = 0;
+			for (IMethodBaked method : klass.getMethods()) {
+				for (String name : method.getNames()) {
+					spec.addStatement("$N[$N + $L] = $S", VAR_METHODS_NEW, VAR_METHODS_LENGTH, counter, name);
+					counter++;
+				}
+			}
+		} else {
+			spec.addCode("$[$N = new String[]{", FIELD_METHODS);
+			for (IMethodBaked method : klass.getMethods()) {
+				for (String name : method.getNames()) {
+					spec.addCode("$S, ", name);
+				}
+			}
+			spec.addCode("}");
+			spec.addCode(";\n$]");
+		}
+
+		return spec.build();
+	}
+
 	public MethodSpec writeMethodNames(IClassBaked klass) {
 		MethodSpec.Builder spec = MethodSpec.methodBuilder("getMethodNames")
 			.addModifiers(Modifier.PUBLIC)
-			.returns(String[].class);
-
-
-		spec.addCode("$[");
-		spec.addCode("return new String[]{");
-		for (IMethodBaked method : klass.getMethods()) {
-			for (String name : method.getNames()) {
-				spec.addCode("$S, ", name);
-			}
-		}
-		spec.addCode("}");
-		spec.addCode(";\n$]");
+			.returns(String[].class)
+			.addStatement("return $N", FIELD_METHODS);
 		return spec.build();
 	}
 
@@ -386,7 +442,7 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			.build();
 	}
 
-	public MethodSpec writeCall(IClassBaked klass) {
+	public MethodSpec writeCall(IClassBaked klass, boolean hasSuper) {
 		MethodSpec.Builder spec = MethodSpec.methodBuilder("callMethod")
 			.addModifiers(Modifier.PUBLIC)
 			.addParameter(IComputerAccess.class, ARG_COMPUTER)
@@ -397,7 +453,11 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 			.addException(LuaException.class)
 			.addException(InterruptedException.class);
 
-		spec.beginControlFlow("switch(index)");
+		if (hasSuper) {
+			spec.beginControlFlow("switch(index - $N)", FIELD_METHOD_LENGTH);
+		} else {
+			spec.beginControlFlow("switch(index)");
+		}
 
 		int i = 0;
 		for (IMethodBaked method : klass.getMethods()) {
@@ -411,7 +471,12 @@ public abstract class IPeripheralWriter extends AbstractBackend {
 		}
 
 		spec.endControlFlow();
-		spec.addStatement("return null");
+
+		if (hasSuper) {
+			spec.addStatement("return super.callMethod($N, $N, index, $N)", ARG_COMPUTER, ARG_LUA_CONTEXT, ARG_ARGS);
+		} else {
+			spec.addStatement("return null");
+		}
 
 		return spec.build();
 	}

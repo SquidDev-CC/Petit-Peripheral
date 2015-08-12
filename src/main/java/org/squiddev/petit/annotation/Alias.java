@@ -1,15 +1,13 @@
 package org.squiddev.petit.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Defines a series of aliases for a function
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
+@Inherited
 public @interface Alias {
 	/**
 	 * The extra names of the {@link LuaFunction}

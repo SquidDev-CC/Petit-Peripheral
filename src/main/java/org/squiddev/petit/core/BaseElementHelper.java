@@ -10,9 +10,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.lang.annotation.Annotation;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class BaseElementHelper implements ElementHelper {
 	private final Environment environment;
@@ -86,5 +84,24 @@ public final class BaseElementHelper implements ElementHelper {
 		}
 
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Collection<TypeMirror> getTypeMirrors(AnnotationMirror annotation, String name) {
+		Object contents = getValue(annotation, name);
+		if (contents == null) return null;
+		Collection<AnnotationValue> values = (Collection<AnnotationValue>) contents;
+		List<TypeMirror> mirrors = new ArrayList<TypeMirror>(values.size());
+		for (AnnotationValue value : values) {
+			mirrors.add((TypeMirror) value.getValue());
+		}
+		return mirrors;
+	}
+
+	@Override
+	public Collection<TypeMirror> getTypeMirrors(Element element, Class<? extends Annotation> annotation, String name) {
+		AnnotationMirror mirror = getAnnotation(element, annotation);
+		return mirror == null ? null : getTypeMirrors(mirror, name);
 	}
 }
