@@ -7,9 +7,11 @@ import org.squiddev.petit.api.backend.Backend;
 import org.squiddev.petit.api.transformer.ITransformerContainer;
 import org.squiddev.petit.api.tree.ArgumentKind;
 import org.squiddev.petit.api.tree.ISyntheticMethod;
+import org.squiddev.petit.api.tree.ParentKind;
 import org.squiddev.petit.api.tree.builder.IArgumentBuilder;
 import org.squiddev.petit.api.tree.builder.IClassBuilder;
 import org.squiddev.petit.api.tree.builder.IMethodBuilder;
+import org.squiddev.petit.base.transformer.AbstractAnnotationMirrorTransformer;
 import org.squiddev.petit.base.transformer.AbstractAnnotationTransformer;
 import org.squiddev.petit.base.tree.SyntheticMethod;
 
@@ -20,6 +22,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.lang.annotation.Annotation;
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -140,6 +143,19 @@ public final class DefaultTransformers {
 
 		// TODO: Copy stuff from the builder into here
 		transformer.add(new AbstractAnnotationTransformer<LuaFunction>(LuaFunction.class, environment) {
+		});
+
+		transformer.add(new AbstractAnnotationMirrorTransformer(Extends.class, environment) {
+			@Override
+			public void transform(IClassBuilder klass, AnnotationMirror annotation) {
+				super.transform(klass, annotation);
+				Collection<TypeMirror> mirrors = environment.getElementHelpers().getTypeMirrors(annotation, "value");
+				if (mirrors != null) {
+					for (TypeMirror mirror : mirrors) {
+						klass.parents().add(new AbstractMap.SimpleImmutableEntry<TypeMirror, ParentKind>(mirror, ParentKind.REQUIRED));
+					}
+				}
+			}
 		});
 	}
 }

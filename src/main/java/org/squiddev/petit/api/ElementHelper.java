@@ -6,7 +6,9 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 
 /**
  * Various helpers for elements
@@ -39,6 +41,25 @@ public interface ElementHelper {
 	 * @return The extracted value or {@code null} if it cannot be found
 	 */
 	Object getValue(Element element, Class<? extends Annotation> annotation, String name);
+
+	/**
+	 * Extension or {@link #getValue(AnnotationMirror, String)} but with {@code Class<?>[]} support.
+	 *
+	 * @param annotation The annotation to extract from
+	 * @param name       The name of the field
+	 * @return Collection of type mirrors or @{code null} if none found.
+	 */
+	Collection<TypeMirror> getTypeMirrors(AnnotationMirror annotation, String name);
+
+	/**
+	 * Extension or {@link #getValue(Element, Class, String)} but with {@code Class<?>[]} support.
+	 *
+	 * @param element    The element to extract from
+	 * @param annotation The annotation to extract from
+	 * @param name       The name of the field
+	 * @return Collection of type mirrors or @{code null} if none found.
+	 */
+	Collection<TypeMirror> getTypeMirrors(Element element, Class<? extends Annotation> annotation, String name);
 
 	/**
 	 * Find an executable element matching this one
